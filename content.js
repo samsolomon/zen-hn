@@ -1,5 +1,20 @@
 console.log("HN Restyler Active");
 
+function ensurePhosphorIcons() {
+  const existing = document.querySelector("link#phosphor-icons");
+  if (existing) {
+    return;
+  }
+
+  const link = document.createElement("link");
+  link.id = "phosphor-icons";
+  link.rel = "stylesheet";
+  link.type = "text/css";
+  link.href =
+    "https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/regular/style.css";
+  document.head.appendChild(link);
+}
+
 function restyleComments() {
   const table = document.querySelector("table.comment-tree");
   if (!table) {
@@ -42,8 +57,41 @@ function restyleComments() {
     text.className = "hn-comment-text";
     text.innerHTML = textHtml;
 
+    const actions = document.createElement("div");
+    actions.className = "hn-comment-actions";
+
+    const upvoteButton = document.createElement("button");
+    upvoteButton.className = "icon-button";
+    upvoteButton.type = "button";
+    upvoteButton.setAttribute("aria-label", "Upvote");
+    upvoteButton.innerHTML = "<i class=\"ph ph-arrow-fat-up\"></i>";
+
+    const downvoteButton = document.createElement("button");
+    downvoteButton.className = "icon-button";
+    downvoteButton.type = "button";
+    downvoteButton.setAttribute("aria-label", "Downvote");
+    downvoteButton.innerHTML = "<i class=\"ph ph-arrow-fat-down\"></i>";
+
+    const bookmarkButton = document.createElement("button");
+    bookmarkButton.className = "icon-button";
+    bookmarkButton.type = "button";
+    bookmarkButton.setAttribute("aria-label", "Bookmark");
+    bookmarkButton.innerHTML = "<i class=\"ph ph-bookmark-simple\"></i>";
+
+    const shareButton = document.createElement("button");
+    shareButton.className = "icon-button is-flipped";
+    shareButton.type = "button";
+    shareButton.setAttribute("aria-label", "Share");
+    shareButton.innerHTML = "<i class=\"ph ph-share-fat\"></i>";
+
+    actions.appendChild(upvoteButton);
+    actions.appendChild(downvoteButton);
+    actions.appendChild(bookmarkButton);
+    actions.appendChild(shareButton);
+
     item.appendChild(meta);
     item.appendChild(text);
+    item.appendChild(actions);
     container.appendChild(item);
   });
 
@@ -52,7 +100,11 @@ function restyleComments() {
 }
 
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", restyleComments);
+  document.addEventListener("DOMContentLoaded", () => {
+    ensurePhosphorIcons();
+    restyleComments();
+  });
 } else {
+  ensurePhosphorIcons();
   restyleComments();
 }
