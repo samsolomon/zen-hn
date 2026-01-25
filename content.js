@@ -351,6 +351,7 @@ function restyleComments() {
     item.style.setProperty("--indent-level", String(indentLevel));
     item.dataset.indentLevel = String(indentLevel);
     item.dataset.collapsed = "false";
+    item.dataset.hasChildren = hasChildren ? "true" : "false";
 
     const header = document.createElement("div");
     header.className = "hn-comment-header";
