@@ -210,6 +210,9 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 .hn-comment-actions {
   display: inline-flex;
   gap: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
 }
 
 .icon-button {
@@ -226,6 +229,32 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   padding: 0;
   transition: background-color 120ms ease, border-color 120ms ease,
     color 120ms ease, transform 80ms ease;
+}
+
+.hn-collapse-button {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+
+.hn-comment:hover .hn-comment-actions,
+.hn-comment:hover .hn-collapse-button {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.hn-comment:has(.hn-comment-actions .icon-button:focus-visible) .hn-comment-actions,
+.hn-comment:has(.hn-collapse-button:focus-visible) .hn-collapse-button {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (hover: none) {
+  .hn-comment-actions,
+  .hn-collapse-button {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 .icon-button svg {
