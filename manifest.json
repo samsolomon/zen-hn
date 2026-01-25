@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "HN Restyler",
+  "version": "0.1.0",
+  "description": "Restyles Hacker News with custom CSS.",
+  "content_scripts": [
+    {
+      "matches": ["https://news.ycombinator.com/*"],
+      "css": ["styles.css"],
+      "js": ["content.js"]
+    }
+  ]
+}
