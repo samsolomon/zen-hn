@@ -9,6 +9,8 @@ const PHOSPHOR_SVGS = {
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M184,32H72A16,16,0,0,0,56,48V224a8,8,0,0,0,12.24,6.78L128,193.43l59.77,37.35A8,8,0,0,0,200,224V48A16,16,0,0,0,184,32Zm0,177.57-51.77-32.35a8,8,0,0,0-8.48,0L72,209.57V48H184Z\"/></svg>",
   "share-fat":
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M237.66,106.35l-80-80A8,8,0,0,0,144,32V72.35c-25.94,2.22-54.59,14.92-78.16,34.91-28.38,24.08-46.05,55.11-49.76,87.37a12,12,0,0,0,20.68,9.58h0c11-11.71,50.14-48.74,107.24-52V192a8,8,0,0,0,13.66,5.65l80-80A8,8,0,0,0,237.66,106.35ZM160,172.69V144a8,8,0,0,0-8-8c-28.08,0-55.43,7.33-81.29,21.8a196.17,196.17,0,0,0-36.57,26.52c5.8-23.84,20.42-46.51,42.05-64.86C99.41,99.77,127.75,88,152,88a8,8,0,0,0,8-8V51.32L220.69,112Z\"/></svg>",
+  "link-simple":
+    "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M80,104a8,8,0,0,1-8,8H56a32,32,0,0,0,0,64H72a8,8,0,0,1,0,16H56a48,48,0,0,1,0-96H72A8,8,0,0,1,80,104Zm120-48H184a48,48,0,0,0,0,96h16a8,8,0,0,0,0-16H184a32,32,0,0,1,0-64h16a32,32,0,0,1,0,64,8,8,0,0,0,0,16,48,48,0,0,0,0-96ZM160,120H96a8,8,0,0,0,0,16h64a8,8,0,0,0,0-16Z\"/></svg>",
 };
 
 function registerIcon(name, svg) {
@@ -52,6 +54,9 @@ function restyleComments() {
     item.classList.add(`level-${indentLevel}`);
     item.style.setProperty("--indent-level", String(indentLevel));
 
+    const header = document.createElement("div");
+    header.className = "hn-comment-header";
+
     const meta = document.createElement("div");
     meta.className = "hn-comment-meta";
     if (comhead) {
@@ -59,10 +64,6 @@ function restyleComments() {
     } else {
       meta.textContent = [user, timestamp].filter(Boolean).join(" • ");
     }
-
-    const text = document.createElement("div");
-    text.className = "hn-comment-text";
-    text.innerHTML = textHtml;
 
     const actions = document.createElement("div");
     actions.className = "hn-comment-actions";
@@ -91,14 +92,27 @@ function restyleComments() {
     shareButton.setAttribute("aria-label", "Share");
     shareButton.innerHTML = renderIcon("share-fat");
 
+    const linkButton = document.createElement("button");
+    linkButton.className = "icon-button";
+    linkButton.type = "button";
+    linkButton.setAttribute("aria-label", "Copy link");
+    linkButton.innerHTML = renderIcon("link-simple");
+
     actions.appendChild(upvoteButton);
     actions.appendChild(downvoteButton);
     actions.appendChild(bookmarkButton);
+    actions.appendChild(linkButton);
     actions.appendChild(shareButton);
 
-    item.appendChild(meta);
+    header.appendChild(meta);
+    header.appendChild(actions);
+
+    const text = document.createElement("div");
+    text.className = "hn-comment-text";
+    text.innerHTML = textHtml;
+
+    item.appendChild(header);
     item.appendChild(text);
-    item.appendChild(actions);
     container.appendChild(item);
   });
 

@@ -12,9 +12,16 @@ body {
 
 .hn-comment {
   border-radius: 8px;
-  padding: 12px 140px 12px 14px;
+  padding: 12px 14px;
   margin-left: clamp(0px, calc(var(--indent-level, 0) * 1rem), 6rem);
   position: relative;
+}
+
+.hn-comment-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .hn-comment-meta {
@@ -30,9 +37,6 @@ body {
 }
 
 .hn-comment-actions {
-  position: absolute;
-  top: 8px;
-  right: 8px;
   display: inline-flex;
   gap: 6px;
 }
@@ -41,8 +45,8 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border: 1px solid transparent;
   border-radius: 6px;
   background: transparent;
@@ -54,10 +58,10 @@ body {
 }
 
 .icon-button svg {
-  font-size: 16px;
+  font-size: 20px;
   line-height: 1;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   display: block;
 }
 
