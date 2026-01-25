@@ -1,5 +1,14 @@
-body {
+html,
+body,
+td {
   background-color: #f2f2f2;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+}
+
+td {
+  font-family: inherit !important;
+  font-size: initial;
+  color: initial;
 }
 
 html[data-zen-hn-restyled="loading"] table.comment-tree {
@@ -11,12 +20,85 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 }
 
 
+.hn-fatitem {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 18px auto 12px;
+  padding: 1rem;
+  margin-left: 3rem;
+}
+
+.hn-fatitem-title {
+  display: block;
+  width: 100%;
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.35;
+  color: #1c1c1c;
+  text-decoration: none;
+}
+
+.hn-fatitem-title:hover {
+  text-decoration: underline;
+}
+
+.hn-fatitem-toptext {
+  font-size: 14px;
+  font-weight: 400;
+  color: #2f2f2f;
+  margin-top: -2px;
+}
+
+.hn-fatitem-sub {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+.hn-fatitem-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: #6b6b6b;
+}
+
+.hn-fatitem-meta a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.hn-fatitem-meta a:hover {
+  text-decoration: underline;
+}
+
+.hn-fatitem-meta .hnuser {
+  font-weight: 600;
+  color: #2f2f2f;
+}
+
+.hn-fatitem-meta .score,
+.hn-fatitem-meta .age,
+.hn-fatitem-meta .hn-fatitem-comments {
+  font-weight: 500;
+}
+
+.hn-fatitem .hn-comment-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+
 #hn-comment-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin: 24px auto;
-  padding: 0 16px 32px;
+  padding: 0 0 32px;
 }
 
 .hn-comment-more {
@@ -50,7 +132,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 
 .hn-comment {
   border-radius: 8px;
-  padding: 12px 14px;
+  padding: .75rem 1rem;
   margin-left: clamp(0px, calc(var(--indent-level, 0) * 1rem), 6rem);
   position: relative;
 }

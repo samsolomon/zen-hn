@@ -220,41 +220,69 @@ async function resolveReplyForm(replyHref) {
   };
 }
 
+function resolveReplyFormFromElement(form) {
+  if (!form) {
+    return null;
+  }
+  const action = form.getAttribute("action") || "";
+  const method = (form.getAttribute("method") || "post").toUpperCase();
+  const inputs = Array.from(form.querySelectorAll("input[name]"));
+  const fields = {};
+  inputs.forEach((input) => {
+    fields[input.name] = input.value || "";
+  });
+  const textName = form.querySelector("textarea[name]")?.getAttribute("name") || "text";
+  const actionUrl = new URL(action || window.location.href, window.location.href).toString();
+  return {
+    actionUrl,
+    method,
+    fields,
+    textName,
+  };
+}
+
+async function submitReplyWithResolved(resolved, text) {
+  if (!resolved) {
+    return { ok: false };
+  }
+  const payload = new URLSearchParams({
+    ...resolved.fields,
+    [resolved.textName]: text,
+  });
+  let response = null;
+  if (resolved.method === "GET") {
+    const url = new URL(resolved.actionUrl);
+    payload.forEach((value, key) => {
+      url.searchParams.set(key, value);
+    });
+    response = await fetch(url.toString(), {
+      credentials: "same-origin",
+      cache: "no-store",
+    });
+  } else {
+    response = await fetch(resolved.actionUrl, {
+      method: resolved.method,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: payload.toString(),
+      credentials: "same-origin",
+      cache: "no-store",
+    });
+  }
+  return {
+    ok: response?.ok,
+    status: response?.status,
+  };
+}
+
 async function submitReply(replyHref, text) {
   try {
     const resolved = await resolveReplyForm(replyHref);
     if (!resolved) {
       return { ok: false };
     }
-    const payload = new URLSearchParams({
-      ...resolved.fields,
-      [resolved.textName]: text,
-    });
-    let response = null;
-    if (resolved.method === "GET") {
-      const url = new URL(resolved.actionUrl);
-      payload.forEach((value, key) => {
-        url.searchParams.set(key, value);
-      });
-      response = await fetch(url.toString(), {
-        credentials: "same-origin",
-        cache: "no-store",
-      });
-    } else {
-      response = await fetch(resolved.actionUrl, {
-        method: resolved.method,
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: payload.toString(),
-        credentials: "same-origin",
-        cache: "no-store",
-      });
-    }
-    return {
-      ok: response?.ok,
-      status: response?.status,
-    };
+    return await submitReplyWithResolved(resolved, text);
   } catch (error) {
     return { ok: false };
   }
@@ -297,6 +325,401 @@ async function resolveFavoriteLink(commentId) {
     href,
     isFavorited: text === "unfavorite" || href.includes("un=t"),
   };
+}
+
+async function resolveStoryFavoriteLink(itemId) {
+  if (!itemId) {
+    return null;
+  }
+  const response = await fetch(`item?id=${itemId}`, {
+    credentials: "same-origin",
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    return null;
+  }
+  const html = await response.text();
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  const fatitem = doc.querySelector("table.fatitem");
+  const subtext = fatitem?.querySelector(".subtext");
+  if (!subtext) {
+    return null;
+  }
+  const linkById = subtext.querySelector("a[id^='fav_'], a[id^='fave_'], a[href^='fave?id=']");
+  const linkByText = Array.from(subtext.querySelectorAll("a")).find((link) => {
+    const text = link.textContent?.trim().toLowerCase();
+    return text === "favorite" || text === "unfavorite";
+  });
+  const link = linkById || linkByText;
+  if (!link) {
+    return null;
+  }
+  const text = link.textContent?.trim().toLowerCase() || "";
+  const href = link.getAttribute("href") || "";
+  return {
+    href,
+    isFavorited: text === "unfavorite" || href.includes("un=t"),
+  };
+}
+
+function resolveStoryHref(href) {
+  if (!href) {
+    return "";
+  }
+  try {
+    return new URL(href, window.location.href).toString();
+  } catch (error) {
+    return href;
+  }
+}
+
+function buildNextFavoriteHref(href, willBeFavorited) {
+  if (!href) {
+    return "";
+  }
+  try {
+    const url = new URL(href, window.location.href);
+    if (willBeFavorited) {
+      url.searchParams.delete("un");
+    } else {
+      url.searchParams.set("un", "t");
+    }
+    return url.toString();
+  } catch (error) {
+    if (willBeFavorited) {
+      return href.replace(/([?&])un=t(&|$)/, "$1").replace(/[?&]$/, "");
+    }
+    return href.includes("un=t") ? href : `${href}${href.includes("?") ? "&" : "?"}un=t`;
+  }
+}
+
+function restyleFatItem() {
+  const fatitem = document.querySelector("table.fatitem");
+  if (!fatitem || fatitem.dataset.zenHnRestyled === "true") {
+    return;
+  }
+
+  const titleLink = fatitem.querySelector(".titleline a")
+    || fatitem.querySelector("a.storylink")
+    || fatitem.querySelector("a.titlelink")
+    || fatitem.querySelector("a");
+  if (!titleLink) {
+    return;
+  }
+
+  const subtext = fatitem.querySelector(".subtext");
+  const toptext = fatitem.querySelector(".toptext");
+  const hnuser = subtext?.querySelector(".hnuser");
+  const score = subtext?.querySelector(".score");
+  const age = subtext?.querySelector(".age");
+  const commentsLink = subtext
+    ? Array.from(subtext.querySelectorAll("a")).find((link) => {
+        const text = link.textContent?.trim().toLowerCase() || "";
+        return text.includes("comment") || text.includes("discuss");
+      })
+    : null;
+
+  const itemId = new URLSearchParams(window.location.search).get("id") || "";
+  const { isUpvoted } = getVoteState(fatitem);
+  let isUpvotedState = isUpvoted;
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "hn-fatitem";
+
+  const title = titleLink.cloneNode(true);
+  title.classList.add("hn-fatitem-title");
+  wrapper.appendChild(title);
+
+  const subRow = document.createElement("div");
+  subRow.className = "hn-fatitem-sub";
+
+  const meta = document.createElement("div");
+  meta.className = "hn-fatitem-meta";
+
+  const appendMetaItem = (node, className) => {
+    if (!node) {
+      return;
+    }
+    const clone = node.cloneNode(true);
+    if (clone.classList?.contains("hnuser")) {
+      clone.classList.remove("hnuser");
+    }
+    if (className) {
+      clone.classList.add(className);
+    }
+    meta.appendChild(clone);
+  };
+
+  appendMetaItem(score);
+  appendMetaItem(hnuser);
+  appendMetaItem(age);
+  appendMetaItem(commentsLink, "hn-fatitem-comments");
+
+  const actions = document.createElement("div");
+  actions.className = "hn-comment-actions hn-fatitem-actions";
+
+  const upvoteLink = fatitem.querySelector("a[id^='up_']");
+  const unvoteLink = fatitem.querySelector("a[id^='un_'], a[href*='how=un']");
+  const upvoteHref = upvoteLink?.getAttribute("href") || "";
+  const unvoteHref = unvoteLink?.getAttribute("href") || "";
+
+  const upvoteButton = document.createElement("button");
+  upvoteButton.className = "icon-button";
+  upvoteButton.type = "button";
+  upvoteButton.setAttribute("aria-label", "Upvote");
+  upvoteButton.setAttribute("aria-pressed", isUpvotedState ? "true" : "false");
+  upvoteButton.innerHTML = renderIcon("arrow-fat-up");
+  if (isUpvotedState) {
+    upvoteButton.classList.add("is-active");
+  }
+  if (upvoteLink || isUpvotedState) {
+    upvoteButton.addEventListener("click", (event) => {
+      const voteHref = isUpvotedState
+        ? (unvoteHref || ZEN_LOGIC.buildVoteHref(upvoteHref, "un", window.location.href))
+        : upvoteHref;
+      if (!voteHref) {
+        return;
+      }
+      event.preventDefault();
+      console.log("Zen HN action", {
+        type: "upvote",
+        itemId,
+        wasUpvoted: isUpvotedState,
+        href: voteHref,
+      });
+      fetch(voteHref, { credentials: "same-origin", cache: "no-store" });
+      isUpvotedState = !isUpvotedState;
+      upvoteButton.classList.toggle("is-active", isUpvotedState);
+      upvoteButton.setAttribute("aria-pressed", isUpvotedState ? "true" : "false");
+    });
+  } else {
+    upvoteButton.hidden = true;
+  }
+
+  const favoriteLinkById = fatitem.querySelector(
+    "a[id^='fav_'], a[id^='fave_'], a[href^='fave?id=']",
+  );
+  const favoriteLinkByText = subtext
+    ? Array.from(subtext.querySelectorAll("a")).find((link) => {
+        const text = link.textContent?.trim().toLowerCase();
+        return text === "favorite" || text === "unfavorite";
+      })
+    : null;
+  const favoriteLink = favoriteLinkById || favoriteLinkByText;
+  const favoriteText = favoriteLink?.textContent?.trim().toLowerCase() || "";
+  let isFavorited = favoriteText === "unfavorite";
+  let favoriteHref = favoriteLink?.getAttribute("href") || "";
+
+  const bookmarkButton = document.createElement("button");
+  bookmarkButton.className = "icon-button";
+  bookmarkButton.type = "button";
+  bookmarkButton.setAttribute("aria-label", "Favorite");
+  bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+  bookmarkButton.innerHTML = renderIcon("bookmark-simple");
+  if (isFavorited) {
+    bookmarkButton.classList.add("is-active");
+  }
+  bookmarkButton.addEventListener("click", async (event) => {
+    event.preventDefault();
+    console.log("Zen HN action", {
+      type: "bookmark",
+      itemId,
+      wasFavorited: isFavorited,
+      href: favoriteHref,
+    });
+    const wasFavorited = isFavorited;
+    isFavorited = ZEN_LOGIC.toggleFavoriteState(isFavorited);
+    bookmarkButton.classList.toggle("is-active", isFavorited);
+    bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+    if (!favoriteHref && itemId) {
+      bookmarkButton.disabled = true;
+      const resolved = await resolveStoryFavoriteLink(itemId);
+      bookmarkButton.disabled = false;
+      if (!resolved?.href) {
+        isFavorited = wasFavorited;
+        bookmarkButton.classList.toggle("is-active", isFavorited);
+        bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+        return;
+      }
+      favoriteHref = resolved.href;
+      console.log("Zen HN favorite resolved", {
+        itemId,
+        href: favoriteHref,
+        isFavorited: resolved.isFavorited,
+      });
+    }
+    if (!favoriteHref) {
+      isFavorited = wasFavorited;
+      bookmarkButton.classList.toggle("is-active", isFavorited);
+      bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+      return;
+    }
+    await fetch(favoriteHref, { credentials: "same-origin", cache: "no-store" });
+    isFavorited = ZEN_LOGIC.willFavoriteFromHref(favoriteHref);
+    bookmarkButton.classList.toggle("is-active", isFavorited);
+    bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+    favoriteHref = buildNextFavoriteHref(favoriteHref, !isFavorited);
+    console.log("Zen HN favorite toggled", {
+      itemId,
+      isFavorited,
+      nextHref: favoriteHref,
+    });
+  });
+
+  const linkButton = document.createElement("button");
+  linkButton.className = "icon-button";
+  linkButton.type = "button";
+  linkButton.setAttribute("aria-label", "Copy link");
+  const linkIconSwap = document.createElement("span");
+  linkIconSwap.className = "icon-swap";
+  linkIconSwap.innerHTML = `
+    <span class="icon-default">${renderIcon("link-simple")}</span>
+    <span class="icon-success">${renderIcon("check-circle")}</span>
+  `;
+  linkButton.appendChild(linkIconSwap);
+  let copyResetTimer = null;
+  linkButton.addEventListener("click", async (event) => {
+    event.preventDefault();
+    const titleHref = titleLink.getAttribute("href") || "";
+    const targetHref = resolveStoryHref(titleHref) || window.location.href;
+    const copied = await copyTextToClipboard(targetHref);
+    if (copied) {
+      if (copyResetTimer) {
+        window.clearTimeout(copyResetTimer);
+      }
+      linkButton.classList.add("is-copied");
+      linkButton.classList.add("is-active");
+      copyResetTimer = window.setTimeout(() => {
+        linkButton.classList.remove("is-copied");
+        linkButton.classList.remove("is-active");
+        copyResetTimer = null;
+      }, 1500);
+    }
+    console.log("Zen HN action", {
+      type: "copy-link",
+      itemId,
+      copied,
+      href: targetHref,
+    });
+  });
+
+  const replyButton = document.createElement("button");
+  replyButton.className = "icon-button is-flipped";
+  replyButton.type = "button";
+  replyButton.setAttribute("aria-label", "Reply");
+  replyButton.innerHTML = renderIcon("share-fat");
+  const replyForm = document.querySelector("form textarea[name='text']")?.closest("form");
+  const replyLink = document.querySelector("a[href^='reply?id='], a[href^='addcomment?id=']");
+  const replyResolved = resolveReplyFormFromElement(replyForm);
+  const hasReplyTarget = Boolean(replyResolved || replyLink);
+  if (!hasReplyTarget) {
+    replyButton.disabled = true;
+  }
+
+  actions.appendChild(upvoteButton);
+  actions.appendChild(bookmarkButton);
+  actions.appendChild(linkButton);
+  actions.appendChild(replyButton);
+
+  if (toptext) {
+    const toptextClone = toptext.cloneNode(true);
+    toptextClone.classList.add("hn-fatitem-toptext");
+    wrapper.appendChild(toptextClone);
+  }
+
+  subRow.appendChild(meta);
+  subRow.appendChild(actions);
+
+  const replyContainer = document.createElement("div");
+  replyContainer.className = "hn-reply is-hidden";
+  const replyTextarea = document.createElement("textarea");
+  replyTextarea.className = "hn-reply-textarea";
+  replyTextarea.setAttribute("aria-label", "Reply");
+  const closeReply = () => {
+    replyContainer.classList.add("is-hidden");
+  };
+  replyTextarea.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" || event.shiftKey) {
+      return;
+    }
+    event.preventDefault();
+    replySubmitButton.click();
+  });
+  const replySubmitButton = document.createElement("button");
+  replySubmitButton.className = "hn-reply-button";
+  replySubmitButton.type = "button";
+  replySubmitButton.textContent = "Reply";
+  const cancelButton = document.createElement("button");
+  cancelButton.className = "hn-reply-cancel";
+  cancelButton.type = "button";
+  cancelButton.textContent = "Cancel";
+  cancelButton.addEventListener("click", (event) => {
+    event.preventDefault();
+    closeReply();
+  });
+  if (!hasReplyTarget) {
+    replyTextarea.disabled = true;
+    replySubmitButton.disabled = true;
+    cancelButton.disabled = true;
+  }
+  replySubmitButton.addEventListener("click", async (event) => {
+    event.preventDefault();
+    const replyText = replyTextarea.value.trim();
+    if (!replyText) {
+      replyTextarea.focus();
+      return;
+    }
+    replySubmitButton.disabled = true;
+    replyTextarea.disabled = true;
+    console.log("Zen HN action", {
+      type: "reply-submit",
+      itemId,
+      length: replyText.length,
+    });
+    let result = { ok: false };
+    try {
+      if (replyResolved) {
+        result = await submitReplyWithResolved(replyResolved, replyText);
+      } else if (replyLink) {
+        result = await submitReply(replyLink.getAttribute("href") || "", replyText);
+      }
+    } finally {
+      replySubmitButton.disabled = false;
+      replyTextarea.disabled = false;
+    }
+    if (result.ok) {
+      replyTextarea.value = "";
+      closeReply();
+      return;
+    }
+    console.warn("Zen HN reply failed", {
+      itemId,
+      status: result.status,
+    });
+  });
+  const replyActions = document.createElement("div");
+  replyActions.className = "hn-reply-actions";
+  replyActions.appendChild(replySubmitButton);
+  replyActions.appendChild(cancelButton);
+  replyContainer.appendChild(replyTextarea);
+  replyContainer.appendChild(replyActions);
+
+  if (hasReplyTarget) {
+    replyButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      const isHidden = replyContainer.classList.toggle("is-hidden");
+      if (!isHidden) {
+        replyTextarea.focus();
+      }
+    });
+  }
+
+  wrapper.appendChild(subRow);
+  wrapper.appendChild(replyContainer);
+
+  fatitem.dataset.zenHnRestyled = "true";
+  fatitem.insertAdjacentElement("beforebegin", wrapper);
+  fatitem.style.display = "none";
 }
 
 function restyleComments(context) {
@@ -798,8 +1221,10 @@ function runRestyleWhenReady() {
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => {
+    restyleFatItem();
     runRestyleWhenReady();
   });
 } else {
+  restyleFatItem();
   runRestyleWhenReady();
 }
