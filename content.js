@@ -13,6 +13,8 @@ const PHOSPHOR_SVGS = {
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M165.66,90.34a8,8,0,0,1,0,11.32l-64,64a8,8,0,0,1-11.32-11.32l64-64A8,8,0,0,1,165.66,90.34ZM215.6,40.4a56,56,0,0,0-79.2,0L106.34,70.45a8,8,0,0,0,11.32,11.32l30.06-30a40,40,0,0,1,56.57,56.56l-30.07,30.06a8,8,0,0,0,11.31,11.32L215.6,119.6a56,56,0,0,0,0-79.2ZM138.34,174.22l-30.06,30.06a40,40,0,1,1-56.56-56.57l30.05-30.05a8,8,0,0,0-11.32-11.32L40.4,136.4a56,56,0,0,0,79.2,79.2l30.06-30.07a8,8,0,0,0-11.32-11.31Z\"/></svg>",
 };
 
+const ZEN_LOGIC = globalThis.ZenHnLogic;
+
 function registerIcon(name, svg) {
   if (!name || !svg) {
     return;
@@ -59,20 +61,37 @@ function getVoteState(row) {
   return { isUpvoted, isDownvoted };
 }
 
-function buildVoteHref(href, how) {
-  if (!href) {
-    return "";
+async function copyTextToClipboard(text) {
+  if (!text) {
+    return false;
   }
-  try {
-    const url = new URL(href, window.location.href);
-    if (how) {
-      url.searchParams.set("how", how);
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (error) {
+      // Fall through to legacy copy.
     }
-    return url.toString();
-  } catch (error) {
-    return href;
   }
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.top = "0";
+  textarea.style.left = "0";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  let success = false;
+  try {
+    success = document.execCommand("copy");
+  } catch (error) {
+    success = false;
+  }
+  document.body.removeChild(textarea);
+  return success;
 }
+
 
 async function resolveFavoriteLink(commentId) {
   if (!commentId) {
@@ -196,7 +215,7 @@ function restyleComments() {
     if (upvoteLink || isUpvoted) {
       upvoteButton.addEventListener("click", (event) => {
         const voteHref = isUpvoted
-          ? (unvoteHref || buildVoteHref(upvoteHref, "un"))
+          ? (unvoteHref || ZEN_LOGIC.buildVoteHref(upvoteHref, "un", window.location.href))
           : upvoteHref;
         if (!voteHref) {
           return;
@@ -210,10 +229,12 @@ function restyleComments() {
           href: voteHref,
         });
         fetch(voteHref, { credentials: "same-origin", cache: "no-store" });
-        isUpvoted = !isUpvoted;
-        if (isUpvoted) {
-          isDownvoted = false;
-        }
+        const nextState = ZEN_LOGIC.toggleVoteState(
+          { isUpvoted, isDownvoted },
+          "up",
+        );
+        isUpvoted = nextState.isUpvoted;
+        isDownvoted = nextState.isDownvoted;
         upvoteButton.classList.toggle("is-active", isUpvoted);
         upvoteButton.setAttribute("aria-pressed", isUpvoted ? "true" : "false");
         downvoteButton.classList.toggle("is-active", isDownvoted);
@@ -235,7 +256,7 @@ function restyleComments() {
     if (downvoteLink || isDownvoted) {
       downvoteButton.addEventListener("click", (event) => {
         const voteHref = isDownvoted
-          ? (unvoteHref || buildVoteHref(downvoteHref, "un"))
+          ? (unvoteHref || ZEN_LOGIC.buildVoteHref(downvoteHref, "un", window.location.href))
           : downvoteHref;
         if (!voteHref) {
           return;
@@ -249,10 +270,12 @@ function restyleComments() {
           href: voteHref,
         });
         fetch(voteHref, { credentials: "same-origin", cache: "no-store" });
-        isDownvoted = !isDownvoted;
-        if (isDownvoted) {
-          isUpvoted = false;
-        }
+        const nextState = ZEN_LOGIC.toggleVoteState(
+          { isUpvoted, isDownvoted },
+          "down",
+        );
+        isUpvoted = nextState.isUpvoted;
+        isDownvoted = nextState.isDownvoted;
         downvoteButton.classList.toggle("is-active", isDownvoted);
         downvoteButton.setAttribute("aria-pressed", isDownvoted ? "true" : "false");
         upvoteButton.classList.toggle("is-active", isUpvoted);
@@ -278,11 +301,11 @@ function restyleComments() {
         commentId,
         wasFavorited: isFavorited,
       });
+      const wasFavorited = isFavorited;
+      isFavorited = ZEN_LOGIC.toggleFavoriteState(isFavorited);
+      bookmarkButton.classList.toggle("is-active", isFavorited);
+      bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
       let favoriteHref = favoriteLink?.getAttribute("href") || "";
-      if (favoriteLink) {
-        const text = favoriteLink.textContent?.trim().toLowerCase() || "";
-        isFavorited = text === "unfavorite";
-      }
       if (!favoriteHref) {
         console.log("Zen HN favorite link missing", { commentId });
         bookmarkButton.disabled = true;
@@ -290,21 +313,19 @@ function restyleComments() {
         bookmarkButton.disabled = false;
         if (!resolved?.href) {
           console.log("Zen HN favorite resolve failed", { commentId });
+          isFavorited = wasFavorited;
+          bookmarkButton.classList.toggle("is-active", isFavorited);
+          bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
           return;
         }
         favoriteHref = resolved.href;
-        isFavorited = resolved.isFavorited;
-      }
-      if (favoriteHref.includes("un=t")) {
-        isFavorited = true;
       }
       console.log("Zen HN favorite click", {
         href: favoriteHref,
         wasFavorited: isFavorited,
       });
       await fetch(favoriteHref, { credentials: "same-origin", cache: "no-store" });
-      const willFavorite = !favoriteHref.includes("un=t");
-      isFavorited = willFavorite;
+      isFavorited = ZEN_LOGIC.willFavoriteFromHref(favoriteHref);
       bookmarkButton.classList.toggle("is-active", isFavorited);
       bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
     });
@@ -326,11 +347,22 @@ function restyleComments() {
     linkButton.type = "button";
     linkButton.setAttribute("aria-label", "Copy link");
     linkButton.innerHTML = renderIcon("link-simple");
-    linkButton.addEventListener("click", () => {
+    linkButton.addEventListener("click", async (event) => {
+      event.preventDefault();
+      const commentHref = ZEN_LOGIC.buildCommentHref(commentId, window.location.href);
+      if (!commentHref) {
+        return;
+      }
+      const copied = await copyTextToClipboard(commentHref);
       console.log("Zen HN action", {
         type: "copy-link",
         commentId,
+        copied,
+        href: commentHref,
       });
+      if (!copied) {
+        console.warn("Zen HN copy failed", { commentId, href: commentHref });
+      }
     });
 
     actions.appendChild(upvoteButton);

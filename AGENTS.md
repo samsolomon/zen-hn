@@ -22,8 +22,8 @@ Commands (discovery first)
 Build / lint / test commands
 - Build: Not defined yet.
 - Lint: Not defined yet.
-- Test: Not defined yet.
-- Single test: Not defined yet.
+- Test: `npm test`
+- Single test: `node --test tests/logic.test.js`
 
 When tools are introduced, update this section with:
 - Install command (e.g., `npm install`, `pip install -r requirements.txt`).
