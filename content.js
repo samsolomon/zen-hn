@@ -11,6 +11,8 @@ const PHOSPHOR_SVGS = {
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M237.66,106.35l-80-80A8,8,0,0,0,144,32V72.35c-25.94,2.22-54.59,14.92-78.16,34.91-28.38,24.08-46.05,55.11-49.76,87.37a12,12,0,0,0,20.68,9.58h0c11-11.71,50.14-48.74,107.24-52V192a8,8,0,0,0,13.66,5.65l80-80A8,8,0,0,0,237.66,106.35ZM160,172.69V144a8,8,0,0,0-8-8c-28.08,0-55.43,7.33-81.29,21.8a196.17,196.17,0,0,0-36.57,26.52c5.8-23.84,20.42-46.51,42.05-64.86C99.41,99.77,127.75,88,152,88a8,8,0,0,0,8-8V51.32L220.69,112Z\"/></svg>",
   "link-simple":
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M165.66,90.34a8,8,0,0,1,0,11.32l-64,64a8,8,0,0,1-11.32-11.32l64-64A8,8,0,0,1,165.66,90.34ZM215.6,40.4a56,56,0,0,0-79.2,0L106.34,70.45a8,8,0,0,0,11.32,11.32l30.06-30a40,40,0,0,1,56.57,56.56l-30.07,30.06a8,8,0,0,0,11.31,11.32L215.6,119.6a56,56,0,0,0,0-79.2ZM138.34,174.22l-30.06,30.06a40,40,0,1,1-56.56-56.57l30.05-30.05a8,8,0,0,0-11.32-11.32L40.4,136.4a56,56,0,0,0,79.2,79.2l30.06-30.07a8,8,0,0,0-11.32-11.31Z\"/></svg>",
+  "check-circle":
+    "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M128,24A104,104,0,1,0,232,128,104.12,104.12,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm45.66-109.66-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,145.37l50.34-50.34a8,8,0,0,1,11.32,11.32Z\"/></svg>",
 };
 
 const ZEN_LOGIC = globalThis.ZenHnLogic;
@@ -346,7 +348,14 @@ function restyleComments() {
     linkButton.className = "icon-button";
     linkButton.type = "button";
     linkButton.setAttribute("aria-label", "Copy link");
-    linkButton.innerHTML = renderIcon("link-simple");
+    const linkIconSwap = document.createElement("span");
+    linkIconSwap.className = "icon-swap";
+    linkIconSwap.innerHTML = `
+      <span class="icon-default">${renderIcon("link-simple")}</span>
+      <span class="icon-success">${renderIcon("check-circle")}</span>
+    `;
+    linkButton.appendChild(linkIconSwap);
+    let copyResetTimer = null;
     linkButton.addEventListener("click", async (event) => {
       event.preventDefault();
       const commentHref = ZEN_LOGIC.buildCommentHref(commentId, window.location.href);
@@ -354,6 +363,18 @@ function restyleComments() {
         return;
       }
       const copied = await copyTextToClipboard(commentHref);
+      if (copied) {
+        if (copyResetTimer) {
+          window.clearTimeout(copyResetTimer);
+        }
+        linkButton.classList.add("is-copied");
+        linkButton.classList.add("is-active");
+        copyResetTimer = window.setTimeout(() => {
+          linkButton.classList.remove("is-copied");
+          linkButton.classList.remove("is-active");
+          copyResetTimer = null;
+        }, 1500);
+      }
       console.log("Zen HN action", {
         type: "copy-link",
         commentId,
