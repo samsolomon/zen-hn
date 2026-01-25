@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "HN Restyler",
+  "name": "Zen HN",
   "version": "0.1.0",
   "description": "Restyles Hacker News with custom CSS.",
   "content_scripts": [
