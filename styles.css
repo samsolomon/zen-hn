@@ -12,7 +12,7 @@ body {
 
 .hn-comment {
   border-radius: 8px;
-  padding: 12px 14px;
+  padding: 12px 140px 12px 14px;
   margin-left: clamp(0px, calc(var(--indent-level, 0) * 1rem), 6rem);
   position: relative;
 }
@@ -53,11 +53,12 @@ body {
     color 120ms ease, transform 80ms ease;
 }
 
-.icon-button .ph,
-.icon-button [class^="ph-"],
-.icon-button [class*=" ph-"] {
+.icon-button svg {
   font-size: 16px;
   line-height: 1;
+  width: 16px;
+  height: 16px;
+  display: block;
 }
 
 .icon-button:hover {

@@ -1,18 +1,25 @@
 console.log("HN Restyler Active");
 
-function ensurePhosphorIcons() {
-  const existing = document.querySelector("link#phosphor-icons");
-  if (existing) {
+const PHOSPHOR_SVGS = {
+  "arrow-fat-up":
+    "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M229.66,114.34l-96-96a8,8,0,0,0-11.32,0l-96,96A8,8,0,0,0,32,128H72v80a16,16,0,0,0,16,16h80a16,16,0,0,0,16-16V128h40a8,8,0,0,0,5.66-13.66ZM176,112a8,8,0,0,0-8,8v88H88V120a8,8,0,0,0-8-8H51.31L128,35.31,204.69,112Z\"/></svg>",
+  "arrow-fat-down":
+    "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M231.39,132.94A8,8,0,0,0,224,128H184V48a16,16,0,0,0-16-16H88A16,16,0,0,0,72,48v80H32a8,8,0,0,0-5.66,13.66l96,96a8,8,0,0,0,11.32,0l96-96A8,8,0,0,0,231.39,132.94ZM128,220.69,51.31,144H80a8,8,0,0,0,8-8V48h80v88a8,8,0,0,0,8,8h28.69Z\"/></svg>",
+  "bookmark-simple":
+    "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M184,32H72A16,16,0,0,0,56,48V224a8,8,0,0,0,12.24,6.78L128,193.43l59.77,37.35A8,8,0,0,0,200,224V48A16,16,0,0,0,184,32Zm0,177.57-51.77-32.35a8,8,0,0,0-8.48,0L72,209.57V48H184Z\"/></svg>",
+  "share-fat":
+    "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M237.66,106.35l-80-80A8,8,0,0,0,144,32V72.35c-25.94,2.22-54.59,14.92-78.16,34.91-28.38,24.08-46.05,55.11-49.76,87.37a12,12,0,0,0,20.68,9.58h0c11-11.71,50.14-48.74,107.24-52V192a8,8,0,0,0,13.66,5.65l80-80A8,8,0,0,0,237.66,106.35ZM160,172.69V144a8,8,0,0,0-8-8c-28.08,0-55.43,7.33-81.29,21.8a196.17,196.17,0,0,0-36.57,26.52c5.8-23.84,20.42-46.51,42.05-64.86C99.41,99.77,127.75,88,152,88a8,8,0,0,0,8-8V51.32L220.69,112Z\"/></svg>",
+};
+
+function registerIcon(name, svg) {
+  if (!name || !svg) {
     return;
   }
+  PHOSPHOR_SVGS[name] = svg;
+}
 
-  const link = document.createElement("link");
-  link.id = "phosphor-icons";
-  link.rel = "stylesheet";
-  link.type = "text/css";
-  link.href =
-    "https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/regular/style.css";
-  document.head.appendChild(link);
+function renderIcon(name) {
+  return PHOSPHOR_SVGS[name] || "";
 }
 
 function restyleComments() {
@@ -64,25 +71,25 @@ function restyleComments() {
     upvoteButton.className = "icon-button";
     upvoteButton.type = "button";
     upvoteButton.setAttribute("aria-label", "Upvote");
-    upvoteButton.innerHTML = "<i class=\"ph ph-arrow-fat-up\"></i>";
+    upvoteButton.innerHTML = renderIcon("arrow-fat-up");
 
     const downvoteButton = document.createElement("button");
     downvoteButton.className = "icon-button";
     downvoteButton.type = "button";
     downvoteButton.setAttribute("aria-label", "Downvote");
-    downvoteButton.innerHTML = "<i class=\"ph ph-arrow-fat-down\"></i>";
+    downvoteButton.innerHTML = renderIcon("arrow-fat-down");
 
     const bookmarkButton = document.createElement("button");
     bookmarkButton.className = "icon-button";
     bookmarkButton.type = "button";
     bookmarkButton.setAttribute("aria-label", "Bookmark");
-    bookmarkButton.innerHTML = "<i class=\"ph ph-bookmark-simple\"></i>";
+    bookmarkButton.innerHTML = renderIcon("bookmark-simple");
 
     const shareButton = document.createElement("button");
     shareButton.className = "icon-button is-flipped";
     shareButton.type = "button";
     shareButton.setAttribute("aria-label", "Share");
-    shareButton.innerHTML = "<i class=\"ph ph-share-fat\"></i>";
+    shareButton.innerHTML = renderIcon("share-fat");
 
     actions.appendChild(upvoteButton);
     actions.appendChild(downvoteButton);
@@ -101,10 +108,8 @@ function restyleComments() {
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => {
-    ensurePhosphorIcons();
     restyleComments();
   });
 } else {
-  ensurePhosphorIcons();
   restyleComments();
 }
