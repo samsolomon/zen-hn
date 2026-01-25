@@ -10,7 +10,7 @@ const PHOSPHOR_SVGS = {
   "share-fat":
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M237.66,106.35l-80-80A8,8,0,0,0,144,32V72.35c-25.94,2.22-54.59,14.92-78.16,34.91-28.38,24.08-46.05,55.11-49.76,87.37a12,12,0,0,0,20.68,9.58h0c11-11.71,50.14-48.74,107.24-52V192a8,8,0,0,0,13.66,5.65l80-80A8,8,0,0,0,237.66,106.35ZM160,172.69V144a8,8,0,0,0-8-8c-28.08,0-55.43,7.33-81.29,21.8a196.17,196.17,0,0,0-36.57,26.52c5.8-23.84,20.42-46.51,42.05-64.86C99.41,99.77,127.75,88,152,88a8,8,0,0,0,8-8V51.32L220.69,112Z\"/></svg>",
   "link-simple":
-    "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M80,104a8,8,0,0,1-8,8H56a32,32,0,0,0,0,64H72a8,8,0,0,1,0,16H56a48,48,0,0,1,0-96H72A8,8,0,0,1,80,104Zm120-48H184a48,48,0,0,0,0,96h16a8,8,0,0,0,0-16H184a32,32,0,0,1,0-64h16a32,32,0,0,1,0,64,8,8,0,0,0,0,16,48,48,0,0,0,0-96ZM160,120H96a8,8,0,0,0,0,16h64a8,8,0,0,0,0-16Z\"/></svg>",
+    "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M165.66,90.34a8,8,0,0,1,0,11.32l-64,64a8,8,0,0,1-11.32-11.32l64-64A8,8,0,0,1,165.66,90.34ZM215.6,40.4a56,56,0,0,0-79.2,0L106.34,70.45a8,8,0,0,0,11.32,11.32l30.06-30a40,40,0,0,1,56.57,56.56l-30.07,30.06a8,8,0,0,0,11.31,11.32L215.6,119.6a56,56,0,0,0,0-79.2ZM138.34,174.22l-30.06,30.06a40,40,0,1,1-56.56-56.57l30.05-30.05a8,8,0,0,0-11.32-11.32L40.4,136.4a56,56,0,0,0,79.2,79.2l30.06-30.07a8,8,0,0,0-11.32-11.31Z\"/></svg>",
 };
 
 function registerIcon(name, svg) {
@@ -44,6 +44,21 @@ function restyleComments() {
     const timestamp = row.querySelector(".comhead .age a")?.textContent?.trim() || "";
     const comhead = row.querySelector(".comhead");
     const textHtml = row.querySelector(".commtext")?.innerHTML || "";
+    const upvoteLink = row.querySelector("a[id^='up_']");
+    const downvoteLink = row.querySelector("a[id^='down_']");
+    const unvoteLink = row.querySelector("a[id^='un_'], a[href*='how=un']");
+    const favoriteLink = row.querySelector(
+      "a[id^='fav_'], a[id^='fave_'], a[href^='fave?id=']",
+    );
+    const upArrow = row.querySelector(".votearrow:not(.down)");
+    const downArrow = row.querySelector(".votearrow.down");
+    let isUpvoted = Boolean(upArrow?.classList.contains("voted"));
+    let isDownvoted = Boolean(downArrow?.classList.contains("voted"));
+    if (isUpvoted && isDownvoted) {
+      isDownvoted = false;
+    }
+    const favoriteText = favoriteLink?.textContent?.trim().toLowerCase() || "";
+    let isFavorited = favoriteText === "unfavorite";
 
     const indentImg = row.querySelector("td.ind img");
     const indentWidth = Number.parseInt(indentImg?.getAttribute("width") || "0", 10) || 0;
@@ -72,19 +87,82 @@ function restyleComments() {
     upvoteButton.className = "icon-button";
     upvoteButton.type = "button";
     upvoteButton.setAttribute("aria-label", "Upvote");
+    upvoteButton.setAttribute("aria-pressed", isUpvoted ? "true" : "false");
     upvoteButton.innerHTML = renderIcon("arrow-fat-up");
+    if (isUpvoted) {
+      upvoteButton.classList.add("is-active");
+    }
+    if (upvoteLink || isUpvoted) {
+      upvoteButton.addEventListener("click", (event) => {
+        const target = isUpvoted ? unvoteLink : upvoteLink;
+        if (!target) {
+          return;
+        }
+        event.preventDefault();
+        target.click();
+        isUpvoted = !isUpvoted;
+        if (isUpvoted) {
+          isDownvoted = false;
+        }
+        upvoteButton.classList.toggle("is-active", isUpvoted);
+        upvoteButton.setAttribute("aria-pressed", isUpvoted ? "true" : "false");
+        downvoteButton.classList.toggle("is-active", isDownvoted);
+        downvoteButton.setAttribute("aria-pressed", isDownvoted ? "true" : "false");
+      });
+    } else {
+      upvoteButton.hidden = true;
+    }
 
     const downvoteButton = document.createElement("button");
     downvoteButton.className = "icon-button";
     downvoteButton.type = "button";
     downvoteButton.setAttribute("aria-label", "Downvote");
+    downvoteButton.setAttribute("aria-pressed", isDownvoted ? "true" : "false");
     downvoteButton.innerHTML = renderIcon("arrow-fat-down");
+    if (isDownvoted) {
+      downvoteButton.classList.add("is-active");
+    }
+    if (downvoteLink || isDownvoted) {
+      downvoteButton.addEventListener("click", (event) => {
+        const target = isDownvoted ? unvoteLink : downvoteLink;
+        if (!target) {
+          return;
+        }
+        event.preventDefault();
+        target.click();
+        isDownvoted = !isDownvoted;
+        if (isDownvoted) {
+          isUpvoted = false;
+        }
+        downvoteButton.classList.toggle("is-active", isDownvoted);
+        downvoteButton.setAttribute("aria-pressed", isDownvoted ? "true" : "false");
+        upvoteButton.classList.toggle("is-active", isUpvoted);
+        upvoteButton.setAttribute("aria-pressed", isUpvoted ? "true" : "false");
+      });
+    } else {
+      downvoteButton.hidden = true;
+    }
 
     const bookmarkButton = document.createElement("button");
     bookmarkButton.className = "icon-button";
     bookmarkButton.type = "button";
     bookmarkButton.setAttribute("aria-label", "Bookmark");
+    bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
     bookmarkButton.innerHTML = renderIcon("bookmark-simple");
+    if (isFavorited) {
+      bookmarkButton.classList.add("is-active");
+    }
+    if (favoriteLink) {
+      bookmarkButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        favoriteLink.click();
+        isFavorited = !isFavorited;
+        bookmarkButton.classList.toggle("is-active", isFavorited);
+        bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+      });
+    } else {
+      bookmarkButton.hidden = true;
+    }
 
     const shareButton = document.createElement("button");
     shareButton.className = "icon-button is-flipped";
