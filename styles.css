@@ -19,7 +19,7 @@ body {
 
 .hn-comment-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
@@ -28,12 +28,65 @@ body {
   font-size: 12px;
   color: #666666;
   margin-bottom: 6px;
+  margin-right: auto;
 }
+
+.hn-comment-meta.has-comhead {
+  display: flex;
+  align-items: center;
+  font-size: 0;
+}
+
+.hn-comment-meta.has-comhead .comhead {
+  display: flex;
+  align-items: center;
+  font-size: 0;
+}
+
+.hn-comment-meta.has-comhead a:not(.hnuser) {
+  display: none;
+}
+
+.hn-comment-meta.has-comhead .navs {
+  display: none;
+}
+
+.hn-comment-meta.has-comhead .age a {
+  display: inline;
+}
+
+.hn-comment-meta.has-comhead .hnuser {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2f2f2f;
+  display: inline-flex;
+  align-items: center;
+}
+
+.hn-comment-meta.has-comhead .age {
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b6b6b;
+  display: inline-flex;
+  align-items: center;
+  margin-left: 1rem;
+}
+
+.hn-comment-meta.has-comhead .age a {
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+}
+
 
 .hn-comment-text {
   font-size: 14px;
   line-height: 1.5;
   color: #222222;
+}
+
+.hn-comment[data-collapsed="true"] .hn-comment-text {
+  display: none;
 }
 
 .hn-reply {
@@ -143,6 +196,14 @@ body {
   height: 20px;
   display: block;
   pointer-events: none;
+}
+
+.hn-collapse-button svg {
+  transition: transform 160ms ease;
+}
+
+.hn-collapse-button.is-collapsed svg {
+  transform: rotate(-90deg);
 }
 
 .icon-swap {

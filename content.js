@@ -13,6 +13,8 @@ const PHOSPHOR_SVGS = {
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M165.66,90.34a8,8,0,0,1,0,11.32l-64,64a8,8,0,0,1-11.32-11.32l64-64A8,8,0,0,1,165.66,90.34ZM215.6,40.4a56,56,0,0,0-79.2,0L106.34,70.45a8,8,0,0,0,11.32,11.32l30.06-30a40,40,0,0,1,56.57,56.56l-30.07,30.06a8,8,0,0,0,11.31,11.32L215.6,119.6a56,56,0,0,0,0-79.2ZM138.34,174.22l-30.06,30.06a40,40,0,1,1-56.56-56.57l30.05-30.05a8,8,0,0,0-11.32-11.32L40.4,136.4a56,56,0,0,0,79.2,79.2l30.06-30.07a8,8,0,0,0-11.32-11.31Z\"/></svg>",
   "check-circle":
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M128,24A104,104,0,1,0,232,128,104.12,104.12,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm45.66-109.66-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,145.37l50.34-50.34a8,8,0,0,1,11.32,11.32Z\"/></svg>",
+  "caret-down":
+    "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z\"/></svg>",
 };
 
 const ZEN_LOGIC = globalThis.ZenHnLogic;
@@ -26,6 +28,76 @@ function registerIcon(name, svg) {
 
 function renderIcon(name) {
   return PHOSPHOR_SVGS[name] || "";
+}
+
+function getIndentLevelFromRow(row) {
+  if (!row) {
+    return 0;
+  }
+  const indentImg = row.querySelector("td.ind img");
+  const indentWidth = Number.parseInt(indentImg?.getAttribute("width") || "0", 10) || 0;
+  return Math.round(indentWidth / 40) || 0;
+}
+
+function getIndentLevelFromItem(item) {
+  return Number.parseInt(item?.dataset.indentLevel || "0", 10) || 0;
+}
+
+function setCollapseButtonState(button, isCollapsed) {
+  if (!button) {
+    return;
+  }
+  button.classList.toggle("is-collapsed", isCollapsed);
+  button.setAttribute("aria-expanded", isCollapsed ? "false" : "true");
+  button.setAttribute("aria-label", isCollapsed ? "Expand thread" : "Collapse thread");
+}
+
+function hideDescendantComments(item) {
+  const baseLevel = getIndentLevelFromItem(item);
+  let sibling = item.nextElementSibling;
+  while (sibling && sibling.classList.contains("hn-comment")) {
+    const level = getIndentLevelFromItem(sibling);
+    if (level <= baseLevel) {
+      break;
+    }
+    sibling.hidden = true;
+    sibling = sibling.nextElementSibling;
+  }
+}
+
+function restoreDescendantVisibility(item) {
+  const baseLevel = getIndentLevelFromItem(item);
+  let sibling = item.nextElementSibling;
+  const collapsedStack = [];
+  while (sibling && sibling.classList.contains("hn-comment")) {
+    const level = getIndentLevelFromItem(sibling);
+    if (level <= baseLevel) {
+      break;
+    }
+    while (collapsedStack.length && level <= collapsedStack[collapsedStack.length - 1]) {
+      collapsedStack.pop();
+    }
+    const isHiddenByAncestor = collapsedStack.length > 0;
+    sibling.hidden = isHiddenByAncestor;
+    const isCollapsed = sibling.dataset.collapsed === "true";
+    if (!isHiddenByAncestor && isCollapsed) {
+      collapsedStack.push(level);
+    }
+    sibling = sibling.nextElementSibling;
+  }
+}
+
+function toggleCommentCollapse(item) {
+  const isCollapsed = item.dataset.collapsed === "true";
+  const nextCollapsed = !isCollapsed;
+  item.dataset.collapsed = nextCollapsed ? "true" : "false";
+  const collapseButton = item.querySelector(".hn-collapse-button");
+  setCollapseButtonState(collapseButton, nextCollapsed);
+  if (nextCollapsed) {
+    hideDescendantComments(item);
+  } else {
+    restoreDescendantVisibility(item);
+  }
 }
 
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
@@ -237,7 +309,7 @@ function restyleComments() {
   container.id = "hn-comment-list";
 
   const rows = Array.from(table.querySelectorAll("tr.athing.comtr"));
-  rows.forEach((row) => {
+  rows.forEach((row, index) => {
     const cell = row.querySelector("td.default");
     if (!cell) {
       return;
@@ -269,21 +341,37 @@ function restyleComments() {
     const favoriteText = favoriteLink?.textContent?.trim().toLowerCase() || "";
     let isFavorited = favoriteText === "unfavorite";
 
-    const indentImg = row.querySelector("td.ind img");
-    const indentWidth = Number.parseInt(indentImg?.getAttribute("width") || "0", 10) || 0;
-    const indentLevel = Math.round(indentWidth / 40) || 0;
+    const indentLevel = getIndentLevelFromRow(row);
+    const nextIndentLevel = getIndentLevelFromRow(rows[index + 1]);
+    const hasChildren = nextIndentLevel > indentLevel;
 
     const item = document.createElement("div");
     item.className = "hn-comment";
     item.classList.add(`level-${indentLevel}`);
     item.style.setProperty("--indent-level", String(indentLevel));
+    item.dataset.indentLevel = String(indentLevel);
+    item.dataset.collapsed = "false";
 
     const header = document.createElement("div");
     header.className = "hn-comment-header";
 
+    const collapseButton = document.createElement("button");
+    collapseButton.className = "icon-button hn-collapse-button";
+    collapseButton.type = "button";
+    collapseButton.innerHTML = renderIcon("caret-down");
+    setCollapseButtonState(collapseButton, false);
+    if (!hasChildren) {
+      collapseButton.hidden = true;
+    } else {
+      collapseButton.addEventListener("click", () => {
+        toggleCommentCollapse(item);
+      });
+    }
+
     const meta = document.createElement("div");
     meta.className = "hn-comment-meta";
     if (comhead) {
+      meta.classList.add("has-comhead");
       meta.appendChild(comhead.cloneNode(true));
     } else {
       meta.textContent = [user, timestamp].filter(Boolean).join(" • ");
@@ -486,6 +574,7 @@ function restyleComments() {
     actions.appendChild(linkButton);
     actions.appendChild(shareButton);
 
+    header.appendChild(collapseButton);
     header.appendChild(meta);
     header.appendChild(actions);
 
