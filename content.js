@@ -299,24 +299,37 @@ async function resolveFavoriteLink(commentId) {
   };
 }
 
-function restyleComments() {
-  const table = document.querySelector("table.comment-tree");
-  if (!table) {
+function restyleComments(context) {
+  if (!context?.root) {
     return;
   }
 
   if (document.documentElement.dataset[ZEN_HN_RESTYLE_KEY] === "true") {
     return;
   }
-  document.documentElement.dataset[ZEN_HN_RESTYLE_KEY] = "true";
 
   const existingLists = document.querySelectorAll("#hn-comment-list");
-  existingLists.forEach((list) => list.remove());
+  existingLists.forEach((list) => {
+    const wrapperRow = list.closest("tr[data-zen-hn-comment-row='true']");
+    if (wrapperRow) {
+      wrapperRow.remove();
+      return;
+    }
+    list.remove();
+  });
 
   const container = document.createElement("div");
   container.id = "hn-comment-list";
 
-  const rows = Array.from(table.querySelectorAll("tr.athing.comtr"));
+  const rows = context.rows || getCommentRows(context.root);
+  if (!rows.length) {
+    if (document.documentElement.dataset[ZEN_HN_RESTYLE_KEY] === "loading") {
+      delete document.documentElement.dataset[ZEN_HN_RESTYLE_KEY];
+    }
+    return;
+  }
+
+  document.documentElement.dataset[ZEN_HN_RESTYLE_KEY] = "true";
   rows.forEach((row, index) => {
     const cell = row.querySelector("td.default");
     if (!cell) {
@@ -666,22 +679,108 @@ function restyleComments() {
     container.appendChild(item);
   });
 
-  table.insertAdjacentElement("afterend", container);
-  table.style.display = "none";
+  const moreLink = context.root.querySelector("a.morelink");
+  if (moreLink) {
+    const moreContainer = document.createElement("div");
+    moreContainer.className = "hn-comment-more";
+    const moreAnchor = moreLink.cloneNode(true);
+    moreContainer.appendChild(moreAnchor);
+    container.appendChild(moreContainer);
+  }
+
+  if (context.mode === "rows") {
+    const insertAfter = context.insertAfter?.closest("tr") || rows[0];
+    if (!insertAfter) {
+      return;
+    }
+    const containerRow = document.createElement("tr");
+    containerRow.dataset.zenHnCommentRow = "true";
+    const containerCell = document.createElement("td");
+    const cellCount = insertAfter.children.length || 1;
+    if (cellCount > 1) {
+      containerCell.colSpan = cellCount;
+    }
+    containerCell.appendChild(container);
+    containerRow.appendChild(containerCell);
+    insertAfter.insertAdjacentElement("afterend", containerRow);
+
+    const rowsToHide = new Set(rows);
+    rows.forEach((row) => {
+      const spacer = row.nextElementSibling;
+      if (spacer?.classList.contains("spacer")) {
+        rowsToHide.add(spacer);
+      }
+    });
+    if (moreLink) {
+      const moreRow = moreLink.closest("tr");
+      if (moreRow) {
+        rowsToHide.add(moreRow);
+        const moreSpacer = moreRow.previousElementSibling;
+        if (moreSpacer?.classList.contains("morespace")) {
+          rowsToHide.add(moreSpacer);
+        }
+      }
+    }
+    rowsToHide.forEach((row) => {
+      row.style.display = "none";
+    });
+    return;
+  }
+
+  context.root.insertAdjacentElement("afterend", container);
+  context.root.style.display = "none";
+}
+
+function getCommentRows(table) {
+  const rows = Array.from(table.querySelectorAll("tr.athing"));
+  return rows.filter(
+    (row) => row.classList.contains("comtr") || row.querySelector(".comment .commtext"),
+  );
+}
+
+function findCommentContext() {
+  const commentTree = document.querySelector("table.comment-tree");
+  if (commentTree) {
+    return { root: commentTree, mode: "table" };
+  }
+
+  const itemTables = Array.from(document.querySelectorAll("table.itemlist"));
+  const itemTable = itemTables.find((table) => getCommentRows(table).length > 0);
+  if (itemTable) {
+    return { root: itemTable, mode: "table" };
+  }
+
+  const bigboxTable = document.querySelector("tr#bigbox table");
+  if (bigboxTable && getCommentRows(bigboxTable).length > 0) {
+    return { root: bigboxTable, mode: "table" };
+  }
+
+  const hnMain = document.querySelector("table#hnmain");
+  if (!hnMain) {
+    return null;
+  }
+  const rows = getCommentRows(hnMain);
+  if (!rows.length) {
+    return null;
+  }
+  const insertAfter = document.querySelector("tr#bigbox") || rows[0];
+  return {
+    root: hnMain,
+    mode: "rows",
+    rows,
+    insertAfter,
+  };
 }
 
 function runRestyleWhenReady() {
-  if (window.location.pathname !== "/item") {
-    return;
-  }
   let attempts = 0;
   const maxAttempts = 20;
   const attempt = () => {
     if (document.documentElement.dataset[ZEN_HN_RESTYLE_KEY] === "true") {
       return;
     }
-    const table = document.querySelector("table.comment-tree");
-    if (!table) {
+    const context = findCommentContext();
+    if (!context) {
       attempts += 1;
       if (attempts >= maxAttempts) {
         if (document.documentElement.dataset[ZEN_HN_RESTYLE_KEY] === "loading") {
@@ -692,7 +791,7 @@ function runRestyleWhenReady() {
       window.requestAnimationFrame(attempt);
       return;
     }
-    restyleComments();
+    restyleComments(context);
   };
   attempt();
 }

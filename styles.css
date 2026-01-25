@@ -19,6 +19,35 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   padding: 0 16px 32px;
 }
 
+.hn-comment-more {
+  margin-left: 44px;
+}
+
+.hn-comment-more .morelink {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid #e0e0e0;
+  background-color: #ffffff;
+  color: #444444;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 120ms ease, border-color 120ms ease,
+    color 120ms ease, transform 80ms ease;
+}
+
+.hn-comment-more .morelink:hover {
+  background-color: #ededed;
+  border-color: #d6d6d6;
+  color: #333333;
+}
+
+.hn-comment-more .morelink:active {
+  transform: translateY(1px) scale(0.98);
+}
+
 .hn-comment {
   border-radius: 8px;
   padding: 12px 14px;
