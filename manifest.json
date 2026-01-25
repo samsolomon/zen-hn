@@ -7,7 +7,8 @@
     {
       "matches": ["https://news.ycombinator.com/*"],
       "css": ["styles.css"],
-      "js": ["logic.js", "content.js"]
+      "js": ["logic.js", "content.js"],
+      "run_at": "document_start"
     }
   ]
 }

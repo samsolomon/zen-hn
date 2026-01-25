@@ -18,6 +18,11 @@ const PHOSPHOR_SVGS = {
 };
 
 const ZEN_LOGIC = globalThis.ZenHnLogic;
+const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
+
+if (window.location.pathname === "/item") {
+  document.documentElement.dataset[ZEN_HN_RESTYLE_KEY] = "loading";
+}
 
 function registerIcon(name, svg) {
   if (!name || !svg) {
@@ -43,13 +48,17 @@ function getIndentLevelFromItem(item) {
   return Number.parseInt(item?.dataset.indentLevel || "0", 10) || 0;
 }
 
-function setCollapseButtonState(button, isCollapsed) {
+function setCollapseButtonState(button, isCollapsed, hasChildren) {
   if (!button) {
     return;
   }
+  const targetLabel = hasChildren ? "thread" : "comment";
   button.classList.toggle("is-collapsed", isCollapsed);
   button.setAttribute("aria-expanded", isCollapsed ? "false" : "true");
-  button.setAttribute("aria-label", isCollapsed ? "Expand thread" : "Collapse thread");
+  button.setAttribute(
+    "aria-label",
+    isCollapsed ? `Expand ${targetLabel}` : `Collapse ${targetLabel}`,
+  );
 }
 
 function hideDescendantComments(item) {
@@ -91,16 +100,15 @@ function toggleCommentCollapse(item) {
   const isCollapsed = item.dataset.collapsed === "true";
   const nextCollapsed = !isCollapsed;
   item.dataset.collapsed = nextCollapsed ? "true" : "false";
+  const hasChildren = item.dataset.hasChildren === "true";
   const collapseButton = item.querySelector(".hn-collapse-button");
-  setCollapseButtonState(collapseButton, nextCollapsed);
+  setCollapseButtonState(collapseButton, nextCollapsed, hasChildren);
   if (nextCollapsed) {
     hideDescendantComments(item);
   } else {
     restoreDescendantVisibility(item);
   }
 }
-
-const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
 
 function getHrefParams(href) {
   if (!href) {
@@ -360,14 +368,10 @@ function restyleComments() {
     collapseButton.className = "icon-button hn-collapse-button";
     collapseButton.type = "button";
     collapseButton.innerHTML = renderIcon("caret-down");
-    setCollapseButtonState(collapseButton, false);
-    if (!hasChildren) {
-      collapseButton.hidden = true;
-    } else {
-      collapseButton.addEventListener("click", () => {
-        toggleCommentCollapse(item);
-      });
-    }
+    setCollapseButtonState(collapseButton, false, hasChildren);
+    collapseButton.addEventListener("click", () => {
+      toggleCommentCollapse(item);
+    });
 
     const meta = document.createElement("div");
     meta.className = "hn-comment-meta";
@@ -666,10 +670,37 @@ function restyleComments() {
   table.style.display = "none";
 }
 
+function runRestyleWhenReady() {
+  if (window.location.pathname !== "/item") {
+    return;
+  }
+  let attempts = 0;
+  const maxAttempts = 20;
+  const attempt = () => {
+    if (document.documentElement.dataset[ZEN_HN_RESTYLE_KEY] === "true") {
+      return;
+    }
+    const table = document.querySelector("table.comment-tree");
+    if (!table) {
+      attempts += 1;
+      if (attempts >= maxAttempts) {
+        if (document.documentElement.dataset[ZEN_HN_RESTYLE_KEY] === "loading") {
+          delete document.documentElement.dataset[ZEN_HN_RESTYLE_KEY];
+        }
+        return;
+      }
+      window.requestAnimationFrame(attempt);
+      return;
+    }
+    restyleComments();
+  };
+  attempt();
+}
+
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => {
-    restyleComments();
+    runRestyleWhenReady();
   });
 } else {
-  restyleComments();
+  runRestyleWhenReady();
 }
