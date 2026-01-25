@@ -290,7 +290,7 @@ function restyleComments() {
     const bookmarkButton = document.createElement("button");
     bookmarkButton.className = "icon-button";
     bookmarkButton.type = "button";
-    bookmarkButton.setAttribute("aria-label", "Bookmark");
+    bookmarkButton.setAttribute("aria-label", "Favorite");
     bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
     bookmarkButton.innerHTML = renderIcon("bookmark-simple");
     if (isFavorited) {
@@ -335,7 +335,7 @@ function restyleComments() {
     const shareButton = document.createElement("button");
     shareButton.className = "icon-button is-flipped";
     shareButton.type = "button";
-    shareButton.setAttribute("aria-label", "Share");
+    shareButton.setAttribute("aria-label", "Reply");
     shareButton.innerHTML = renderIcon("share-fat");
     shareButton.addEventListener("click", () => {
       console.log("Zen HN action", {
