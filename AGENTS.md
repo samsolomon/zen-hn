@@ -1,13 +1,13 @@
 # AGENTS.md
 
 Purpose
-- This repository currently contains only `README.md` and no build or source files.
-- There are no detected build, lint, or test tools to document yet.
+- This repository contains a Chrome extension content script and related assets.
+- Tests use Node's built-in test runner.
 - This guide focuses on safe defaults and discovery steps for agentic work.
 
 Repository state
-- Root contains: `README.md`, `LICENSE`.
-- No `package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, `Makefile`, or similar.
+- Root contains: `README.md`, `LICENSE`, `manifest.json`, `content.js`, `styles.css`, `logic.js`, `package.json`, `tests/`.
+- No `pyproject.toml`, `Cargo.toml`, `go.mod`, `Makefile`, or similar.
 - No Cursor rules in `.cursor/rules/` or `.cursorrules`.
 - No Copilot rules in `.github/copilot-instructions.md`.
 
