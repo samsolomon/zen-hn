@@ -52,6 +52,18 @@ function getCommentId(row, comhead) {
   return params.get("id") || "";
 }
 
+function getReplyHref(row, comhead) {
+  const linkByHref = row.querySelector("a[href^='reply?id=']");
+  const linkByText = comhead
+    ? Array.from(comhead.querySelectorAll("a")).find((link) => {
+        const text = link.textContent?.trim().toLowerCase();
+        return text === "reply";
+      })
+    : null;
+  const link = linkByHref || linkByText;
+  return link?.getAttribute("href") || "";
+}
+
 function getVoteState(row) {
   const upArrow = row.querySelector(".votearrow:not(.down)");
   const downArrow = row.querySelector(".votearrow.down");
@@ -92,6 +104,80 @@ async function copyTextToClipboard(text) {
   }
   document.body.removeChild(textarea);
   return success;
+}
+
+async function resolveReplyForm(replyHref) {
+  if (!replyHref) {
+    return null;
+  }
+  const response = await fetch(replyHref, {
+    credentials: "same-origin",
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    return null;
+  }
+  const html = await response.text();
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  const form = doc.querySelector("form");
+  if (!form) {
+    return null;
+  }
+  const action = form.getAttribute("action") || "";
+  const method = (form.getAttribute("method") || "post").toUpperCase();
+  const inputs = Array.from(form.querySelectorAll("input[name]"));
+  const fields = {};
+  inputs.forEach((input) => {
+    fields[input.name] = input.value || "";
+  });
+  const textName = form.querySelector("textarea[name]")?.getAttribute("name") || "text";
+  const actionUrl = new URL(action || response.url, response.url).toString();
+  return {
+    actionUrl,
+    method,
+    fields,
+    textName,
+  };
+}
+
+async function submitReply(replyHref, text) {
+  try {
+    const resolved = await resolveReplyForm(replyHref);
+    if (!resolved) {
+      return { ok: false };
+    }
+    const payload = new URLSearchParams({
+      ...resolved.fields,
+      [resolved.textName]: text,
+    });
+    let response = null;
+    if (resolved.method === "GET") {
+      const url = new URL(resolved.actionUrl);
+      payload.forEach((value, key) => {
+        url.searchParams.set(key, value);
+      });
+      response = await fetch(url.toString(), {
+        credentials: "same-origin",
+        cache: "no-store",
+      });
+    } else {
+      response = await fetch(resolved.actionUrl, {
+        method: resolved.method,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: payload.toString(),
+        credentials: "same-origin",
+        cache: "no-store",
+      });
+    }
+    return {
+      ok: response?.ok,
+      status: response?.status,
+    };
+  } catch (error) {
+    return { ok: false };
+  }
 }
 
 
@@ -178,6 +264,7 @@ function restyleComments() {
       : null;
     const favoriteLink = favoriteLinkById || favoriteLinkByText;
     const commentId = getCommentId(row, comhead);
+    const replyHref = getReplyHref(row, comhead);
     let { isUpvoted, isDownvoted } = getVoteState(row);
     const favoriteText = favoriteLink?.textContent?.trim().toLowerCase() || "";
     let isFavorited = favoriteText === "unfavorite";
@@ -337,9 +424,16 @@ function restyleComments() {
     shareButton.type = "button";
     shareButton.setAttribute("aria-label", "Reply");
     shareButton.innerHTML = renderIcon("share-fat");
+    let replyContainer = null;
     shareButton.addEventListener("click", () => {
+      if (replyContainer) {
+        const isHidden = replyContainer.classList.toggle("is-hidden");
+        if (!isHidden) {
+          replyContainer.querySelector("textarea")?.focus();
+        }
+      }
       console.log("Zen HN action", {
-        type: "share",
+        type: "reply-toggle",
         commentId,
       });
     });
@@ -399,8 +493,82 @@ function restyleComments() {
     text.className = "hn-comment-text";
     text.innerHTML = textHtml;
 
+    replyContainer = document.createElement("div");
+    replyContainer.className = "hn-reply is-hidden";
+    const replyTextarea = document.createElement("textarea");
+    replyTextarea.className = "hn-reply-textarea";
+    replyTextarea.setAttribute("aria-label", "Reply");
+    const closeReply = () => {
+      replyContainer.classList.add("is-hidden");
+    };
+    replyTextarea.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" || event.shiftKey) {
+        return;
+      }
+      event.preventDefault();
+      replyButton.click();
+    });
+    const replyButton = document.createElement("button");
+    replyButton.className = "hn-reply-button";
+    replyButton.type = "button";
+    replyButton.textContent = "Reply";
+    const cancelButton = document.createElement("button");
+    cancelButton.className = "hn-reply-cancel";
+    cancelButton.type = "button";
+    cancelButton.textContent = "Cancel";
+    cancelButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      closeReply();
+    });
+    if (!replyHref) {
+      replyTextarea.disabled = true;
+      replyButton.disabled = true;
+      cancelButton.disabled = true;
+    }
+    replyButton.addEventListener("click", async (event) => {
+      event.preventDefault();
+      const replyText = replyTextarea.value.trim();
+      if (!replyText) {
+        replyTextarea.focus();
+        return;
+      }
+      if (!replyHref) {
+        return;
+      }
+      replyButton.disabled = true;
+      replyTextarea.disabled = true;
+      console.log("Zen HN action", {
+        type: "reply-submit",
+        commentId,
+        length: replyText.length,
+      });
+      let result = { ok: false };
+      try {
+        result = await submitReply(replyHref, replyText);
+      } finally {
+        replyButton.disabled = false;
+        replyTextarea.disabled = false;
+      }
+      if (result.ok) {
+        replyTextarea.value = "";
+        closeReply();
+        return;
+      }
+      console.warn("Zen HN reply failed", {
+        commentId,
+        status: result.status,
+      });
+    });
+    const replyActions = document.createElement("div");
+    replyActions.className = "hn-reply-actions";
+    replyActions.appendChild(replyButton);
+    replyActions.appendChild(cancelButton);
+    replyContainer.appendChild(replyTextarea);
+    replyContainer.appendChild(replyActions);
+
     item.appendChild(header);
     item.appendChild(text);
+    item.appendChild(replyContainer);
     container.appendChild(item);
   });
 
