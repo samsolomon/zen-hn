@@ -28,7 +28,6 @@ function restyleComments() {
     const item = document.createElement("div");
     item.className = "hn-comment";
     item.classList.add(`level-${indentLevel}`);
-    item.style.setProperty("--indent-width", `${indentWidth}px`);
     item.style.setProperty("--indent-level", String(indentLevel));
 
     const meta = document.createElement("div");

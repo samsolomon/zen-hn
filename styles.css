@@ -6,18 +6,14 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  max-width: 900px;
   margin: 24px auto;
   padding: 0 16px 32px;
 }
 
 .hn-comment {
-  background: #ffffff;
-  border: 1px solid #e3e3e3;
   border-radius: 8px;
   padding: 12px 14px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-  margin-left: var(--indent-width, 0px);
+  margin-left: clamp(0px, calc(var(--indent-level, 0) * 1rem), 6rem);
 }
 
 .hn-comment-meta {
@@ -32,46 +28,8 @@ body {
   color: #222222;
 }
 
-.hn-comment.level-0 {
-  --indent-width: 0px;
-}
-
-.hn-comment.level-1 {
-  --indent-width: 40px;
-}
-
-.hn-comment.level-2 {
-  --indent-width: 80px;
-}
-
-.hn-comment.level-3 {
-  --indent-width: 120px;
-}
-
-.hn-comment.level-4 {
-  --indent-width: 160px;
-}
-
-.hn-comment.level-5 {
-  --indent-width: 200px;
-}
-
-.hn-comment.level-6 {
-  --indent-width: 240px;
-}
-
-.hn-comment.level-7 {
-  --indent-width: 280px;
-}
-
-.hn-comment.level-8 {
-  --indent-width: 320px;
-}
-
-.hn-comment.level-9 {
-  --indent-width: 360px;
-}
-
-.hn-comment.level-10 {
-  --indent-width: 400px;
+@media (max-width: 720px) {
+  .hn-comment {
+    margin-left: clamp(0px, calc(var(--indent-level, 0) * 0.85rem), 4rem);
+  }
 }
