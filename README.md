@@ -1,6 +1,8 @@
 # zen-hn
 
-Zen HN is a Chrome extension that restyles Hacker News item and comment pages for a calmer, more readable experience.
+Zen HN is a Chrome extension that restyles Hacker News for a calmer, more readable experience.
+
+⚠️ Warning: This a work in progress.
 
 To install:
 - Download or clone this repo.
