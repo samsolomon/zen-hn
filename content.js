@@ -672,17 +672,6 @@ function restyleSubmissions() {
       isUpvotedState = true;
     }
 
-    const vote = document.createElement("div");
-    vote.className = "hn-submission-vote";
-    const voteLink = row.querySelector("td.votelinks a");
-    if (voteLink) {
-      const voteClone = voteLink.cloneNode(true);
-      voteClone.removeAttribute("id");
-      vote.appendChild(voteClone);
-    } else {
-      vote.classList.add("is-empty");
-    }
-
     const body = document.createElement("div");
     body.className = "hn-submission-body";
 
@@ -1071,7 +1060,6 @@ function restyleSubmissions() {
     }
 
     item.appendChild(rank);
-    item.appendChild(vote);
     item.appendChild(body);
     container.appendChild(item);
   });

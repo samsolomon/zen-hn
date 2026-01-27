@@ -141,7 +141,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 
 .hn-submission {
   display: grid;
-  grid-template-columns: minmax(24px, auto) minmax(32px, auto) 1fr;
+  grid-template-columns: minmax(24px, auto) 1fr;
   gap: 12px;
   align-items: start;
   padding: 12px 14px;
@@ -151,8 +151,8 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 
 
 .hn-submission-rank {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: 400;
   color: #6b6b6b;
   text-align: right;
   padding-top: 6px;
@@ -160,25 +160,6 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 
 .hn-submission-rank.is-empty {
   visibility: hidden;
-}
-
-.hn-submission-vote {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding-top: 2px;
-}
-
-.hn-submission-vote.is-empty {
-  visibility: hidden;
-}
-
-.hn-submission-vote a {
-  display: inline-flex;
-}
-
-.hn-submission-vote .votearrow {
-  margin: 0;
 }
 
 .hn-submission-body {
