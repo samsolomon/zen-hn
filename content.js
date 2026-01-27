@@ -15,6 +15,8 @@ const PHOSPHOR_SVGS = {
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M128,24A104,104,0,1,0,232,128,104.12,104.12,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm45.66-109.66-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,145.37l50.34-50.34a8,8,0,0,1,11.32,11.32Z\"/></svg>",
   "caret-down":
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z\"/></svg>",
+  "dots-three":
+    "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M128,104a24,24,0,1,0,24,24A24,24,0,0,0,128,104Zm-64,0a24,24,0,1,0,24,24A24,24,0,0,0,64,104Zm128,0a24,24,0,1,0,24,24A24,24,0,0,0,192,104Z\"/></svg>",
 };
 
 const ZEN_LOGIC = globalThis.ZenHnLogic;
@@ -43,6 +45,60 @@ function registerIcon(name, svg) {
 
 function renderIcon(name) {
   return PHOSPHOR_SVGS[name] || "";
+}
+
+const SUBMISSION_MENU_CLASS = "hn-submission-menu";
+const SUBMISSION_MENU_OPEN_CLASS = "is-open";
+let submissionMenuHandlersRegistered = false;
+
+function setSubmissionMenuState(menu, isOpen) {
+  if (!menu) {
+    return;
+  }
+  menu.classList.toggle(SUBMISSION_MENU_OPEN_CLASS, isOpen);
+  const button = menu.querySelector(".hn-menu-button");
+  if (button) {
+    button.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  }
+}
+
+function closeAllSubmissionMenus(exceptMenu) {
+  const openMenus = document.querySelectorAll(
+    `.${SUBMISSION_MENU_CLASS}.${SUBMISSION_MENU_OPEN_CLASS}`,
+  );
+  openMenus.forEach((menu) => {
+    if (menu === exceptMenu) {
+      return;
+    }
+    setSubmissionMenuState(menu, false);
+  });
+}
+
+function registerSubmissionMenuListeners() {
+  if (submissionMenuHandlersRegistered) {
+    return;
+  }
+  submissionMenuHandlersRegistered = true;
+  document.addEventListener("click", (event) => {
+    const openMenus = document.querySelectorAll(
+      `.${SUBMISSION_MENU_CLASS}.${SUBMISSION_MENU_OPEN_CLASS}`,
+    );
+    if (!openMenus.length) {
+      return;
+    }
+    openMenus.forEach((menu) => {
+      if (menu.contains(event.target)) {
+        return;
+      }
+      setSubmissionMenuState(menu, false);
+    });
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") {
+      return;
+    }
+    closeAllSubmissionMenus();
+  });
 }
 
 function getIndentLevelFromRow(row) {
@@ -567,6 +623,7 @@ function restyleSubmissions() {
   console.log("Zen HN restyle", { type: "submissions", mode, count: rows.length });
   const container = document.createElement("div");
   container.className = "hn-submissions";
+  registerSubmissionMenuListeners();
 
   rows.forEach((row) => {
     const titleLine = row.querySelector(".titleline");
@@ -665,6 +722,24 @@ function restyleSubmissions() {
           return text.includes("comment") || text.includes("discuss");
         })
       : null;
+    const hideLinkByHref = subtext?.querySelector("a[href^='hide?id='], a[href^='unhide?id=']");
+    const hideLinkByText = subtext
+      ? Array.from(subtext.querySelectorAll("a")).find((link) => {
+          const text = link.textContent?.trim().toLowerCase() || "";
+          return text === "hide" || text === "unhide";
+        })
+      : null;
+    const hideLink = hideLinkByHref || hideLinkByText;
+    const flagLinkByHref = subtext?.querySelector(
+      "a[href^='flag?id='], a[href^='unflag?id='], a[id^='flag_']",
+    );
+    const flagLinkByText = subtext
+      ? Array.from(subtext.querySelectorAll("a")).find((link) => {
+          const text = link.textContent?.trim().toLowerCase() || "";
+          return text === "flag" || text === "unflag";
+        })
+      : null;
+    const flagLink = flagLinkByHref || flagLinkByText;
 
     appendMetaItem(score, "hn-submission-score");
     appendMetaItem(hnuser, "hn-submission-user");
@@ -863,6 +938,100 @@ function restyleSubmissions() {
     actions.appendChild(linkButton);
     actions.appendChild(discussButton);
 
+    const hideHref = hideLink?.getAttribute("href") || "";
+    const flagHref = flagLink?.getAttribute("href") || "";
+    const menuItems = ZEN_LOGIC.buildMenuItems([
+      {
+        href: hideHref,
+        text: hideLink?.textContent,
+        fallback: "Hide",
+        action: "hide",
+      },
+      {
+        href: flagHref,
+        text: flagLink?.textContent,
+        fallback: "Flag",
+        action: "flag",
+      },
+    ]);
+    console.log("Zen HN submission menu", {
+      itemId,
+      hasHide: Boolean(hideHref),
+      hasFlag: Boolean(flagHref),
+      actions: menuItems.map((menuItem) => menuItem.action),
+    });
+
+    const menuWrapper = document.createElement("div");
+    menuWrapper.className = SUBMISSION_MENU_CLASS;
+
+    const menuButton = document.createElement("button");
+    menuButton.className = "icon-button hn-menu-button";
+    menuButton.type = "button";
+    menuButton.setAttribute("aria-label", "More actions");
+    menuButton.setAttribute("aria-haspopup", "menu");
+    menuButton.setAttribute("aria-expanded", "false");
+    menuButton.innerHTML = renderIcon("dots-three");
+
+    const menuDropdown = document.createElement("div");
+    menuDropdown.className = "hn-submission-menu-dropdown";
+    menuDropdown.setAttribute("role", "menu");
+
+    if (!menuItems.length) {
+      menuButton.disabled = true;
+    }
+
+    menuItems.forEach((menuItem) => {
+      const itemButton = document.createElement("button");
+      itemButton.className = "hn-submission-menu-item";
+      itemButton.type = "button";
+      itemButton.setAttribute("role", "menuitem");
+      itemButton.textContent = menuItem.label;
+      itemButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setSubmissionMenuState(menuWrapper, false);
+        console.log("Zen HN action", {
+          type: menuItem.action,
+          itemId,
+          href: menuItem.href,
+        });
+        if (menuItem.action === "hide") {
+          item.remove();
+        }
+        if (menuItem.href) {
+          fetch(menuItem.href, { credentials: "same-origin", cache: "no-store" });
+        }
+      });
+      menuDropdown.appendChild(itemButton);
+    });
+
+    menuButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (menuButton.disabled) {
+        return;
+      }
+      const isOpen = menuWrapper.classList.contains(SUBMISSION_MENU_OPEN_CLASS);
+      if (!isOpen) {
+        closeAllSubmissionMenus(menuWrapper);
+      }
+      const nextOpen = !isOpen;
+      setSubmissionMenuState(menuWrapper, nextOpen);
+      console.log("Zen HN action", {
+        type: "menu-toggle",
+        itemId,
+        isOpen: nextOpen,
+      });
+    });
+
+    menuDropdown.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+
+    menuWrapper.appendChild(menuButton);
+    menuWrapper.appendChild(menuDropdown);
+    actions.appendChild(menuWrapper);
+
     const subRow = document.createElement("div");
     subRow.className = "hn-submission-sub";
     if (meta.childNodes.length) {
@@ -875,7 +1044,14 @@ function restyleSubmissions() {
     extras.className = "hn-submission-extras";
     if (subtext) {
       const ageLink = age?.querySelector("a");
-      const excludedLinks = new Set([hnuser, ageLink, commentsLink, favoriteLink]);
+      const excludedLinks = new Set([
+        hnuser,
+        ageLink,
+        commentsLink,
+        favoriteLink,
+        hideLink,
+        flagLink,
+      ]);
       const extraLinks = Array.from(subtext.querySelectorAll("a")).filter(
         (link) => !excludedLinks.has(link),
       );

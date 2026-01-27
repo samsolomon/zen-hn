@@ -7,6 +7,8 @@ const {
   toggleVoteState,
   toggleFavoriteState,
   willFavoriteFromHref,
+  buildMenuItem,
+  buildMenuItems,
 } = require("../logic");
 
 test("buildVoteHref adds how param", () => {
@@ -50,4 +52,56 @@ test("toggleFavoriteState flips", () => {
 test("willFavoriteFromHref detects unfavorite", () => {
   assert.equal(willFavoriteFromHref("fave?id=123"), true);
   assert.equal(willFavoriteFromHref("fave?id=123&un=t"), false);
+});
+
+test("buildMenuItem builds label from text", () => {
+  const result = buildMenuItem({
+    href: "hide?id=1",
+    text: "hide",
+    fallback: "Hide",
+    action: "hide",
+  });
+  assert.deepEqual(result, {
+    label: "Hide",
+    href: "hide?id=1",
+    action: "hide",
+  });
+});
+
+test("buildMenuItem falls back when text missing", () => {
+  const result = buildMenuItem({
+    href: "flag?id=1",
+    text: "",
+    fallback: "Flag",
+    action: "flag",
+  });
+  assert.deepEqual(result, {
+    label: "Flag",
+    href: "flag?id=1",
+    action: "flag",
+  });
+});
+
+test("buildMenuItem returns null without href", () => {
+  const result = buildMenuItem({
+    href: "",
+    text: "hide",
+    fallback: "Hide",
+    action: "hide",
+  });
+  assert.equal(result, null);
+});
+
+test("buildMenuItems filters missing items", () => {
+  const result = buildMenuItems([
+    { href: "", text: "hide", fallback: "Hide", action: "hide" },
+    { href: "flag?id=1", text: "flag", fallback: "Flag", action: "flag" },
+  ]);
+  assert.deepEqual(result, [
+    {
+      label: "Flag",
+      href: "flag?id=1",
+      action: "flag",
+    },
+  ]);
 });

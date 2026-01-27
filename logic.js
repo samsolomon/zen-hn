@@ -51,6 +51,26 @@ const ZenHnLogic = {
     }
     return !href.includes("un=t");
   },
+  buildMenuItem({ href, text, fallback, action }) {
+    if (!href) {
+      return null;
+    }
+    const trimmed = (text || "").trim();
+    const label = trimmed
+      ? `${trimmed.charAt(0).toUpperCase()}${trimmed.slice(1)}`
+      : fallback;
+    return {
+      label: label || "",
+      href,
+      action,
+    };
+  },
+  buildMenuItems(items) {
+    if (!Array.isArray(items)) {
+      return [];
+    }
+    return items.map((item) => ZenHnLogic.buildMenuItem(item)).filter(Boolean);
+  },
 };
 
 if (typeof module !== "undefined" && module.exports) {
