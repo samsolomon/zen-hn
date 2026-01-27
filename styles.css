@@ -477,7 +477,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 }
 
 .hn-comment-meta.has-comhead .hnuser {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   font-weight: 600;
   color: #2f2f2f;
   display: inline-flex;
@@ -485,8 +485,8 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 }
 
 .hn-comment-meta.has-comhead .age {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: var(--font-size-base);
+  font-weight: 400;
   color: #6b6b6b;
   display: inline-flex;
   align-items: center;
@@ -501,7 +501,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 
 
 .hn-comment-text {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   line-height: 1.5;
   color: #222222;
   margin-left: 44px;
