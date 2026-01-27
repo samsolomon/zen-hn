@@ -507,6 +507,10 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   margin-left: 44px;
 }
 
+.hn-comment-text a:hover {
+  text-decoration: underline;
+}
+
 .hn-comment[data-collapsed="true"] .hn-comment-text {
   display: none;
 }
