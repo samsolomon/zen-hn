@@ -1,5 +1,3 @@
-console.log("Zen HN Active");
-
 const PHOSPHOR_SVGS = {
   "arrow-fat-up":
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M229.66,114.34l-96-96a8,8,0,0,0-11.32,0l-96,96A8,8,0,0,0,32,128H72v80a16,16,0,0,0,16,16h80a16,16,0,0,0,16-16V128h40a8,8,0,0,0,5.66-13.66ZM176,112a8,8,0,0,0-8,8v88H88V120a8,8,0,0,0-8-8H51.31L128,35.31,204.69,112Z\"/></svg>",
@@ -549,16 +547,7 @@ async function resolveStoryFavoriteLink(itemId) {
   };
 }
 
-function resolveStoryHref(href) {
-  if (!href) {
-    return "";
-  }
-  try {
-    return new URL(href, window.location.href).toString();
-  } catch (error) {
-    return href;
-  }
-}
+
 
 function buildNextFavoriteHref(href, willBeFavorited) {
   if (!href) {
@@ -604,23 +593,19 @@ function restyleSubmissions() {
   const bigboxTable = bigboxRow?.querySelector("table");
   const sourceTable = itemList || bigboxTable;
   if (!sourceTable || sourceTable.dataset[ZEN_HN_SUBMISSIONS_KEY] === "true") {
-    console.log("Zen HN restyle", { type: "submissions", status: "missing" });
     return;
   }
 
   if (document.querySelector("table.comment-tree")) {
-    console.log("Zen HN restyle", { type: "submissions", status: "comment-tree" });
     return;
   }
 
   const rows = getStoryRows(sourceTable);
   if (!rows.length) {
-    console.log("Zen HN restyle", { type: "submissions", status: "empty" });
     return;
   }
 
   const mode = itemList ? "itemlist" : "bigbox";
-  console.log("Zen HN restyle", { type: "submissions", mode, count: rows.length });
   const container = document.createElement("div");
   container.className = "hn-submissions";
   registerSubmissionMenuListeners();
@@ -638,9 +623,6 @@ function restyleSubmissions() {
     const item = document.createElement("div");
     item.className = "hn-submission";
     const itemId = row.getAttribute("id") || "";
-    if (itemId) {
-      item.dataset.itemId = itemId;
-    }
 
     const rankText = row.querySelector(".rank")?.textContent?.trim() || "";
     const rank = document.createElement("div");
@@ -650,20 +632,48 @@ function restyleSubmissions() {
       rank.classList.add("is-empty");
     }
 
-    const storedStoryAction = itemId ? getStoredAction("stories", itemId) : null;
+    const subtextRow = row.nextElementSibling;
+    const subtext = subtextRow?.querySelector(".subtext");
+
     const { isUpvoted } = getVoteState(row);
     let isUpvotedState = isUpvoted;
-    const upvoteLink = row.querySelector("a[id^='up_']");
-    const unvoteLink = row.querySelector("a[id^='un_'], a[href*='how=un']");
+    let upvoteLink = row.querySelector("a[id^='up_']");
+    let unvoteLink = row.querySelector("a[id^='un_'], a[href*='how=un']");
+    if (!upvoteLink && subtextRow) {
+      upvoteLink = subtextRow.querySelector("a[id^='up_']");
+    }
+    if (!upvoteLink && subtext) {
+      upvoteLink = Array.from(subtext.querySelectorAll("a")).find((link) => {
+        const text = link.textContent?.trim().toLowerCase() || "";
+        return text === "upvote" || text === "vote";
+      });
+    }
+    if (!unvoteLink && subtextRow) {
+      unvoteLink = subtextRow.querySelector("a[id^='un_'], a[href*='how=un']");
+    }
+    if (!unvoteLink && subtext) {
+      unvoteLink = Array.from(subtext.querySelectorAll("a")).find((link) => {
+        const text = link.textContent?.trim().toLowerCase() || "";
+        return text === "unvote";
+      });
+    }
     const upvoteHref = upvoteLink?.getAttribute("href") || "";
     const unvoteHref = unvoteLink?.getAttribute("href") || "";
+    const voteItemId = ZEN_LOGIC.resolveVoteItemId(upvoteHref || unvoteHref, window.location.href);
+    const effectiveItemId = voteItemId || itemId;
+    if (effectiveItemId) {
+      item.dataset.itemId = effectiveItemId;
+    }
+    const storedStoryAction = effectiveItemId
+      ? getStoredAction("stories", effectiveItemId)
+      : null;
 
     const hasVoteLinks = Boolean(upvoteLink || unvoteLink);
     const storedVote = storedStoryAction?.vote;
     const domUpvoted = isUpvoted || Boolean(unvoteLink);
-    if (hasVoteLinks && itemId) {
+    if (hasVoteLinks && effectiveItemId) {
       if (domUpvoted && storedVote !== "up") {
-        updateStoredAction("stories", itemId, { vote: "up" });
+        updateStoredAction("stories", effectiveItemId, { vote: "up" });
       }
     }
     if (!domUpvoted && !hasVoteLinks && storedVote === "up") {
@@ -682,8 +692,6 @@ function restyleSubmissions() {
     titleRow.appendChild(titleClone);
     body.appendChild(titleRow);
 
-    const subtextRow = row.nextElementSibling;
-    const subtext = subtextRow?.querySelector(".subtext");
     const meta = document.createElement("div");
     meta.className = "hn-submission-meta";
 
@@ -757,16 +765,10 @@ function restyleSubmissions() {
           return;
         }
         event.preventDefault();
-        console.log("Zen HN action", {
-          type: "upvote",
-          itemId,
-          wasUpvoted: isUpvotedState,
-          href: voteHref,
-        });
         fetch(voteHref, { credentials: "same-origin", cache: "no-store" });
         isUpvotedState = !isUpvotedState;
-        if (itemId) {
-          updateStoredAction("stories", itemId, { vote: isUpvotedState ? "up" : null });
+        if (effectiveItemId) {
+          updateStoredAction("stories", effectiveItemId, { vote: isUpvotedState ? "up" : null });
         }
         upvoteButton.classList.toggle("is-active", isUpvotedState);
         upvoteButton.setAttribute("aria-pressed", isUpvotedState ? "true" : "false");
@@ -792,11 +794,11 @@ function restyleSubmissions() {
     if (!hasFavoriteSignal && storedFavorite === true) {
       isFavorited = true;
     }
-    if (hasFavoriteSignal && itemId) {
+    if (hasFavoriteSignal && effectiveItemId) {
       if (isFavorited && storedFavorite !== true) {
-        updateStoredAction("stories", itemId, { favorite: true });
+        updateStoredAction("stories", effectiveItemId, { favorite: true });
       } else if (!isFavorited && storedFavorite === true) {
-        updateStoredAction("stories", itemId, { favorite: false });
+        updateStoredAction("stories", effectiveItemId, { favorite: false });
       }
     }
     let favoriteHref = favoriteLink?.getAttribute("href") || "";
@@ -812,45 +814,34 @@ function restyleSubmissions() {
     }
     bookmarkButton.addEventListener("click", async (event) => {
       event.preventDefault();
-      console.log("Zen HN action", {
-        type: "bookmark",
-        itemId,
-        wasFavorited: isFavorited,
-        href: favoriteHref,
-      });
       const wasFavorited = isFavorited;
       isFavorited = ZEN_LOGIC.toggleFavoriteState(isFavorited);
       bookmarkButton.classList.toggle("is-active", isFavorited);
       bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
-      if (itemId) {
-        updateStoredAction("stories", itemId, { favorite: isFavorited });
+      if (effectiveItemId) {
+        updateStoredAction("stories", effectiveItemId, { favorite: isFavorited });
       }
-      if (!favoriteHref && itemId) {
+      if (!favoriteHref && effectiveItemId) {
         bookmarkButton.disabled = true;
-        const resolved = await resolveStoryFavoriteLink(itemId);
+        const resolved = await resolveStoryFavoriteLink(effectiveItemId);
         bookmarkButton.disabled = false;
         if (!resolved?.href) {
           isFavorited = wasFavorited;
           bookmarkButton.classList.toggle("is-active", isFavorited);
           bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
-          if (itemId) {
-            updateStoredAction("stories", itemId, { favorite: isFavorited });
+          if (effectiveItemId) {
+            updateStoredAction("stories", effectiveItemId, { favorite: isFavorited });
           }
           return;
         }
         favoriteHref = resolved.href;
-        console.log("Zen HN favorite resolved", {
-          itemId,
-          href: favoriteHref,
-          isFavorited: resolved.isFavorited,
-        });
       }
       if (!favoriteHref) {
         isFavorited = wasFavorited;
         bookmarkButton.classList.toggle("is-active", isFavorited);
         bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
-        if (itemId) {
-          updateStoredAction("stories", itemId, { favorite: isFavorited });
+        if (effectiveItemId) {
+          updateStoredAction("stories", effectiveItemId, { favorite: isFavorited });
         }
         return;
       }
@@ -858,15 +849,10 @@ function restyleSubmissions() {
       isFavorited = ZEN_LOGIC.willFavoriteFromHref(favoriteHref);
       bookmarkButton.classList.toggle("is-active", isFavorited);
       bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
-      if (itemId) {
-        updateStoredAction("stories", itemId, { favorite: isFavorited });
+      if (effectiveItemId) {
+        updateStoredAction("stories", effectiveItemId, { favorite: isFavorited });
       }
       favoriteHref = buildNextFavoriteHref(favoriteHref, !isFavorited);
-      console.log("Zen HN favorite toggled", {
-        itemId,
-        isFavorited,
-        nextHref: favoriteHref,
-      });
     });
 
     const linkButton = document.createElement("button");
@@ -883,9 +869,12 @@ function restyleSubmissions() {
     let copyResetTimer = null;
     linkButton.addEventListener("click", async (event) => {
       event.preventDefault();
-      const commentsHref = commentsLink?.getAttribute("href")
-        || (itemId ? `item?id=${itemId}` : "");
-      const targetHref = resolveStoryHref(commentsHref) || window.location.href;
+      const commentsHref = commentsLink?.getAttribute("href") || "";
+      const targetHref = ZEN_LOGIC.resolveSubmissionCopyHref(
+        commentsHref,
+        effectiveItemId,
+        window.location.href,
+      ) || window.location.href;
       const copied = await copyTextToClipboard(targetHref);
       if (copied) {
         if (copyResetTimer) {
@@ -899,12 +888,6 @@ function restyleSubmissions() {
           copyResetTimer = null;
         }, 1500);
       }
-      console.log("Zen HN action", {
-        type: "copy-link",
-        itemId,
-        copied,
-        href: targetHref,
-      });
     });
 
     actions.appendChild(upvoteButton);
@@ -927,12 +910,6 @@ function restyleSubmissions() {
         action: "flag",
       },
     ]);
-    console.log("Zen HN submission menu", {
-      itemId,
-      hasHide: Boolean(hideHref),
-      hasFlag: Boolean(flagHref),
-      actions: menuItems.map((menuItem) => menuItem.action),
-    });
 
     const menuWrapper = document.createElement("div");
     menuWrapper.className = SUBMISSION_MENU_CLASS;
@@ -963,11 +940,6 @@ function restyleSubmissions() {
         event.preventDefault();
         event.stopPropagation();
         setSubmissionMenuState(menuWrapper, false);
-        console.log("Zen HN action", {
-          type: menuItem.action,
-          itemId,
-          href: menuItem.href,
-        });
         if (menuItem.action === "hide") {
           item.remove();
         }
@@ -990,11 +962,6 @@ function restyleSubmissions() {
       }
       const nextOpen = !isOpen;
       setSubmissionMenuState(menuWrapper, nextOpen);
-      console.log("Zen HN action", {
-        type: "menu-toggle",
-        itemId,
-        isOpen: nextOpen,
-      });
     });
 
     menuDropdown.addEventListener("click", (event) => {
@@ -1022,6 +989,8 @@ function restyleSubmissions() {
         ageLink,
         commentsLink,
         favoriteLink,
+        upvoteLink,
+        unvoteLink,
         hideLink,
         flagLink,
       ]);
@@ -1164,12 +1133,6 @@ function restyleFatItem() {
         return;
       }
       event.preventDefault();
-      console.log("Zen HN action", {
-        type: "upvote",
-        itemId,
-        wasUpvoted: isUpvotedState,
-        href: voteHref,
-      });
       fetch(voteHref, { credentials: "same-origin", cache: "no-store" });
       isUpvotedState = !isUpvotedState;
       if (itemId) {
@@ -1219,12 +1182,6 @@ function restyleFatItem() {
   }
   bookmarkButton.addEventListener("click", async (event) => {
     event.preventDefault();
-    console.log("Zen HN action", {
-      type: "bookmark",
-      itemId,
-      wasFavorited: isFavorited,
-      href: favoriteHref,
-    });
     const wasFavorited = isFavorited;
     isFavorited = ZEN_LOGIC.toggleFavoriteState(isFavorited);
     bookmarkButton.classList.toggle("is-active", isFavorited);
@@ -1246,11 +1203,6 @@ function restyleFatItem() {
         return;
       }
       favoriteHref = resolved.href;
-      console.log("Zen HN favorite resolved", {
-        itemId,
-        href: favoriteHref,
-        isFavorited: resolved.isFavorited,
-      });
     }
     if (!favoriteHref) {
       isFavorited = wasFavorited;
@@ -1269,11 +1221,6 @@ function restyleFatItem() {
       updateStoredAction("stories", itemId, { favorite: isFavorited });
     }
     favoriteHref = buildNextFavoriteHref(favoriteHref, !isFavorited);
-    console.log("Zen HN favorite toggled", {
-      itemId,
-      isFavorited,
-      nextHref: favoriteHref,
-    });
   });
 
   const linkButton = document.createElement("button");
@@ -1290,8 +1237,8 @@ function restyleFatItem() {
   let copyResetTimer = null;
   linkButton.addEventListener("click", async (event) => {
     event.preventDefault();
-    const titleHref = titleLink.getAttribute("href") || "";
-    const targetHref = resolveStoryHref(titleHref) || window.location.href;
+    const itemHref = ZEN_LOGIC.buildItemHref(itemId, window.location.href);
+    const targetHref = itemHref || window.location.href;
     const copied = await copyTextToClipboard(targetHref);
     if (copied) {
       if (copyResetTimer) {
@@ -1305,12 +1252,6 @@ function restyleFatItem() {
         copyResetTimer = null;
       }, 1500);
     }
-    console.log("Zen HN action", {
-      type: "copy-link",
-      itemId,
-      copied,
-      href: targetHref,
-    });
   });
 
   const replyButton = document.createElement("button");
@@ -1381,11 +1322,6 @@ function restyleFatItem() {
     }
     replySubmitButton.disabled = true;
     replyTextarea.disabled = true;
-    console.log("Zen HN action", {
-      type: "reply-submit",
-      itemId,
-      length: replyText.length,
-    });
     let result = { ok: false };
     try {
       if (replyResolved) {
@@ -1402,10 +1338,6 @@ function restyleFatItem() {
       closeReply();
       return;
     }
-    console.warn("Zen HN reply failed", {
-      itemId,
-      status: result.status,
-    });
   });
   const replyActions = document.createElement("div");
   replyActions.className = "hn-reply-actions";
@@ -1575,13 +1507,6 @@ function restyleComments(context) {
           return;
         }
         event.preventDefault();
-        console.log("Zen HN action", {
-          type: "upvote",
-          commentId,
-          wasUpvoted: isUpvoted,
-          wasDownvoted: isDownvoted,
-          href: voteHref,
-        });
         fetch(voteHref, { credentials: "same-origin", cache: "no-store" });
         const nextState = ZEN_LOGIC.toggleVoteState(
           { isUpvoted, isDownvoted },
@@ -1621,13 +1546,6 @@ function restyleComments(context) {
           return;
         }
         event.preventDefault();
-        console.log("Zen HN action", {
-          type: "downvote",
-          commentId,
-          wasDownvoted: isDownvoted,
-          wasUpvoted: isUpvoted,
-          href: voteHref,
-        });
         fetch(voteHref, { credentials: "same-origin", cache: "no-store" });
         const nextState = ZEN_LOGIC.toggleVoteState(
           { isUpvoted, isDownvoted },
@@ -1660,11 +1578,6 @@ function restyleComments(context) {
     }
     bookmarkButton.addEventListener("click", async (event) => {
       event.preventDefault();
-      console.log("Zen HN action", {
-        type: "bookmark",
-        commentId,
-        wasFavorited: isFavorited,
-      });
       const wasFavorited = isFavorited;
       isFavorited = ZEN_LOGIC.toggleFavoriteState(isFavorited);
       bookmarkButton.classList.toggle("is-active", isFavorited);
@@ -1674,12 +1587,10 @@ function restyleComments(context) {
       }
       let favoriteHref = favoriteLink?.getAttribute("href") || "";
       if (!favoriteHref) {
-        console.log("Zen HN favorite link missing", { commentId });
         bookmarkButton.disabled = true;
         const resolved = await resolveFavoriteLink(commentId);
         bookmarkButton.disabled = false;
         if (!resolved?.href) {
-          console.log("Zen HN favorite resolve failed", { commentId });
           isFavorited = wasFavorited;
           bookmarkButton.classList.toggle("is-active", isFavorited);
           bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
@@ -1690,10 +1601,6 @@ function restyleComments(context) {
         }
         favoriteHref = resolved.href;
       }
-      console.log("Zen HN favorite click", {
-        href: favoriteHref,
-        wasFavorited: isFavorited,
-      });
       await fetch(favoriteHref, { credentials: "same-origin", cache: "no-store" });
       isFavorited = ZEN_LOGIC.willFavoriteFromHref(favoriteHref);
       bookmarkButton.classList.toggle("is-active", isFavorited);
@@ -1716,10 +1623,6 @@ function restyleComments(context) {
           replyContainer.querySelector("textarea")?.focus();
         }
       }
-      console.log("Zen HN action", {
-        type: "reply-toggle",
-        commentId,
-      });
     });
 
     const linkButton = document.createElement("button");
@@ -1752,15 +1655,6 @@ function restyleComments(context) {
           linkButton.classList.remove("is-active");
           copyResetTimer = null;
         }, 1500);
-      }
-      console.log("Zen HN action", {
-        type: "copy-link",
-        commentId,
-        copied,
-        href: commentHref,
-      });
-      if (!copied) {
-        console.warn("Zen HN copy failed", { commentId, href: commentHref });
       }
     });
 
@@ -1822,11 +1716,6 @@ function restyleComments(context) {
       }
       replyButton.disabled = true;
       replyTextarea.disabled = true;
-      console.log("Zen HN action", {
-        type: "reply-submit",
-        commentId,
-        length: replyText.length,
-      });
       let result = { ok: false };
       try {
         result = await submitReply(replyHref, replyText);
@@ -1839,10 +1728,6 @@ function restyleComments(context) {
         closeReply();
         return;
       }
-      console.warn("Zen HN reply failed", {
-        commentId,
-        status: result.status,
-      });
     });
     const replyActions = document.createElement("div");
     replyActions.className = "hn-reply-actions";

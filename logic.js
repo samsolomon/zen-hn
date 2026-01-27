@@ -25,6 +25,37 @@ const ZenHnLogic = {
       return `item?id=${commentId}`;
     }
   },
+  buildItemHref(itemId, baseHref) {
+    if (!itemId) {
+      return "";
+    }
+    return ZenHnLogic.buildCommentHref(itemId, baseHref);
+  },
+  resolveVoteItemId(href, baseHref) {
+    if (!href) {
+      return "";
+    }
+    try {
+      const base = baseHref || globalThis.location?.href || "https://news.ycombinator.com/";
+      const url = new URL(href, base);
+      return url.searchParams.get("id") || "";
+    } catch (error) {
+      const match = href.match(/[?&]id=(\d+)/);
+      return match ? match[1] : "";
+    }
+  },
+  resolveSubmissionCopyHref(commentsHref, itemId, baseHref) {
+    const href = commentsHref || (itemId ? `item?id=${itemId}` : "");
+    if (!href) {
+      return "";
+    }
+    try {
+      const base = baseHref || globalThis.location?.href || "https://news.ycombinator.com/";
+      return new URL(href, base).toString();
+    } catch (error) {
+      return href;
+    }
+  },
   toggleVoteState(current, direction) {
     const isUp = Boolean(current?.isUpvoted);
     const isDown = Boolean(current?.isDownvoted);

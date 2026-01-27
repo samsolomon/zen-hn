@@ -4,6 +4,9 @@ const { test } = require("node:test");
 const {
   buildVoteHref,
   buildCommentHref,
+  buildItemHref,
+  resolveVoteItemId,
+  resolveSubmissionCopyHref,
   toggleVoteState,
   toggleFavoriteState,
   willFavoriteFromHref,
@@ -22,6 +25,30 @@ test("buildVoteHref adds how param", () => {
 test("buildCommentHref builds absolute comment link", () => {
   const href = buildCommentHref("456", "https://news.ycombinator.com/item?id=123");
   assert.equal(href, "https://news.ycombinator.com/item?id=456");
+});
+
+test("buildItemHref builds absolute item link", () => {
+  const href = buildItemHref("456", "https://news.ycombinator.com/news");
+  assert.equal(href, "https://news.ycombinator.com/item?id=456");
+});
+
+test("resolveVoteItemId parses vote href id", () => {
+  const id = resolveVoteItemId("vote?id=123&how=up", "https://news.ycombinator.com/news");
+  assert.equal(id, "123");
+});
+
+test("resolveSubmissionCopyHref prefers comments link", () => {
+  const href = resolveSubmissionCopyHref(
+    "item?id=456",
+    "123",
+    "https://news.ycombinator.com/news",
+  );
+  assert.equal(href, "https://news.ycombinator.com/item?id=456");
+});
+
+test("resolveSubmissionCopyHref falls back to item id", () => {
+  const href = resolveSubmissionCopyHref("", "123", "https://news.ycombinator.com/news");
+  assert.equal(href, "https://news.ycombinator.com/item?id=123");
 });
 
 test("toggleVoteState upvote from neutral", () => {
