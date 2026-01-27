@@ -883,8 +883,9 @@ function restyleSubmissions() {
     let copyResetTimer = null;
     linkButton.addEventListener("click", async (event) => {
       event.preventDefault();
-      const titleHref = titleLink.getAttribute("href") || "";
-      const targetHref = resolveStoryHref(titleHref) || window.location.href;
+      const commentsHref = commentsLink?.getAttribute("href")
+        || (itemId ? `item?id=${itemId}` : "");
+      const targetHref = resolveStoryHref(commentsHref) || window.location.href;
       const copied = await copyTextToClipboard(targetHref);
       if (copied) {
         if (copyResetTimer) {
@@ -906,26 +907,9 @@ function restyleSubmissions() {
       });
     });
 
-    const discussButton = document.createElement("button");
-    discussButton.className = "icon-button is-flipped";
-    discussButton.type = "button";
-    discussButton.setAttribute("aria-label", "Discuss");
-    discussButton.innerHTML = renderIcon("share-fat");
-    const discussHref = commentsLink?.getAttribute("href")
-      || (itemId ? `item?id=${itemId}` : "");
-    if (!discussHref) {
-      discussButton.disabled = true;
-    } else {
-      discussButton.addEventListener("click", (event) => {
-        event.preventDefault();
-        window.location.href = discussHref;
-      });
-    }
-
     actions.appendChild(upvoteButton);
     actions.appendChild(bookmarkButton);
     actions.appendChild(linkButton);
-    actions.appendChild(discussButton);
 
     const hideHref = hideLink?.getAttribute("href") || "";
     const flagHref = flagLink?.getAttribute("href") || "";
