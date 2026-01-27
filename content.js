@@ -1096,6 +1096,7 @@ function restyleFatItem() {
   const hnuser = subtext?.querySelector(".hnuser");
   const score = subtext?.querySelector(".score");
   const age = subtext?.querySelector(".age");
+  const sitebit = fatitem.querySelector(".titleline .sitebit");
   const commentsLink = subtext
     ? Array.from(subtext.querySelectorAll("a")).find((link) => {
         const text = link.textContent?.trim().toLowerCase() || "";
@@ -1133,6 +1134,9 @@ function restyleFatItem() {
     if (className) {
       clone.classList.add(className);
     }
+    if (className === "hn-fatitem-site" || clone.classList.contains("sitebit")) {
+      stripParenTextNodes(clone);
+    }
     meta.appendChild(clone);
   };
 
@@ -1140,6 +1144,7 @@ function restyleFatItem() {
   appendMetaItem(hnuser);
   appendMetaItem(age);
   appendMetaItem(commentsLink, "hn-fatitem-comments");
+  appendMetaItem(sitebit, "hn-fatitem-site");
 
   const actions = document.createElement("div");
   actions.className = "hn-comment-actions hn-fatitem-actions";
