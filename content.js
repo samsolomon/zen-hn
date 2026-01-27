@@ -1047,10 +1047,31 @@ function restyleFatItem() {
     return;
   }
 
+  const commentRow = getFatItemCommentRow(fatitem);
+  if (commentRow) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "hn-fatitem is-comment";
+    const replyForm = fatitem.querySelector("form textarea[name='text']")?.closest("form");
+    const replyResolved = resolveReplyFormFromElement(replyForm);
+    const commentItem = buildCommentItem(commentRow, {
+      indentLevel: 0,
+      hasChildren: false,
+      showOnStory: true,
+      replyResolved,
+    });
+    if (!commentItem) {
+      return;
+    }
+    wrapper.appendChild(commentItem);
+    fatitem.dataset.zenHnRestyled = "true";
+    fatitem.insertAdjacentElement("beforebegin", wrapper);
+    fatitem.style.display = "none";
+    return;
+  }
+
   const titleLink = fatitem.querySelector(".titleline a")
     || fatitem.querySelector("a.storylink")
-    || fatitem.querySelector("a.titlelink")
-    || fatitem.querySelector("a");
+    || fatitem.querySelector("a.titlelink");
   if (!titleLink) {
     return;
   }
@@ -1376,6 +1397,382 @@ function restyleFatItem() {
   fatitem.style.display = "none";
 }
 
+function buildCommentItem(row, options = {}) {
+  if (!row) {
+    return null;
+  }
+
+  const {
+    indentLevel: indentOverride,
+    hasChildren: hasChildrenOverride,
+    showOnStory = false,
+    replyResolved = null,
+    replyHref: replyHrefOverride,
+  } = options;
+
+  const cell = row.querySelector("td.default");
+  if (!cell) {
+    return null;
+  }
+
+  const user = row.querySelector(".comhead .hnuser")?.textContent?.trim() || "";
+  const timestamp = row.querySelector(".comhead .age a")?.textContent?.trim() || "";
+  const comhead = row.querySelector(".comhead");
+  const textHtml = row.querySelector(".commtext")?.innerHTML || "";
+  const upvoteLink = row.querySelector("a[id^='up_']");
+  const downvoteLink = row.querySelector("a[id^='down_']");
+  const unvoteLink = row.querySelector("a[id^='un_'], a[href*='how=un']");
+  const upvoteHref = upvoteLink?.getAttribute("href") || "";
+  const downvoteHref = downvoteLink?.getAttribute("href") || "";
+  const unvoteHref = unvoteLink?.getAttribute("href") || "";
+  const favoriteLinkById = row.querySelector(
+    "a[id^='fav_'], a[id^='fave_'], a[href^='fave?id=']",
+  );
+  const favoriteLinkByText = comhead
+    ? Array.from(comhead.querySelectorAll("a")).find((link) => {
+        const text = link.textContent?.trim().toLowerCase();
+        return text === "favorite" || text === "unfavorite";
+      })
+    : null;
+  const favoriteLink = favoriteLinkById || favoriteLinkByText;
+  const commentId = getCommentId(row, comhead);
+  const replyHref = replyHrefOverride ?? getReplyHref(row, comhead);
+  const storedCommentAction = getStoredAction("comments", commentId);
+  let { isUpvoted, isDownvoted } = getVoteState(row);
+  const hasVoteLinks = Boolean(upvoteLink || downvoteLink || unvoteLink);
+  const storedVote = storedCommentAction?.vote;
+  if (hasVoteLinks && commentId) {
+    if (isUpvoted && storedVote !== "up") {
+      updateStoredAction("comments", commentId, { vote: "up" });
+    } else if (isDownvoted && storedVote !== "down") {
+      updateStoredAction("comments", commentId, { vote: "down" });
+    }
+  }
+  if (!isUpvoted && !isDownvoted && storedVote) {
+    isUpvoted = storedVote === "up";
+    isDownvoted = storedVote === "down";
+  }
+  const favoriteText = favoriteLink?.textContent?.trim().toLowerCase() || "";
+  const storedFavorite = storedCommentAction?.favorite;
+  const hasFavoriteSignal = Boolean(favoriteLink);
+  let isFavorited = favoriteText === "unfavorite";
+  if (!hasFavoriteSignal && storedFavorite === true) {
+    isFavorited = true;
+  }
+  if (hasFavoriteSignal && commentId) {
+    if (isFavorited && storedFavorite !== true) {
+      updateStoredAction("comments", commentId, { favorite: true });
+    } else if (!isFavorited && storedFavorite === true) {
+      updateStoredAction("comments", commentId, { favorite: false });
+    }
+  }
+
+  const indentLevel = Number.isFinite(indentOverride)
+    ? indentOverride
+    : getIndentLevelFromRow(row);
+  const hasChildren = typeof hasChildrenOverride === "boolean"
+    ? hasChildrenOverride
+    : false;
+
+  const item = document.createElement("div");
+  item.className = "hn-comment";
+  item.classList.add(`level-${indentLevel}`);
+  item.style.setProperty("--indent-level", String(indentLevel));
+  item.dataset.indentLevel = String(indentLevel);
+  item.dataset.collapsed = "false";
+  item.dataset.hasChildren = hasChildren ? "true" : "false";
+
+  const header = document.createElement("div");
+  header.className = "hn-comment-header";
+
+  const collapseButton = document.createElement("button");
+  collapseButton.className = "icon-button hn-collapse-button";
+  collapseButton.type = "button";
+  collapseButton.innerHTML = renderIcon("caret-down");
+  setCollapseButtonState(collapseButton, false, hasChildren);
+  collapseButton.addEventListener("click", () => {
+    toggleCommentCollapse(item);
+  });
+
+  const meta = document.createElement("div");
+  meta.className = "hn-comment-meta";
+  if (comhead) {
+    meta.classList.add("has-comhead");
+    meta.appendChild(comhead.cloneNode(true));
+    if (showOnStory) {
+      const onStoryLink = comhead.querySelector(".onstory a");
+      if (onStoryLink) {
+        const onStory = document.createElement("span");
+        onStory.className = "hn-comment-onstory";
+        onStory.appendChild(onStoryLink.cloneNode(true));
+        meta.appendChild(onStory);
+      }
+    }
+  } else {
+    meta.textContent = [user, timestamp].filter(Boolean).join(" • ");
+  }
+
+  const actions = document.createElement("div");
+  actions.className = "hn-comment-actions";
+
+  const upvoteButton = document.createElement("button");
+  upvoteButton.className = "icon-button";
+  upvoteButton.type = "button";
+  upvoteButton.setAttribute("aria-label", "Upvote");
+  upvoteButton.setAttribute("aria-pressed", isUpvoted ? "true" : "false");
+  upvoteButton.innerHTML = renderIcon("arrow-fat-up");
+  if (isUpvoted) {
+    upvoteButton.classList.add("is-active");
+  }
+  if (upvoteLink || isUpvoted) {
+    upvoteButton.addEventListener("click", (event) => {
+      const voteHref = isUpvoted
+        ? (unvoteHref || ZEN_LOGIC.buildVoteHref(upvoteHref, "un", window.location.href))
+        : upvoteHref;
+      if (!voteHref) {
+        return;
+      }
+      event.preventDefault();
+      fetch(voteHref, { credentials: "same-origin", cache: "no-store" });
+      const nextState = ZEN_LOGIC.toggleVoteState(
+        { isUpvoted, isDownvoted },
+        "up",
+      );
+      isUpvoted = nextState.isUpvoted;
+      isDownvoted = nextState.isDownvoted;
+      if (commentId) {
+        updateStoredAction("comments", commentId, {
+          vote: isUpvoted ? "up" : isDownvoted ? "down" : null,
+        });
+      }
+      upvoteButton.classList.toggle("is-active", isUpvoted);
+      upvoteButton.setAttribute("aria-pressed", isUpvoted ? "true" : "false");
+      downvoteButton.classList.toggle("is-active", isDownvoted);
+      downvoteButton.setAttribute("aria-pressed", isDownvoted ? "true" : "false");
+    });
+  } else {
+    upvoteButton.hidden = true;
+  }
+
+  const downvoteButton = document.createElement("button");
+  downvoteButton.className = "icon-button";
+  downvoteButton.type = "button";
+  downvoteButton.setAttribute("aria-label", "Downvote");
+  downvoteButton.setAttribute("aria-pressed", isDownvoted ? "true" : "false");
+  downvoteButton.innerHTML = renderIcon("arrow-fat-down");
+  if (isDownvoted) {
+    downvoteButton.classList.add("is-active");
+  }
+  if (downvoteLink || isDownvoted) {
+    downvoteButton.addEventListener("click", (event) => {
+      const voteHref = isDownvoted
+        ? (unvoteHref || ZEN_LOGIC.buildVoteHref(downvoteHref, "un", window.location.href))
+        : downvoteHref;
+      if (!voteHref) {
+        return;
+      }
+      event.preventDefault();
+      fetch(voteHref, { credentials: "same-origin", cache: "no-store" });
+      const nextState = ZEN_LOGIC.toggleVoteState(
+        { isUpvoted, isDownvoted },
+        "down",
+      );
+      isUpvoted = nextState.isUpvoted;
+      isDownvoted = nextState.isDownvoted;
+      if (commentId) {
+        updateStoredAction("comments", commentId, {
+          vote: isUpvoted ? "up" : isDownvoted ? "down" : null,
+        });
+      }
+      downvoteButton.classList.toggle("is-active", isDownvoted);
+      downvoteButton.setAttribute("aria-pressed", isDownvoted ? "true" : "false");
+      upvoteButton.classList.toggle("is-active", isUpvoted);
+      upvoteButton.setAttribute("aria-pressed", isUpvoted ? "true" : "false");
+    });
+  } else {
+    downvoteButton.hidden = true;
+  }
+
+  const bookmarkButton = document.createElement("button");
+  bookmarkButton.className = "icon-button";
+  bookmarkButton.type = "button";
+  bookmarkButton.setAttribute("aria-label", "Favorite");
+  bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+  bookmarkButton.innerHTML = renderIcon("bookmark-simple");
+  if (isFavorited) {
+    bookmarkButton.classList.add("is-active");
+  }
+  bookmarkButton.addEventListener("click", async (event) => {
+    event.preventDefault();
+    const wasFavorited = isFavorited;
+    isFavorited = ZEN_LOGIC.toggleFavoriteState(isFavorited);
+    bookmarkButton.classList.toggle("is-active", isFavorited);
+    bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+    if (commentId) {
+      updateStoredAction("comments", commentId, { favorite: isFavorited });
+    }
+    let favoriteHref = favoriteLink?.getAttribute("href") || "";
+    if (!favoriteHref) {
+      bookmarkButton.disabled = true;
+      const resolved = await resolveFavoriteLink(commentId);
+      bookmarkButton.disabled = false;
+      if (!resolved?.href) {
+        isFavorited = wasFavorited;
+        bookmarkButton.classList.toggle("is-active", isFavorited);
+        bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+        if (commentId) {
+          updateStoredAction("comments", commentId, { favorite: isFavorited });
+        }
+        return;
+      }
+      favoriteHref = resolved.href;
+    }
+    await fetch(favoriteHref, { credentials: "same-origin", cache: "no-store" });
+    isFavorited = ZEN_LOGIC.willFavoriteFromHref(favoriteHref);
+    bookmarkButton.classList.toggle("is-active", isFavorited);
+    bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+    if (commentId) {
+      updateStoredAction("comments", commentId, { favorite: isFavorited });
+    }
+  });
+
+  const shareButton = document.createElement("button");
+  shareButton.className = "icon-button is-flipped";
+  shareButton.type = "button";
+  shareButton.setAttribute("aria-label", "Reply");
+  shareButton.innerHTML = renderIcon("share-fat");
+  let replyContainer = null;
+  shareButton.addEventListener("click", () => {
+    if (replyContainer) {
+      const isHidden = replyContainer.classList.toggle("is-hidden");
+      if (!isHidden) {
+        replyContainer.querySelector("textarea")?.focus();
+      }
+    }
+  });
+
+  const linkButton = document.createElement("button");
+  linkButton.className = "icon-button";
+  linkButton.type = "button";
+  linkButton.setAttribute("aria-label", "Copy link");
+  const linkIconSwap = document.createElement("span");
+  linkIconSwap.className = "icon-swap";
+  linkIconSwap.innerHTML = `
+    <span class="icon-default">${renderIcon("link-simple")}</span>
+    <span class="icon-success">${renderIcon("check-circle")}</span>
+  `;
+  linkButton.appendChild(linkIconSwap);
+  let copyResetTimer = null;
+  linkButton.addEventListener("click", async (event) => {
+    event.preventDefault();
+    const commentHref = ZEN_LOGIC.buildCommentHref(commentId, window.location.href);
+    if (!commentHref) {
+      return;
+    }
+    const copied = await copyTextToClipboard(commentHref);
+    if (copied) {
+      if (copyResetTimer) {
+        window.clearTimeout(copyResetTimer);
+      }
+      linkButton.classList.add("is-copied");
+      linkButton.classList.add("is-active");
+      copyResetTimer = window.setTimeout(() => {
+        linkButton.classList.remove("is-copied");
+        linkButton.classList.remove("is-active");
+        copyResetTimer = null;
+      }, 1500);
+    }
+  });
+
+  actions.appendChild(upvoteButton);
+  actions.appendChild(downvoteButton);
+  actions.appendChild(bookmarkButton);
+  actions.appendChild(linkButton);
+  actions.appendChild(shareButton);
+
+  header.appendChild(collapseButton);
+  header.appendChild(meta);
+  header.appendChild(actions);
+
+  const text = document.createElement("div");
+  text.className = "hn-comment-text";
+  text.innerHTML = textHtml;
+
+  replyContainer = document.createElement("div");
+  replyContainer.className = "hn-reply is-hidden";
+  const replyTextarea = document.createElement("textarea");
+  replyTextarea.className = "hn-reply-textarea";
+  replyTextarea.setAttribute("aria-label", "Reply");
+  const closeReply = () => {
+    replyContainer.classList.add("is-hidden");
+  };
+  replyTextarea.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" || event.shiftKey) {
+      return;
+    }
+    event.preventDefault();
+    replyButton.click();
+  });
+  const replyButton = document.createElement("button");
+  replyButton.className = "hn-reply-button";
+  replyButton.type = "button";
+  replyButton.textContent = "Reply";
+  const cancelButton = document.createElement("button");
+  cancelButton.className = "hn-reply-cancel";
+  cancelButton.type = "button";
+  cancelButton.textContent = "Cancel";
+  cancelButton.addEventListener("click", (event) => {
+    event.preventDefault();
+    closeReply();
+  });
+  const hasReplyTarget = Boolean(replyResolved || replyHref);
+  if (!hasReplyTarget) {
+    replyTextarea.disabled = true;
+    replyButton.disabled = true;
+    cancelButton.disabled = true;
+  }
+  replyButton.addEventListener("click", async (event) => {
+    event.preventDefault();
+    const replyText = replyTextarea.value.trim();
+    if (!replyText) {
+      replyTextarea.focus();
+      return;
+    }
+    if (!hasReplyTarget) {
+      return;
+    }
+    replyButton.disabled = true;
+    replyTextarea.disabled = true;
+    let result = { ok: false };
+    try {
+      if (replyResolved) {
+        result = await submitReplyWithResolved(replyResolved, replyText);
+      } else if (replyHref) {
+        result = await submitReply(replyHref, replyText);
+      }
+    } finally {
+      replyButton.disabled = false;
+      replyTextarea.disabled = false;
+    }
+    if (result.ok) {
+      replyTextarea.value = "";
+      closeReply();
+      return;
+    }
+  });
+  const replyActions = document.createElement("div");
+  replyActions.className = "hn-reply-actions";
+  replyActions.appendChild(replyButton);
+  replyActions.appendChild(cancelButton);
+  replyContainer.appendChild(replyTextarea);
+  replyContainer.appendChild(replyActions);
+
+  item.appendChild(header);
+  item.appendChild(text);
+  item.appendChild(replyContainer);
+  return item;
+}
+
 function restyleComments(context) {
   if (!context?.root) {
     return;
@@ -1408,349 +1805,13 @@ function restyleComments(context) {
 
   document.documentElement.dataset[ZEN_HN_RESTYLE_KEY] = "true";
   rows.forEach((row, index) => {
-    const cell = row.querySelector("td.default");
-    if (!cell) {
-      return;
-    }
-
-    const user = row.querySelector(".comhead .hnuser")?.textContent?.trim() || "";
-    const timestamp = row.querySelector(".comhead .age a")?.textContent?.trim() || "";
-    const comhead = row.querySelector(".comhead");
-    const textHtml = row.querySelector(".commtext")?.innerHTML || "";
-    const upvoteLink = row.querySelector("a[id^='up_']");
-    const downvoteLink = row.querySelector("a[id^='down_']");
-    const unvoteLink = row.querySelector("a[id^='un_'], a[href*='how=un']");
-    const upvoteHref = upvoteLink?.getAttribute("href") || "";
-    const downvoteHref = downvoteLink?.getAttribute("href") || "";
-    const unvoteHref = unvoteLink?.getAttribute("href") || "";
-    const favoriteLinkById = row.querySelector(
-      "a[id^='fav_'], a[id^='fave_'], a[href^='fave?id=']",
-    );
-    const favoriteLinkByText = comhead
-      ? Array.from(comhead.querySelectorAll("a")).find((link) => {
-          const text = link.textContent?.trim().toLowerCase();
-          return text === "favorite" || text === "unfavorite";
-        })
-      : null;
-    const favoriteLink = favoriteLinkById || favoriteLinkByText;
-    const commentId = getCommentId(row, comhead);
-    const replyHref = getReplyHref(row, comhead);
-    const storedCommentAction = getStoredAction("comments", commentId);
-    let { isUpvoted, isDownvoted } = getVoteState(row);
-    const hasVoteLinks = Boolean(upvoteLink || downvoteLink || unvoteLink);
-    const storedVote = storedCommentAction?.vote;
-    if (hasVoteLinks && commentId) {
-      if (isUpvoted && storedVote !== "up") {
-        updateStoredAction("comments", commentId, { vote: "up" });
-      } else if (isDownvoted && storedVote !== "down") {
-        updateStoredAction("comments", commentId, { vote: "down" });
-      }
-    }
-    if (!isUpvoted && !isDownvoted && storedVote) {
-      isUpvoted = storedVote === "up";
-      isDownvoted = storedVote === "down";
-    }
-    const favoriteText = favoriteLink?.textContent?.trim().toLowerCase() || "";
-    const storedFavorite = storedCommentAction?.favorite;
-    const hasFavoriteSignal = Boolean(favoriteLink);
-    let isFavorited = favoriteText === "unfavorite";
-    if (!hasFavoriteSignal && storedFavorite === true) {
-      isFavorited = true;
-    }
-    if (hasFavoriteSignal && commentId) {
-      if (isFavorited && storedFavorite !== true) {
-        updateStoredAction("comments", commentId, { favorite: true });
-      } else if (!isFavorited && storedFavorite === true) {
-        updateStoredAction("comments", commentId, { favorite: false });
-      }
-    }
-
     const indentLevel = getIndentLevelFromRow(row);
     const nextIndentLevel = getIndentLevelFromRow(rows[index + 1]);
     const hasChildren = nextIndentLevel > indentLevel;
-
-    const item = document.createElement("div");
-    item.className = "hn-comment";
-    item.classList.add(`level-${indentLevel}`);
-    item.style.setProperty("--indent-level", String(indentLevel));
-    item.dataset.indentLevel = String(indentLevel);
-    item.dataset.collapsed = "false";
-    item.dataset.hasChildren = hasChildren ? "true" : "false";
-
-    const header = document.createElement("div");
-    header.className = "hn-comment-header";
-
-    const collapseButton = document.createElement("button");
-    collapseButton.className = "icon-button hn-collapse-button";
-    collapseButton.type = "button";
-    collapseButton.innerHTML = renderIcon("caret-down");
-    setCollapseButtonState(collapseButton, false, hasChildren);
-    collapseButton.addEventListener("click", () => {
-      toggleCommentCollapse(item);
-    });
-
-    const meta = document.createElement("div");
-    meta.className = "hn-comment-meta";
-    if (comhead) {
-      meta.classList.add("has-comhead");
-      meta.appendChild(comhead.cloneNode(true));
-    } else {
-      meta.textContent = [user, timestamp].filter(Boolean).join(" • ");
+    const item = buildCommentItem(row, { indentLevel, hasChildren });
+    if (!item) {
+      return;
     }
-
-    const actions = document.createElement("div");
-    actions.className = "hn-comment-actions";
-
-    const upvoteButton = document.createElement("button");
-    upvoteButton.className = "icon-button";
-    upvoteButton.type = "button";
-    upvoteButton.setAttribute("aria-label", "Upvote");
-    upvoteButton.setAttribute("aria-pressed", isUpvoted ? "true" : "false");
-    upvoteButton.innerHTML = renderIcon("arrow-fat-up");
-    if (isUpvoted) {
-      upvoteButton.classList.add("is-active");
-    }
-    if (upvoteLink || isUpvoted) {
-      upvoteButton.addEventListener("click", (event) => {
-        const voteHref = isUpvoted
-          ? (unvoteHref || ZEN_LOGIC.buildVoteHref(upvoteHref, "un", window.location.href))
-          : upvoteHref;
-        if (!voteHref) {
-          return;
-        }
-        event.preventDefault();
-        fetch(voteHref, { credentials: "same-origin", cache: "no-store" });
-        const nextState = ZEN_LOGIC.toggleVoteState(
-          { isUpvoted, isDownvoted },
-          "up",
-        );
-        isUpvoted = nextState.isUpvoted;
-        isDownvoted = nextState.isDownvoted;
-        if (commentId) {
-          updateStoredAction("comments", commentId, {
-            vote: isUpvoted ? "up" : isDownvoted ? "down" : null,
-          });
-        }
-        upvoteButton.classList.toggle("is-active", isUpvoted);
-        upvoteButton.setAttribute("aria-pressed", isUpvoted ? "true" : "false");
-        downvoteButton.classList.toggle("is-active", isDownvoted);
-        downvoteButton.setAttribute("aria-pressed", isDownvoted ? "true" : "false");
-      });
-    } else {
-      upvoteButton.hidden = true;
-    }
-
-    const downvoteButton = document.createElement("button");
-    downvoteButton.className = "icon-button";
-    downvoteButton.type = "button";
-    downvoteButton.setAttribute("aria-label", "Downvote");
-    downvoteButton.setAttribute("aria-pressed", isDownvoted ? "true" : "false");
-    downvoteButton.innerHTML = renderIcon("arrow-fat-down");
-    if (isDownvoted) {
-      downvoteButton.classList.add("is-active");
-    }
-    if (downvoteLink || isDownvoted) {
-      downvoteButton.addEventListener("click", (event) => {
-        const voteHref = isDownvoted
-          ? (unvoteHref || ZEN_LOGIC.buildVoteHref(downvoteHref, "un", window.location.href))
-          : downvoteHref;
-        if (!voteHref) {
-          return;
-        }
-        event.preventDefault();
-        fetch(voteHref, { credentials: "same-origin", cache: "no-store" });
-        const nextState = ZEN_LOGIC.toggleVoteState(
-          { isUpvoted, isDownvoted },
-          "down",
-        );
-        isUpvoted = nextState.isUpvoted;
-        isDownvoted = nextState.isDownvoted;
-        if (commentId) {
-          updateStoredAction("comments", commentId, {
-            vote: isUpvoted ? "up" : isDownvoted ? "down" : null,
-          });
-        }
-        downvoteButton.classList.toggle("is-active", isDownvoted);
-        downvoteButton.setAttribute("aria-pressed", isDownvoted ? "true" : "false");
-        upvoteButton.classList.toggle("is-active", isUpvoted);
-        upvoteButton.setAttribute("aria-pressed", isUpvoted ? "true" : "false");
-      });
-    } else {
-      downvoteButton.hidden = true;
-    }
-
-    const bookmarkButton = document.createElement("button");
-    bookmarkButton.className = "icon-button";
-    bookmarkButton.type = "button";
-    bookmarkButton.setAttribute("aria-label", "Favorite");
-    bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
-    bookmarkButton.innerHTML = renderIcon("bookmark-simple");
-    if (isFavorited) {
-      bookmarkButton.classList.add("is-active");
-    }
-    bookmarkButton.addEventListener("click", async (event) => {
-      event.preventDefault();
-      const wasFavorited = isFavorited;
-      isFavorited = ZEN_LOGIC.toggleFavoriteState(isFavorited);
-      bookmarkButton.classList.toggle("is-active", isFavorited);
-      bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
-      if (commentId) {
-        updateStoredAction("comments", commentId, { favorite: isFavorited });
-      }
-      let favoriteHref = favoriteLink?.getAttribute("href") || "";
-      if (!favoriteHref) {
-        bookmarkButton.disabled = true;
-        const resolved = await resolveFavoriteLink(commentId);
-        bookmarkButton.disabled = false;
-        if (!resolved?.href) {
-          isFavorited = wasFavorited;
-          bookmarkButton.classList.toggle("is-active", isFavorited);
-          bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
-          if (commentId) {
-            updateStoredAction("comments", commentId, { favorite: isFavorited });
-          }
-          return;
-        }
-        favoriteHref = resolved.href;
-      }
-      await fetch(favoriteHref, { credentials: "same-origin", cache: "no-store" });
-      isFavorited = ZEN_LOGIC.willFavoriteFromHref(favoriteHref);
-      bookmarkButton.classList.toggle("is-active", isFavorited);
-      bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
-      if (commentId) {
-        updateStoredAction("comments", commentId, { favorite: isFavorited });
-      }
-    });
-
-    const shareButton = document.createElement("button");
-    shareButton.className = "icon-button is-flipped";
-    shareButton.type = "button";
-    shareButton.setAttribute("aria-label", "Reply");
-    shareButton.innerHTML = renderIcon("share-fat");
-    let replyContainer = null;
-    shareButton.addEventListener("click", () => {
-      if (replyContainer) {
-        const isHidden = replyContainer.classList.toggle("is-hidden");
-        if (!isHidden) {
-          replyContainer.querySelector("textarea")?.focus();
-        }
-      }
-    });
-
-    const linkButton = document.createElement("button");
-    linkButton.className = "icon-button";
-    linkButton.type = "button";
-    linkButton.setAttribute("aria-label", "Copy link");
-    const linkIconSwap = document.createElement("span");
-    linkIconSwap.className = "icon-swap";
-    linkIconSwap.innerHTML = `
-      <span class="icon-default">${renderIcon("link-simple")}</span>
-      <span class="icon-success">${renderIcon("check-circle")}</span>
-    `;
-    linkButton.appendChild(linkIconSwap);
-    let copyResetTimer = null;
-    linkButton.addEventListener("click", async (event) => {
-      event.preventDefault();
-      const commentHref = ZEN_LOGIC.buildCommentHref(commentId, window.location.href);
-      if (!commentHref) {
-        return;
-      }
-      const copied = await copyTextToClipboard(commentHref);
-      if (copied) {
-        if (copyResetTimer) {
-          window.clearTimeout(copyResetTimer);
-        }
-        linkButton.classList.add("is-copied");
-        linkButton.classList.add("is-active");
-        copyResetTimer = window.setTimeout(() => {
-          linkButton.classList.remove("is-copied");
-          linkButton.classList.remove("is-active");
-          copyResetTimer = null;
-        }, 1500);
-      }
-    });
-
-    actions.appendChild(upvoteButton);
-    actions.appendChild(downvoteButton);
-    actions.appendChild(bookmarkButton);
-    actions.appendChild(linkButton);
-    actions.appendChild(shareButton);
-
-    header.appendChild(collapseButton);
-    header.appendChild(meta);
-    header.appendChild(actions);
-
-    const text = document.createElement("div");
-    text.className = "hn-comment-text";
-    text.innerHTML = textHtml;
-
-    replyContainer = document.createElement("div");
-    replyContainer.className = "hn-reply is-hidden";
-    const replyTextarea = document.createElement("textarea");
-    replyTextarea.className = "hn-reply-textarea";
-    replyTextarea.setAttribute("aria-label", "Reply");
-    const closeReply = () => {
-      replyContainer.classList.add("is-hidden");
-    };
-    replyTextarea.addEventListener("keydown", (event) => {
-      if (event.key !== "Enter" || event.shiftKey) {
-        return;
-      }
-      event.preventDefault();
-      replyButton.click();
-    });
-    const replyButton = document.createElement("button");
-    replyButton.className = "hn-reply-button";
-    replyButton.type = "button";
-    replyButton.textContent = "Reply";
-    const cancelButton = document.createElement("button");
-    cancelButton.className = "hn-reply-cancel";
-    cancelButton.type = "button";
-    cancelButton.textContent = "Cancel";
-    cancelButton.addEventListener("click", (event) => {
-      event.preventDefault();
-      closeReply();
-    });
-    if (!replyHref) {
-      replyTextarea.disabled = true;
-      replyButton.disabled = true;
-      cancelButton.disabled = true;
-    }
-    replyButton.addEventListener("click", async (event) => {
-      event.preventDefault();
-      const replyText = replyTextarea.value.trim();
-      if (!replyText) {
-        replyTextarea.focus();
-        return;
-      }
-      if (!replyHref) {
-        return;
-      }
-      replyButton.disabled = true;
-      replyTextarea.disabled = true;
-      let result = { ok: false };
-      try {
-        result = await submitReply(replyHref, replyText);
-      } finally {
-        replyButton.disabled = false;
-        replyTextarea.disabled = false;
-      }
-      if (result.ok) {
-        replyTextarea.value = "";
-        closeReply();
-        return;
-      }
-    });
-    const replyActions = document.createElement("div");
-    replyActions.className = "hn-reply-actions";
-    replyActions.appendChild(replyButton);
-    replyActions.appendChild(cancelButton);
-    replyContainer.appendChild(replyTextarea);
-    replyContainer.appendChild(replyActions);
-
-    item.appendChild(header);
-    item.appendChild(text);
-    item.appendChild(replyContainer);
     container.appendChild(item);
   });
 
@@ -1811,6 +1872,18 @@ function getCommentRows(table) {
   return rows.filter(
     (row) => row.classList.contains("comtr") || row.querySelector(".comment .commtext"),
   );
+}
+
+function getFatItemCommentRow(fatitem) {
+  if (!fatitem) {
+    return null;
+  }
+  const commentContent = fatitem.querySelector(".comment .commtext, .commtext");
+  const rowFromContent = commentContent?.closest("tr");
+  if (rowFromContent) {
+    return rowFromContent;
+  }
+  return getCommentRows(fatitem)[0] || null;
 }
 
 function getStoryRows(root) {
