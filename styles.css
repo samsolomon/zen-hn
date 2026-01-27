@@ -101,8 +101,13 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   flex-wrap: wrap;
   align-items: center;
   gap: 12px;
-  font-size: 13px;
+  font-size: var(--font-size-base);
   color: #6b6b6b;
+}
+
+.hn-fatitem-meta,
+.hn-fatitem-meta * {
+  font-size: inherit !important;
 }
 
 .hn-fatitem-meta a {
@@ -114,7 +119,8 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   text-decoration: underline;
 }
 
-.hn-fatitem-meta .hnuser {
+.hn-fatitem-meta .hnuser,
+.hn-fatitem-meta .hn-fatitem-user {
   font-weight: 600;
   color: #2f2f2f;
 }

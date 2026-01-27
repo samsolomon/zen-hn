@@ -1092,6 +1092,7 @@ function restyleFatItem() {
     const clone = node.cloneNode(true);
     if (clone.classList?.contains("hnuser")) {
       clone.classList.remove("hnuser");
+      clone.classList.add("hn-fatitem-user");
     }
     if (className) {
       clone.classList.add(className);
