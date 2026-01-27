@@ -19,6 +19,14 @@ const PHOSPHOR_SVGS = {
 
 const ZEN_LOGIC = globalThis.ZenHnLogic;
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
+const ACTION_STORE_KEY = "zenHnActions";
+const ACTION_STORE_VERSION = 1;
+const ACTION_STORE_DEBOUNCE_MS = 250;
+const ACTION_STORE_DEBUG = true;
+
+let actionStore = null;
+let actionStoreLoadPromise = null;
+let actionStoreSaveTimer = null;
 
 if (window.location.pathname === "/item") {
   document.documentElement.dataset[ZEN_HN_RESTYLE_KEY] = "loading";
@@ -119,6 +127,186 @@ function getHrefParams(href) {
     return new URLSearchParams();
   }
   return new URLSearchParams(href.slice(queryStart + 1));
+}
+
+function getDefaultActionStore() {
+  return { version: ACTION_STORE_VERSION, byUser: {} };
+}
+
+function normalizeActionStore(raw) {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+    return getDefaultActionStore();
+  }
+  const version = Number(raw.version);
+  if (version !== ACTION_STORE_VERSION) {
+    return getDefaultActionStore();
+  }
+  if (!raw.byUser || typeof raw.byUser !== "object" || Array.isArray(raw.byUser)) {
+    return getDefaultActionStore();
+  }
+  return { version: ACTION_STORE_VERSION, byUser: raw.byUser };
+}
+
+function loadActionStore() {
+  if (actionStoreLoadPromise) {
+    return actionStoreLoadPromise;
+  }
+  actionStoreLoadPromise = new Promise((resolve) => {
+    if (!globalThis.chrome?.storage?.local) {
+      actionStore = getDefaultActionStore();
+      if (ACTION_STORE_DEBUG) {
+        console.warn("Zen HN actions: chrome.storage.local unavailable");
+      }
+      resolve(actionStore);
+      return;
+    }
+    chrome.storage.local.get({ [ACTION_STORE_KEY]: null }, (result) => {
+      const raw = result ? result[ACTION_STORE_KEY] : null;
+      actionStore = normalizeActionStore(raw);
+      if (ACTION_STORE_DEBUG) {
+        console.log("Zen HN actions: store loaded", {
+          hasStore: Boolean(raw),
+          version: actionStore.version,
+          users: Object.keys(actionStore.byUser || {}).length,
+        });
+      }
+      resolve(actionStore);
+    });
+  });
+  return actionStoreLoadPromise;
+}
+
+function scheduleActionStoreSave() {
+  if (!globalThis.chrome?.storage?.local || !actionStore) {
+    return;
+  }
+  if (actionStoreSaveTimer) {
+    globalThis.clearTimeout(actionStoreSaveTimer);
+  }
+  actionStoreSaveTimer = globalThis.setTimeout(() => {
+    actionStoreSaveTimer = null;
+    chrome.storage.local.set({ [ACTION_STORE_KEY]: actionStore });
+    if (ACTION_STORE_DEBUG) {
+      console.log("Zen HN actions: store saved");
+    }
+  }, ACTION_STORE_DEBOUNCE_MS);
+}
+
+function getCurrentUserKey() {
+  const meLink = document.querySelector("a#me");
+  const headerLink = document.querySelector("span.pagetop a[href^='user?id=']");
+  const link = meLink || headerLink;
+  if (!link) {
+    if (ACTION_STORE_DEBUG) {
+      console.log("Zen HN actions: user=anonymous (no link)");
+    }
+    return "anonymous";
+  }
+  const href = link.getAttribute("href") || "";
+  const params = getHrefParams(href);
+  const fromHref = params.get("id") || "";
+  const fromText = link.textContent?.trim() || "";
+  const username = fromHref || fromText || "anonymous";
+  if (ACTION_STORE_DEBUG) {
+    console.log("Zen HN actions: user resolved", { username });
+  }
+  return username;
+}
+
+function getUserActionBucket() {
+  if (!actionStore) {
+    actionStore = getDefaultActionStore();
+  }
+  const username = getCurrentUserKey();
+  if (!actionStore.byUser[username]) {
+    actionStore.byUser[username] = { stories: {}, comments: {} };
+  }
+  return { username, bucket: actionStore.byUser[username] };
+}
+
+function logActionStoreSummary() {
+  if (!ACTION_STORE_DEBUG || !actionStore) {
+    return;
+  }
+  const { username, bucket } = getUserActionBucket();
+  const storyCount = Object.keys(bucket?.stories || {}).length;
+  const commentCount = Object.keys(bucket?.comments || {}).length;
+  console.log("Zen HN actions: store summary", {
+    username,
+    storyCount,
+    commentCount,
+  });
+}
+
+function logActionStoreItem(kind, id) {
+  if (!ACTION_STORE_DEBUG || !actionStore || !id) {
+    return;
+  }
+  const matches = [];
+  Object.entries(actionStore.byUser || {}).forEach(([username, bucket]) => {
+    const entry = bucket?.[kind]?.[id];
+    if (entry) {
+      matches.push({ username, entry });
+    }
+  });
+  if (matches.length) {
+    console.log("Zen HN actions: item found in store", { kind, id, matches });
+  } else {
+    console.log("Zen HN actions: item not found in store", { kind, id });
+  }
+}
+
+function getStoredAction(kind, id) {
+  if (!actionStore || !id) {
+    return null;
+  }
+  const { bucket } = getUserActionBucket();
+  return bucket?.[kind]?.[id] || null;
+}
+
+function updateStoredAction(kind, id, update) {
+  if (!actionStore || !id || !update) {
+    return;
+  }
+  const { bucket } = getUserActionBucket();
+  const current = bucket?.[kind]?.[id] || {};
+  const next = { ...current };
+  if (Object.prototype.hasOwnProperty.call(update, "vote")) {
+    if (update.vote === "up" || update.vote === "down") {
+      next.vote = update.vote;
+    } else {
+      delete next.vote;
+    }
+  }
+  if (Object.prototype.hasOwnProperty.call(update, "favorite")) {
+    if (update.favorite === true) {
+      next.favorite = true;
+    } else {
+      delete next.favorite;
+    }
+  }
+  if (!next.vote && !next.favorite) {
+    if (bucket?.[kind]) {
+      delete bucket[kind][id];
+      if (Object.keys(bucket[kind]).length === 0) {
+        delete bucket[kind];
+      }
+    }
+  } else {
+    next.updatedAt = Date.now();
+    if (!bucket[kind]) {
+      bucket[kind] = {};
+    }
+    bucket[kind][id] = next;
+  }
+  if (ACTION_STORE_DEBUG) {
+    console.log("Zen HN actions: update", {
+      kind,
+      id,
+      next,
+    });
+  }
+  scheduleActionStoreSave();
 }
 
 function getCommentId(row, comhead) {
@@ -420,8 +608,19 @@ function restyleFatItem() {
     : null;
 
   const itemId = new URLSearchParams(window.location.search).get("id") || "";
+  const storedStoryAction = getStoredAction("stories", itemId);
   const { isUpvoted } = getVoteState(fatitem);
   let isUpvotedState = isUpvoted;
+  if (ACTION_STORE_DEBUG && itemId) {
+    console.log("Zen HN actions: story stored", {
+      itemId,
+      hasStoredAction: Boolean(storedStoryAction),
+      storedStoryAction,
+    });
+    if (!storedStoryAction) {
+      logActionStoreItem("stories", itemId);
+    }
+  }
 
   const wrapper = document.createElement("div");
   wrapper.className = "hn-fatitem";
@@ -463,6 +662,31 @@ function restyleFatItem() {
   const upvoteHref = upvoteLink?.getAttribute("href") || "";
   const unvoteHref = unvoteLink?.getAttribute("href") || "";
 
+  const hasVoteLinks = Boolean(upvoteLink || unvoteLink);
+  const storedVote = storedStoryAction?.vote;
+  const domUpvoted = isUpvoted || Boolean(unvoteLink);
+  if (hasVoteLinks && itemId) {
+    if (domUpvoted && storedVote !== "up") {
+      updateStoredAction("stories", itemId, { vote: "up" });
+    }
+  }
+  if (!domUpvoted && storedVote === "up") {
+    isUpvotedState = true;
+  } else if (domUpvoted) {
+    isUpvotedState = true;
+  }
+  if (ACTION_STORE_DEBUG && itemId) {
+    console.log("Zen HN actions: story vote applied", {
+      itemId,
+      hasVoteLinks,
+      hasUpvoteLink: Boolean(upvoteLink),
+      hasUnvoteLink: Boolean(unvoteLink),
+      domUpvoted,
+      storedVote,
+      appliedUpvoted: isUpvotedState,
+    });
+  }
+
   const upvoteButton = document.createElement("button");
   upvoteButton.className = "icon-button";
   upvoteButton.type = "button";
@@ -489,6 +713,9 @@ function restyleFatItem() {
       });
       fetch(voteHref, { credentials: "same-origin", cache: "no-store" });
       isUpvotedState = !isUpvotedState;
+      if (itemId) {
+        updateStoredAction("stories", itemId, { vote: isUpvotedState ? "up" : null });
+      }
       upvoteButton.classList.toggle("is-active", isUpvotedState);
       upvoteButton.setAttribute("aria-pressed", isUpvotedState ? "true" : "false");
     });
@@ -507,7 +734,28 @@ function restyleFatItem() {
     : null;
   const favoriteLink = favoriteLinkById || favoriteLinkByText;
   const favoriteText = favoriteLink?.textContent?.trim().toLowerCase() || "";
+  const storedFavorite = storedStoryAction?.favorite;
+  const hasFavoriteSignal = Boolean(favoriteLink);
   let isFavorited = favoriteText === "unfavorite";
+  if (!hasFavoriteSignal && storedFavorite === true) {
+    isFavorited = true;
+  }
+  if (hasFavoriteSignal && itemId) {
+    if (isFavorited && storedFavorite !== true) {
+      updateStoredAction("stories", itemId, { favorite: true });
+    } else if (!isFavorited && storedFavorite === true) {
+      updateStoredAction("stories", itemId, { favorite: false });
+    }
+  }
+  if (ACTION_STORE_DEBUG && itemId) {
+    console.log("Zen HN actions: story favorite applied", {
+      itemId,
+      hasFavoriteSignal,
+      domFavorited: favoriteText === "unfavorite",
+      storedFavorite,
+      appliedFavorited: isFavorited,
+    });
+  }
   let favoriteHref = favoriteLink?.getAttribute("href") || "";
 
   const bookmarkButton = document.createElement("button");
@@ -531,6 +779,9 @@ function restyleFatItem() {
     isFavorited = ZEN_LOGIC.toggleFavoriteState(isFavorited);
     bookmarkButton.classList.toggle("is-active", isFavorited);
     bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+    if (itemId) {
+      updateStoredAction("stories", itemId, { favorite: isFavorited });
+    }
     if (!favoriteHref && itemId) {
       bookmarkButton.disabled = true;
       const resolved = await resolveStoryFavoriteLink(itemId);
@@ -539,6 +790,9 @@ function restyleFatItem() {
         isFavorited = wasFavorited;
         bookmarkButton.classList.toggle("is-active", isFavorited);
         bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+        if (itemId) {
+          updateStoredAction("stories", itemId, { favorite: isFavorited });
+        }
         return;
       }
       favoriteHref = resolved.href;
@@ -552,12 +806,18 @@ function restyleFatItem() {
       isFavorited = wasFavorited;
       bookmarkButton.classList.toggle("is-active", isFavorited);
       bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+      if (itemId) {
+        updateStoredAction("stories", itemId, { favorite: isFavorited });
+      }
       return;
     }
     await fetch(favoriteHref, { credentials: "same-origin", cache: "no-store" });
     isFavorited = ZEN_LOGIC.willFavoriteFromHref(favoriteHref);
     bookmarkButton.classList.toggle("is-active", isFavorited);
     bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+    if (itemId) {
+      updateStoredAction("stories", itemId, { favorite: isFavorited });
+    }
     favoriteHref = buildNextFavoriteHref(favoriteHref, !isFavorited);
     console.log("Zen HN favorite toggled", {
       itemId,
@@ -781,9 +1041,58 @@ function restyleComments(context) {
     const favoriteLink = favoriteLinkById || favoriteLinkByText;
     const commentId = getCommentId(row, comhead);
     const replyHref = getReplyHref(row, comhead);
+    const storedCommentAction = getStoredAction("comments", commentId);
     let { isUpvoted, isDownvoted } = getVoteState(row);
+    const hasVoteLinks = Boolean(upvoteLink || downvoteLink || unvoteLink);
+    const storedVote = storedCommentAction?.vote;
+    if (ACTION_STORE_DEBUG && commentId && storedCommentAction) {
+      console.log("Zen HN actions: comment stored", { commentId, storedCommentAction });
+    }
+    if (hasVoteLinks && commentId) {
+      if (isUpvoted && storedVote !== "up") {
+        updateStoredAction("comments", commentId, { vote: "up" });
+      } else if (isDownvoted && storedVote !== "down") {
+        updateStoredAction("comments", commentId, { vote: "down" });
+      }
+    }
+    if (!isUpvoted && !isDownvoted && storedVote) {
+      isUpvoted = storedVote === "up";
+      isDownvoted = storedVote === "down";
+    }
+    if (ACTION_STORE_DEBUG && commentId) {
+      console.log("Zen HN actions: comment vote applied", {
+        commentId,
+        hasVoteLinks,
+        domUpvoted: isUpvoted,
+        domDownvoted: isDownvoted,
+        storedVote,
+        appliedUpvoted: isUpvoted,
+        appliedDownvoted: isDownvoted,
+      });
+    }
     const favoriteText = favoriteLink?.textContent?.trim().toLowerCase() || "";
+    const storedFavorite = storedCommentAction?.favorite;
+    const hasFavoriteSignal = Boolean(favoriteLink);
     let isFavorited = favoriteText === "unfavorite";
+    if (!hasFavoriteSignal && storedFavorite === true) {
+      isFavorited = true;
+    }
+    if (hasFavoriteSignal && commentId) {
+      if (isFavorited && storedFavorite !== true) {
+        updateStoredAction("comments", commentId, { favorite: true });
+      } else if (!isFavorited && storedFavorite === true) {
+        updateStoredAction("comments", commentId, { favorite: false });
+      }
+    }
+    if (ACTION_STORE_DEBUG && commentId) {
+      console.log("Zen HN actions: comment favorite applied", {
+        commentId,
+        hasFavoriteSignal,
+        domFavorited: favoriteText === "unfavorite",
+        storedFavorite,
+        appliedFavorited: isFavorited,
+      });
+    }
 
     const indentLevel = getIndentLevelFromRow(row);
     const nextIndentLevel = getIndentLevelFromRow(rows[index + 1]);
@@ -853,6 +1162,11 @@ function restyleComments(context) {
         );
         isUpvoted = nextState.isUpvoted;
         isDownvoted = nextState.isDownvoted;
+        if (commentId) {
+          updateStoredAction("comments", commentId, {
+            vote: isUpvoted ? "up" : isDownvoted ? "down" : null,
+          });
+        }
         upvoteButton.classList.toggle("is-active", isUpvoted);
         upvoteButton.setAttribute("aria-pressed", isUpvoted ? "true" : "false");
         downvoteButton.classList.toggle("is-active", isDownvoted);
@@ -894,6 +1208,11 @@ function restyleComments(context) {
         );
         isUpvoted = nextState.isUpvoted;
         isDownvoted = nextState.isDownvoted;
+        if (commentId) {
+          updateStoredAction("comments", commentId, {
+            vote: isUpvoted ? "up" : isDownvoted ? "down" : null,
+          });
+        }
         downvoteButton.classList.toggle("is-active", isDownvoted);
         downvoteButton.setAttribute("aria-pressed", isDownvoted ? "true" : "false");
         upvoteButton.classList.toggle("is-active", isUpvoted);
@@ -923,6 +1242,9 @@ function restyleComments(context) {
       isFavorited = ZEN_LOGIC.toggleFavoriteState(isFavorited);
       bookmarkButton.classList.toggle("is-active", isFavorited);
       bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+      if (commentId) {
+        updateStoredAction("comments", commentId, { favorite: isFavorited });
+      }
       let favoriteHref = favoriteLink?.getAttribute("href") || "";
       if (!favoriteHref) {
         console.log("Zen HN favorite link missing", { commentId });
@@ -934,6 +1256,9 @@ function restyleComments(context) {
           isFavorited = wasFavorited;
           bookmarkButton.classList.toggle("is-active", isFavorited);
           bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+          if (commentId) {
+            updateStoredAction("comments", commentId, { favorite: isFavorited });
+          }
           return;
         }
         favoriteHref = resolved.href;
@@ -946,6 +1271,9 @@ function restyleComments(context) {
       isFavorited = ZEN_LOGIC.willFavoriteFromHref(favoriteHref);
       bookmarkButton.classList.toggle("is-active", isFavorited);
       bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+      if (commentId) {
+        updateStoredAction("comments", commentId, { favorite: isFavorited });
+      }
     });
 
     const shareButton = document.createElement("button");
@@ -1219,12 +1547,17 @@ function runRestyleWhenReady() {
   attempt();
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", () => {
-    restyleFatItem();
-    runRestyleWhenReady();
-  });
-} else {
+async function initRestyle() {
+  await loadActionStore();
+  logActionStoreSummary();
   restyleFatItem();
   runRestyleWhenReady();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
+    initRestyle();
+  });
+} else {
+  initRestyle();
 }

@@ -3,6 +3,7 @@
   "name": "Zen HN",
   "version": "0.1.0",
   "description": "Restyles Hacker News with custom CSS.",
+  "permissions": ["storage"],
   "content_scripts": [
     {
       "matches": ["https://news.ycombinator.com/*"],
