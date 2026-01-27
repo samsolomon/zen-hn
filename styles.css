@@ -134,7 +134,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 .hn-fatitem-meta .score,
 .hn-fatitem-meta .age,
 .hn-fatitem-meta .hn-fatitem-comments {
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .hn-fatitem .hn-comment-actions {
@@ -266,6 +266,12 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   color: #2f2f2f;
 }
 
+.hn-submission-meta .score,
+.hn-submission-meta .age,
+.hn-submission-meta .hn-submission-comments {
+  font-weight: 400;
+}
+
 .hn-submission-sub {
   display: flex;
   align-items: center;
@@ -276,8 +282,8 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 
 .hn-submission-actions {
   margin-left: auto;
-  opacity: 1;
-  pointer-events: auto;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .hn-submission-menu {
@@ -314,8 +320,8 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   border: 1px solid transparent;
   background: transparent;
   color: #3f3f3f;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: 400;
   text-align: left;
   cursor: pointer;
   transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
@@ -633,7 +639,13 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   transition: opacity 160ms ease;
 }
 
-.hn-submission .hn-submission-actions {
+
+.hn-submission:hover .hn-submission-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.hn-submission:has(.hn-submission-actions .icon-button:focus-visible) .hn-submission-actions {
   opacity: 1;
   pointer-events: auto;
 }
@@ -674,7 +686,8 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 
 @media (hover: none) {
   .hn-comment-actions,
-  .hn-collapse-button {
+  .hn-collapse-button,
+  .hn-submission-actions {
     opacity: 1;
     pointer-events: auto;
   }

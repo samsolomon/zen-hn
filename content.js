@@ -587,6 +587,15 @@ function stripParenTextNodes(element) {
   });
 }
 
+function toSentenceCase(text) {
+  const trimmed = (text || "").trim();
+  if (!trimmed) {
+    return "";
+  }
+  const lower = trimmed.toLowerCase();
+  return `${lower.charAt(0).toUpperCase()}${lower.slice(1)}`;
+}
+
 function isUserProfilePage() {
   const op = document.documentElement.getAttribute("op") || "";
   if (op.toLowerCase() === "user") {
@@ -905,6 +914,26 @@ function restyleSubmissions() {
     actions.appendChild(bookmarkButton);
     actions.appendChild(linkButton);
 
+    const extraLinks = [];
+    if (subtext) {
+      const ageLink = age?.querySelector("a");
+      const excludedLinks = new Set([
+        hnuser,
+        ageLink,
+        commentsLink,
+        favoriteLink,
+        upvoteLink,
+        unvoteLink,
+        hideLink,
+        flagLink,
+      ]);
+      extraLinks.push(
+        ...Array.from(subtext.querySelectorAll("a")).filter(
+          (link) => !excludedLinks.has(link),
+        ),
+      );
+    }
+
     const hideHref = hideLink?.getAttribute("href") || "";
     const flagHref = flagLink?.getAttribute("href") || "";
     const menuItems = ZEN_LOGIC.buildMenuItems([
@@ -921,6 +950,24 @@ function restyleSubmissions() {
         action: "flag",
       },
     ]);
+    const extraMenuItems = extraLinks
+      .map((link) => {
+        const href = link.getAttribute("href") || "";
+        if (!href) {
+          return null;
+        }
+        const label = toSentenceCase(link.textContent);
+        if (!label) {
+          return null;
+        }
+        return {
+          label,
+          href,
+          action: "extra",
+        };
+      })
+      .filter((item) => item?.href && item.label);
+    menuItems.push(...extraMenuItems);
 
     const menuWrapper = document.createElement("div");
     menuWrapper.className = SUBMISSION_MENU_CLASS;
@@ -990,38 +1037,6 @@ function restyleSubmissions() {
     }
     subRow.appendChild(actions);
     body.appendChild(subRow);
-
-    const extras = document.createElement("div");
-    extras.className = "hn-submission-extras";
-    if (subtext) {
-      const ageLink = age?.querySelector("a");
-      const excludedLinks = new Set([
-        hnuser,
-        ageLink,
-        commentsLink,
-        favoriteLink,
-        upvoteLink,
-        unvoteLink,
-        hideLink,
-        flagLink,
-      ]);
-      const extraLinks = Array.from(subtext.querySelectorAll("a")).filter(
-        (link) => !excludedLinks.has(link),
-      );
-      extraLinks.forEach((link, index) => {
-        if (index > 0) {
-          const separator = document.createElement("span");
-          separator.className = "hn-submission-sep";
-          separator.textContent = "|";
-          extras.appendChild(separator);
-        }
-        extras.appendChild(link.cloneNode(true));
-      });
-    }
-
-    if (extras.childNodes.length) {
-      body.appendChild(extras);
-    }
 
     item.appendChild(rank);
     item.appendChild(body);
