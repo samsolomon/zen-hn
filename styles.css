@@ -149,9 +149,6 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   transition: background-color 120ms ease;
 }
 
-.hn-submission:hover {
-  background-color: #f7f5ef;
-}
 
 .hn-submission-rank {
   font-size: 12px;
