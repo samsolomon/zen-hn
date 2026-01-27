@@ -19,6 +19,7 @@ const PHOSPHOR_SVGS = {
 
 const ZEN_LOGIC = globalThis.ZenHnLogic;
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
+const ZEN_HN_SUBMISSIONS_KEY = "zenHnSubmissions";
 const ACTION_STORE_KEY = "zenHnActions";
 const ACTION_STORE_VERSION = 1;
 const ACTION_STORE_DEBOUNCE_MS = 250;
@@ -26,6 +27,8 @@ const ACTION_STORE_DEBOUNCE_MS = 250;
 let actionStore = null;
 let actionStoreLoadPromise = null;
 let actionStoreSaveTimer = null;
+
+document.documentElement.dataset.zenHnActive = "true";
 
 if (window.location.pathname === "/item") {
   document.documentElement.dataset[ZEN_HN_RESTYLE_KEY] = "loading";
@@ -519,6 +522,379 @@ function buildNextFavoriteHref(href, willBeFavorited) {
     }
     return href.includes("un=t") ? href : `${href}${href.includes("?") ? "&" : "?"}un=t`;
   }
+}
+
+function restyleSubmissions() {
+  const bigboxRow = document.querySelector("tr#bigbox");
+  const itemList = document.querySelector("table.itemlist");
+  const bigboxTable = bigboxRow?.querySelector("table");
+  const sourceTable = itemList || bigboxTable;
+  if (!sourceTable || sourceTable.dataset[ZEN_HN_SUBMISSIONS_KEY] === "true") {
+    console.log("Zen HN restyle", { type: "submissions", status: "missing" });
+    return;
+  }
+
+  if (document.querySelector("table.comment-tree")) {
+    console.log("Zen HN restyle", { type: "submissions", status: "comment-tree" });
+    return;
+  }
+
+  const rows = getStoryRows(sourceTable);
+  if (!rows.length) {
+    console.log("Zen HN restyle", { type: "submissions", status: "empty" });
+    return;
+  }
+
+  const mode = itemList ? "itemlist" : "bigbox";
+  console.log("Zen HN restyle", { type: "submissions", mode, count: rows.length });
+  const container = document.createElement("div");
+  container.className = "hn-submissions";
+
+  rows.forEach((row) => {
+    const titleLine = row.querySelector(".titleline");
+    const titleLink = titleLine?.querySelector("a")
+      || row.querySelector("a.storylink")
+      || row.querySelector("a.titlelink")
+      || row.querySelector("a");
+    if (!titleLink) {
+      return;
+    }
+
+    const item = document.createElement("div");
+    item.className = "hn-submission";
+    const itemId = row.getAttribute("id") || "";
+    if (itemId) {
+      item.dataset.itemId = itemId;
+    }
+
+    const rankText = row.querySelector(".rank")?.textContent?.trim() || "";
+    const rank = document.createElement("div");
+    rank.className = "hn-submission-rank";
+    rank.textContent = rankText;
+    if (!rankText) {
+      rank.classList.add("is-empty");
+    }
+
+    const storedStoryAction = itemId ? getStoredAction("stories", itemId) : null;
+    const { isUpvoted } = getVoteState(row);
+    let isUpvotedState = isUpvoted;
+    const upvoteLink = row.querySelector("a[id^='up_']");
+    const unvoteLink = row.querySelector("a[id^='un_'], a[href*='how=un']");
+    const upvoteHref = upvoteLink?.getAttribute("href") || "";
+    const unvoteHref = unvoteLink?.getAttribute("href") || "";
+
+    const hasVoteLinks = Boolean(upvoteLink || unvoteLink);
+    const storedVote = storedStoryAction?.vote;
+    const domUpvoted = isUpvoted || Boolean(unvoteLink);
+    if (hasVoteLinks && itemId) {
+      if (domUpvoted && storedVote !== "up") {
+        updateStoredAction("stories", itemId, { vote: "up" });
+      }
+    }
+    if (!domUpvoted && !hasVoteLinks && storedVote === "up") {
+      isUpvotedState = true;
+    } else if (domUpvoted) {
+      isUpvotedState = true;
+    }
+
+    const vote = document.createElement("div");
+    vote.className = "hn-submission-vote";
+    const voteLink = row.querySelector("td.votelinks a");
+    if (voteLink) {
+      const voteClone = voteLink.cloneNode(true);
+      voteClone.removeAttribute("id");
+      vote.appendChild(voteClone);
+    } else {
+      vote.classList.add("is-empty");
+    }
+
+    const body = document.createElement("div");
+    body.className = "hn-submission-body";
+
+    const titleRow = document.createElement("div");
+    titleRow.className = "hn-submission-titleline";
+    const titleClone = titleLink.cloneNode(true);
+    titleClone.classList.add("hn-submission-title");
+    titleRow.appendChild(titleClone);
+
+    const sitebit = titleLine?.querySelector(".sitebit");
+    if (sitebit) {
+      const siteClone = sitebit.cloneNode(true);
+      siteClone.classList.add("hn-submission-site");
+      titleRow.appendChild(siteClone);
+    }
+    body.appendChild(titleRow);
+
+    const subtextRow = row.nextElementSibling;
+    const subtext = subtextRow?.querySelector(".subtext");
+    const meta = document.createElement("div");
+    meta.className = "hn-submission-meta";
+
+    const appendMetaItem = (node, className) => {
+      if (!node) {
+        return;
+      }
+      const clone = node.cloneNode(true);
+      if (className) {
+        clone.classList.add(className);
+      }
+      meta.appendChild(clone);
+    };
+
+    const score = subtext?.querySelector(".score");
+    const hnuser = subtext?.querySelector(".hnuser");
+    const age = subtext?.querySelector(".age");
+    const commentsLink = subtext
+      ? Array.from(subtext.querySelectorAll("a")).find((link) => {
+          const text = link.textContent?.trim().toLowerCase() || "";
+          return text.includes("comment") || text.includes("discuss");
+        })
+      : null;
+
+    appendMetaItem(score, "hn-submission-score");
+    appendMetaItem(hnuser, "hn-submission-user");
+    appendMetaItem(age, "hn-submission-age");
+    appendMetaItem(commentsLink, "hn-submission-comments");
+
+    const actions = document.createElement("div");
+    actions.className = "hn-comment-actions hn-submission-actions";
+
+    const upvoteButton = document.createElement("button");
+    upvoteButton.className = "icon-button";
+    upvoteButton.type = "button";
+    upvoteButton.setAttribute("aria-label", "Upvote");
+    upvoteButton.setAttribute("aria-pressed", isUpvotedState ? "true" : "false");
+    upvoteButton.innerHTML = renderIcon("arrow-fat-up");
+    if (isUpvotedState) {
+      upvoteButton.classList.add("is-active");
+    }
+    if (upvoteLink || isUpvotedState) {
+      upvoteButton.addEventListener("click", (event) => {
+        const voteHref = isUpvotedState
+          ? (unvoteHref || ZEN_LOGIC.buildVoteHref(upvoteHref, "un", window.location.href))
+          : upvoteHref;
+        if (!voteHref) {
+          return;
+        }
+        event.preventDefault();
+        console.log("Zen HN action", {
+          type: "upvote",
+          itemId,
+          wasUpvoted: isUpvotedState,
+          href: voteHref,
+        });
+        fetch(voteHref, { credentials: "same-origin", cache: "no-store" });
+        isUpvotedState = !isUpvotedState;
+        if (itemId) {
+          updateStoredAction("stories", itemId, { vote: isUpvotedState ? "up" : null });
+        }
+        upvoteButton.classList.toggle("is-active", isUpvotedState);
+        upvoteButton.setAttribute("aria-pressed", isUpvotedState ? "true" : "false");
+      });
+    } else {
+      upvoteButton.hidden = true;
+    }
+
+    const favoriteLinkById = subtext?.querySelector(
+      "a[id^='fav_'], a[id^='fave_'], a[href^='fave?id=']",
+    );
+    const favoriteLinkByText = subtext
+      ? Array.from(subtext.querySelectorAll("a")).find((link) => {
+          const text = link.textContent?.trim().toLowerCase();
+          return text === "favorite" || text === "unfavorite";
+        })
+      : null;
+    const favoriteLink = favoriteLinkById || favoriteLinkByText;
+    const favoriteText = favoriteLink?.textContent?.trim().toLowerCase() || "";
+    const storedFavorite = storedStoryAction?.favorite;
+    const hasFavoriteSignal = Boolean(favoriteLink);
+    let isFavorited = favoriteText === "unfavorite";
+    if (!hasFavoriteSignal && storedFavorite === true) {
+      isFavorited = true;
+    }
+    if (hasFavoriteSignal && itemId) {
+      if (isFavorited && storedFavorite !== true) {
+        updateStoredAction("stories", itemId, { favorite: true });
+      } else if (!isFavorited && storedFavorite === true) {
+        updateStoredAction("stories", itemId, { favorite: false });
+      }
+    }
+    let favoriteHref = favoriteLink?.getAttribute("href") || "";
+
+    const bookmarkButton = document.createElement("button");
+    bookmarkButton.className = "icon-button";
+    bookmarkButton.type = "button";
+    bookmarkButton.setAttribute("aria-label", "Favorite");
+    bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+    bookmarkButton.innerHTML = renderIcon("bookmark-simple");
+    if (isFavorited) {
+      bookmarkButton.classList.add("is-active");
+    }
+    bookmarkButton.addEventListener("click", async (event) => {
+      event.preventDefault();
+      console.log("Zen HN action", {
+        type: "bookmark",
+        itemId,
+        wasFavorited: isFavorited,
+        href: favoriteHref,
+      });
+      const wasFavorited = isFavorited;
+      isFavorited = ZEN_LOGIC.toggleFavoriteState(isFavorited);
+      bookmarkButton.classList.toggle("is-active", isFavorited);
+      bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+      if (itemId) {
+        updateStoredAction("stories", itemId, { favorite: isFavorited });
+      }
+      if (!favoriteHref && itemId) {
+        bookmarkButton.disabled = true;
+        const resolved = await resolveStoryFavoriteLink(itemId);
+        bookmarkButton.disabled = false;
+        if (!resolved?.href) {
+          isFavorited = wasFavorited;
+          bookmarkButton.classList.toggle("is-active", isFavorited);
+          bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+          if (itemId) {
+            updateStoredAction("stories", itemId, { favorite: isFavorited });
+          }
+          return;
+        }
+        favoriteHref = resolved.href;
+        console.log("Zen HN favorite resolved", {
+          itemId,
+          href: favoriteHref,
+          isFavorited: resolved.isFavorited,
+        });
+      }
+      if (!favoriteHref) {
+        isFavorited = wasFavorited;
+        bookmarkButton.classList.toggle("is-active", isFavorited);
+        bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+        if (itemId) {
+          updateStoredAction("stories", itemId, { favorite: isFavorited });
+        }
+        return;
+      }
+      await fetch(favoriteHref, { credentials: "same-origin", cache: "no-store" });
+      isFavorited = ZEN_LOGIC.willFavoriteFromHref(favoriteHref);
+      bookmarkButton.classList.toggle("is-active", isFavorited);
+      bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+      if (itemId) {
+        updateStoredAction("stories", itemId, { favorite: isFavorited });
+      }
+      favoriteHref = buildNextFavoriteHref(favoriteHref, !isFavorited);
+      console.log("Zen HN favorite toggled", {
+        itemId,
+        isFavorited,
+        nextHref: favoriteHref,
+      });
+    });
+
+    const linkButton = document.createElement("button");
+    linkButton.className = "icon-button";
+    linkButton.type = "button";
+    linkButton.setAttribute("aria-label", "Copy link");
+    const linkIconSwap = document.createElement("span");
+    linkIconSwap.className = "icon-swap";
+    linkIconSwap.innerHTML = `
+      <span class="icon-default">${renderIcon("link-simple")}</span>
+      <span class="icon-success">${renderIcon("check-circle")}</span>
+    `;
+    linkButton.appendChild(linkIconSwap);
+    let copyResetTimer = null;
+    linkButton.addEventListener("click", async (event) => {
+      event.preventDefault();
+      const titleHref = titleLink.getAttribute("href") || "";
+      const targetHref = resolveStoryHref(titleHref) || window.location.href;
+      const copied = await copyTextToClipboard(targetHref);
+      if (copied) {
+        if (copyResetTimer) {
+          window.clearTimeout(copyResetTimer);
+        }
+        linkButton.classList.add("is-copied");
+        linkButton.classList.add("is-active");
+        copyResetTimer = window.setTimeout(() => {
+          linkButton.classList.remove("is-copied");
+          linkButton.classList.remove("is-active");
+          copyResetTimer = null;
+        }, 1500);
+      }
+      console.log("Zen HN action", {
+        type: "copy-link",
+        itemId,
+        copied,
+        href: targetHref,
+      });
+    });
+
+    const discussButton = document.createElement("button");
+    discussButton.className = "icon-button is-flipped";
+    discussButton.type = "button";
+    discussButton.setAttribute("aria-label", "Discuss");
+    discussButton.innerHTML = renderIcon("share-fat");
+    const discussHref = commentsLink?.getAttribute("href")
+      || (itemId ? `item?id=${itemId}` : "");
+    if (!discussHref) {
+      discussButton.disabled = true;
+    } else {
+      discussButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        window.location.href = discussHref;
+      });
+    }
+
+    actions.appendChild(upvoteButton);
+    actions.appendChild(bookmarkButton);
+    actions.appendChild(linkButton);
+    actions.appendChild(discussButton);
+
+    const subRow = document.createElement("div");
+    subRow.className = "hn-submission-sub";
+    if (meta.childNodes.length) {
+      subRow.appendChild(meta);
+    }
+    subRow.appendChild(actions);
+    body.appendChild(subRow);
+
+    const extras = document.createElement("div");
+    extras.className = "hn-submission-extras";
+    if (subtext) {
+      const ageLink = age?.querySelector("a");
+      const excludedLinks = new Set([hnuser, ageLink, commentsLink, favoriteLink]);
+      const extraLinks = Array.from(subtext.querySelectorAll("a")).filter(
+        (link) => !excludedLinks.has(link),
+      );
+      extraLinks.forEach((link, index) => {
+        if (index > 0) {
+          const separator = document.createElement("span");
+          separator.className = "hn-submission-sep";
+          separator.textContent = "|";
+          extras.appendChild(separator);
+        }
+        extras.appendChild(link.cloneNode(true));
+      });
+    }
+
+    if (extras.childNodes.length) {
+      body.appendChild(extras);
+    }
+
+    item.appendChild(rank);
+    item.appendChild(vote);
+    item.appendChild(body);
+    container.appendChild(item);
+  });
+
+  const moreLink = sourceTable.querySelector("a.morelink");
+  if (moreLink) {
+    const moreContainer = document.createElement("div");
+    moreContainer.className = "hn-submissions-more";
+    moreContainer.appendChild(moreLink.cloneNode(true));
+    container.appendChild(moreContainer);
+  }
+
+  sourceTable.dataset[ZEN_HN_SUBMISSIONS_KEY] = "true";
+  sourceTable.insertAdjacentElement("beforebegin", container);
+  sourceTable.style.display = "none";
 }
 
 function restyleFatItem() {
@@ -1376,6 +1752,16 @@ function getCommentRows(table) {
   );
 }
 
+function getStoryRows(root) {
+  if (!root) {
+    return [];
+  }
+  const rows = Array.from(root.querySelectorAll("tr.athing"));
+  return rows.filter(
+    (row) => !row.classList.contains("comtr") && !row.querySelector(".comment .commtext"),
+  );
+}
+
 function findCommentContext() {
   const commentTree = document.querySelector("table.comment-tree");
   if (commentTree) {
@@ -1436,6 +1822,7 @@ function runRestyleWhenReady() {
 
 async function initRestyle() {
   await loadActionStore();
+  restyleSubmissions();
   restyleFatItem();
   runRestyleWhenReady();
 }
