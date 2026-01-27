@@ -587,7 +587,18 @@ function stripParenTextNodes(element) {
   });
 }
 
+function isUserProfilePage() {
+  const op = document.documentElement.getAttribute("op") || "";
+  if (op.toLowerCase() === "user") {
+    return true;
+  }
+  return window.location.pathname === "/user";
+}
+
 function restyleSubmissions() {
+  if (isUserProfilePage()) {
+    return;
+  }
   const bigboxRow = document.querySelector("tr#bigbox");
   const itemList = document.querySelector("table.itemlist");
   const bigboxTable = bigboxRow?.querySelector("table");
@@ -1871,6 +1882,9 @@ function runRestyleWhenReady() {
 
 async function initRestyle() {
   await loadActionStore();
+  if (isUserProfilePage()) {
+    document.documentElement.dataset.zenHnUserPage = "true";
+  }
   restyleSubmissions();
   restyleFatItem();
   runRestyleWhenReady();

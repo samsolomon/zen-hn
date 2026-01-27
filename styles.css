@@ -745,3 +745,62 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
     margin-left: clamp(0px, calc(var(--indent-level, 0) * 0.85rem), 4rem);
   }
 }
+
+html[op="user"] input[type="submit"],
+html[op="user"] input[type="button"],
+html[op="user"] button[type="submit"],
+html[op="user"] button[type="button"],
+html[data-zen-hn-user-page="true"] input[type="submit"],
+html[data-zen-hn-user-page="true"] input[type="button"],
+html[data-zen-hn-user-page="true"] button[type="submit"],
+html[data-zen-hn-user-page="true"] button[type="button"] {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid #c8c1b0;
+  background-color: transparent;
+  color: #333333;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease,
+    color 120ms ease, transform 80ms ease;
+}
+
+html[op="user"] input[type="submit"]:hover,
+html[op="user"] input[type="button"]:hover,
+html[op="user"] button[type="submit"]:hover,
+html[op="user"] button[type="button"]:hover,
+html[data-zen-hn-user-page="true"] input[type="submit"]:hover,
+html[data-zen-hn-user-page="true"] input[type="button"]:hover,
+html[data-zen-hn-user-page="true"] button[type="submit"]:hover,
+html[data-zen-hn-user-page="true"] button[type="button"]:hover {
+  background-color: #f1eee7;
+  border-color: #bfb6a3;
+  color: #2f2f2f;
+}
+
+html[op="user"] input[type="submit"]:active,
+html[op="user"] input[type="button"]:active,
+html[op="user"] button[type="submit"]:active,
+html[op="user"] button[type="button"]:active,
+html[data-zen-hn-user-page="true"] input[type="submit"]:active,
+html[data-zen-hn-user-page="true"] input[type="button"]:active,
+html[data-zen-hn-user-page="true"] button[type="submit"]:active,
+html[data-zen-hn-user-page="true"] button[type="button"]:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+html[op="user"] input[type="submit"]:focus-visible,
+html[op="user"] input[type="button"]:focus-visible,
+html[op="user"] button[type="submit"]:focus-visible,
+html[op="user"] button[type="button"]:focus-visible,
+html[data-zen-hn-user-page="true"] input[type="submit"]:focus-visible,
+html[data-zen-hn-user-page="true"] input[type="button"]:focus-visible,
+html[data-zen-hn-user-page="true"] button[type="submit"]:focus-visible,
+html[data-zen-hn-user-page="true"] button[type="button"]:focus-visible {
+  outline: 2px solid #c8c1b0;
+  outline-offset: 2px;
+}
