@@ -524,6 +524,24 @@ function buildNextFavoriteHref(href, willBeFavorited) {
   }
 }
 
+function stripParenTextNodes(element) {
+  if (!element) {
+    return;
+  }
+  const nodes = Array.from(element.childNodes);
+  nodes.forEach((node) => {
+    if (node.nodeType !== Node.TEXT_NODE) {
+      return;
+    }
+    const nextText = node.textContent?.replace(/[()]/g, "").trim() || "";
+    if (!nextText) {
+      node.remove();
+      return;
+    }
+    node.textContent = nextText;
+  });
+}
+
 function restyleSubmissions() {
   const bigboxRow = document.querySelector("tr#bigbox");
   const itemList = document.querySelector("table.itemlist");
@@ -616,13 +634,6 @@ function restyleSubmissions() {
     const titleClone = titleLink.cloneNode(true);
     titleClone.classList.add("hn-submission-title");
     titleRow.appendChild(titleClone);
-
-    const sitebit = titleLine?.querySelector(".sitebit");
-    if (sitebit) {
-      const siteClone = sitebit.cloneNode(true);
-      siteClone.classList.add("hn-submission-site");
-      titleRow.appendChild(siteClone);
-    }
     body.appendChild(titleRow);
 
     const subtextRow = row.nextElementSibling;
@@ -638,12 +649,16 @@ function restyleSubmissions() {
       if (className) {
         clone.classList.add(className);
       }
+      if (className === "hn-submission-site" || clone.classList.contains("sitebit")) {
+        stripParenTextNodes(clone);
+      }
       meta.appendChild(clone);
     };
 
     const score = subtext?.querySelector(".score");
     const hnuser = subtext?.querySelector(".hnuser");
     const age = subtext?.querySelector(".age");
+    const sitebit = titleLine?.querySelector(".sitebit");
     const commentsLink = subtext
       ? Array.from(subtext.querySelectorAll("a")).find((link) => {
           const text = link.textContent?.trim().toLowerCase() || "";
@@ -655,6 +670,7 @@ function restyleSubmissions() {
     appendMetaItem(hnuser, "hn-submission-user");
     appendMetaItem(age, "hn-submission-age");
     appendMetaItem(commentsLink, "hn-submission-comments");
+    appendMetaItem(sitebit, "hn-submission-site");
 
     const actions = document.createElement("div");
     actions.className = "hn-comment-actions hn-submission-actions";

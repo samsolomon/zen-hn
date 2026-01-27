@@ -1,8 +1,41 @@
+:root {
+  --font-size-base: 16px;
+  --font-size-scale: 1;
+  --font-size-xs: calc(12px * var(--font-size-scale));
+  --font-size-sm: calc(13px * var(--font-size-scale));
+  --font-size-md: calc(14px * var(--font-size-scale));
+  --font-size-lg: calc(16px * var(--font-size-scale));
+  --font-size-xl: calc(18px * var(--font-size-scale));
+  --font-size-2xl: calc(22px * var(--font-size-scale));
+  --font-size-3xl: calc(32px * var(--font-size-scale));
+}
+
+html[data-font-size="smaller"] {
+  --font-size-scale: 0.9;
+}
+
+html[data-font-size="small"] {
+  --font-size-scale: 0.95;
+}
+
+html[data-font-size="default"] {
+  --font-size-scale: 1;
+}
+
+html[data-font-size="large"] {
+  --font-size-scale: 1.075;
+}
+
+html[data-font-size="larger"] {
+  --font-size-scale: 1.15;
+}
+
 html,
 body,
 td {
   background-color: #f2f2f2;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  font-size: var(--font-size-base) !important;
 }
 
 body {
@@ -152,8 +185,8 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 }
 
 .hn-submission-body {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 6px;
 }
 
@@ -195,8 +228,37 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   flex-wrap: wrap;
   align-items: center;
   gap: 12px;
-  font-size: 13px;
+  font-size: var(--font-size-base);
   color: #6b6b6b;
+}
+
+.hn-submission-meta,
+.hn-submission-meta * {
+  font-size: inherit !important;
+}
+
+.hn-submission-age,
+.hn-submission-age *,
+.hn-submission-meta .age,
+.hn-submission-meta .age * {
+  font-size: inherit !important;
+}
+
+.hn-submission-score,
+.hn-submission-score *,
+.hn-submission-user,
+.hn-submission-user *,
+.hn-submission-comments,
+.hn-submission-comments *,
+.hn-submission-site,
+.hn-submission-site *,
+.hn-submission-meta .score,
+.hn-submission-meta .score *,
+.hn-submission-meta .hnuser,
+.hn-submission-meta .hnuser *,
+.hn-submission-meta .comhead,
+.hn-submission-meta .comhead * {
+  font-size: inherit !important;
 }
 
 .hn-submission-meta a {
@@ -347,8 +409,17 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 .hn-comment-meta.has-comhead .comhead {
   display: flex;
   align-items: center;
-  font-size: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 0 !important;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.comhead {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+}
+
+.hn-submission-meta .comhead,
+.hn-submission-meta .comhead * {
+  font-size: inherit !important;
 }
 
 .hn-comment-meta.has-comhead a:not(.hnuser) {
