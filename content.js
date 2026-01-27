@@ -99,6 +99,61 @@ function registerSubmissionMenuListeners() {
   });
 }
 
+function buildSidebarNavigation() {
+  if (document.getElementById("zen-hn-sidebar")) {
+    return;
+  }
+  const pagetops = Array.from(document.querySelectorAll("span.pagetop"));
+  if (!pagetops.length) {
+    return;
+  }
+  const linkNodes = pagetops.flatMap((node) => Array.from(node.querySelectorAll("a")));
+  if (!linkNodes.length) {
+    return;
+  }
+  const seen = new Set();
+  const list = document.createElement("ul");
+  list.className = "zen-hn-sidebar-list";
+  linkNodes.forEach((link) => {
+    const href = link.getAttribute("href") || "";
+    const text = link.textContent?.trim() || "";
+    if (!href || !text) {
+      return;
+    }
+    const key = `${href}::${text}`;
+    if (seen.has(key)) {
+      return;
+    }
+    seen.add(key);
+    const item = document.createElement("li");
+    item.className = "zen-hn-sidebar-item";
+    const clone = link.cloneNode(true);
+    clone.classList.add("zen-hn-sidebar-link");
+    item.appendChild(clone);
+    list.appendChild(item);
+  });
+  if (!list.childNodes.length) {
+    return;
+  }
+  const nav = document.createElement("nav");
+  nav.className = "zen-hn-sidebar-nav";
+  nav.appendChild(list);
+  const sidebar = document.createElement("aside");
+  sidebar.id = "zen-hn-sidebar";
+  sidebar.setAttribute("aria-label", "Hacker News navigation");
+  sidebar.appendChild(nav);
+  document.body.appendChild(sidebar);
+  document.documentElement.dataset.zenHnSidebar = "true";
+  const headerRow = pagetops[0]?.closest("tr");
+  if (headerRow) {
+    headerRow.style.display = "none";
+  }
+  const pageSpacer = document.querySelector("tr#pagespace");
+  if (pageSpacer) {
+    pageSpacer.style.display = "none";
+  }
+}
+
 function getIndentLevelFromRow(row) {
   if (!row) {
     return 0;
@@ -1976,6 +2031,7 @@ function runRestyleWhenReady() {
 
 async function initRestyle() {
   await loadActionStore();
+  buildSidebarNavigation();
   if (isUserProfilePage()) {
     document.documentElement.dataset.zenHnUserPage = "true";
   }
