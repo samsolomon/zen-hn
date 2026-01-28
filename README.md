@@ -1,8 +1,11 @@
 # zen-hn
 
+Zen HN is a Chrome extension that restyles Hacker News for a calmer, more readable experience.
+
 ![Zen HN Screenshot](assets/screenshot.png)
 
-Zen HN is a Chrome extension that restyles Hacker News for a calmer, more readable experience.
+Additional functionality
+- Random - Stumbleupon for HN. Selects a random post from the past.
 
 ⚠️ Warning: This a work in progress.
 
