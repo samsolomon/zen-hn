@@ -1,5 +1,7 @@
 # zen-hn
 
+![Zen HN Screenshot](assets/screenshot.png)
+
 Zen HN is a Chrome extension that restyles Hacker News for a calmer, more readable experience.
 
 ⚠️ Warning: This a work in progress.
