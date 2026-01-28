@@ -64,7 +64,6 @@ html[data-zen-hn-sidebar="loading"] body {
   left: 0;
   width: var(--sidebar-width);
   height: 100vh;
-  padding: 8px 0;
   border-right: 1px solid var(--sidebar-border);
   background-color: transparent;
   box-shadow: none;
@@ -77,6 +76,9 @@ html[data-zen-hn-sidebar="loading"] body {
   flex-direction: column;
   align-items: center;
   gap: 12px;
+  height: 100%;
+  padding: 8px 0;
+  box-sizing: border-box;
 }
 
 #zen-hn-sidebar .zen-hn-sidebar-list {
@@ -87,12 +89,25 @@ html[data-zen-hn-sidebar="loading"] body {
   flex-direction: column;
   align-items: center;
   gap: 6px;
+  flex: 1;
+}
+
+#zen-hn-sidebar .zen-hn-sidebar-bottom {
+  margin-top: auto;
+}
+
+#zen-hn-sidebar .zen-hn-sidebar-bottom-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 #zen-hn-sidebar .zen-hn-sidebar-icons {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  flex: 1;
+  justify-content: center;
 }
 
 #zen-hn-sidebar .zen-hn-sidebar-icon-link {

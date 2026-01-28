@@ -45,6 +45,8 @@ const PHOSPHOR_SVGS = {
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M223.85,47.12a16,16,0,0,0-15-15c-12.58-.75-44.73.4-71.41,27.07L132.69,64H74.36A15.91,15.91,0,0,0,63,68.68L28.7,103a16,16,0,0,0,9.07,27.16l38.47,5.37,44.21,44.21,5.37,38.49a15.94,15.94,0,0,0,10.78,12.92,16.11,16.11,0,0,0,5.1.83A15.91,15.91,0,0,0,153,227.3L187.32,193A15.91,15.91,0,0,0,192,181.64V123.31l4.77-4.77C223.45,91.86,224.6,59.71,223.85,47.12ZM74.36,80h42.33L77.16,119.52,40,114.34Zm74.41-9.45a76.65,76.65,0,0,1,59.11-22.47,76.46,76.46,0,0,1-22.42,59.16L128,164.68,91.32,128ZM176,181.64,141.67,216l-5.19-37.17L176,139.31Zm-74.16,9.5C97.34,201,82.29,224,40,224a8,8,0,0,1-8-8c0-42.29,23-57.34,32.86-61.85a8,8,0,0,1,6.64,14.56c-6.43,2.93-20.62,12.36-23.12,38.91,26.55-2.5,36-16.69,38.91-23.12a8,8,0,1,1,14.56,6.64Z\"/></svg>",
   "chat-circle":
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M128,24A104,104,0,0,0,36.18,176.88L24.83,210.93a16,16,0,0,0,20.24,20.24l34.05-11.35A104,104,0,1,0,128,24Zm0,192a87.87,87.87,0,0,1-44.06-11.81,8,8,0,0,0-6.54-.67L40,216,52.47,178.6a8,8,0,0,0-.66-6.54A88,88,0,1,1,128,216Z\"/></svg>",
+  "user":
+    "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M128,128a48,48,0,1,0-48-48A48,48,0,0,0,128,128Zm0-80a32,32,0,1,1-32,32A32,32,0,0,1,128,48Zm0,88c-44.11,0-80,31.37-80,70a8,8,0,0,0,16,0c0-30.88,28.65-54,64-54s64,23.12,64,54a8,8,0,0,0,16,0C208,167.37,172.11,136,128,136Z\"/></svg>",
   "yarn":
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M232,216H183.39A103.95,103.95,0,1,0,128,232l104,0a8,8,0,1,0,0-16ZM128,40a87.51,87.51,0,0,1,43.93,11.77,222.06,222.06,0,0,0-27.88,15.09,222.23,222.23,0,0,0-45-22A87.52,87.52,0,0,1,128,40ZM78.56,55.24a206,206,0,0,1,51.11,21.57A225.76,225.76,0,0,0,110.1,93.36,181.54,181.54,0,0,0,57.73,75.09,88.67,88.67,0,0,1,78.56,55.24ZM48.72,89.82a165.82,165.82,0,0,1,49.67,15.51A228,228,0,0,0,82.76,124.5,142.65,142.65,0,0,0,41.28,113,87.5,87.5,0,0,1,48.72,89.82ZM40,129a126.07,126.07,0,0,1,33.63,9,222.36,222.36,0,0,0-19.07,38.45A87.51,87.51,0,0,1,40,129Zm26.42,61.81A209.36,209.36,0,0,1,187,62.74a89,89,0,0,1,16.22,19.57A183.89,183.89,0,0,0,87,205.82,88.56,88.56,0,0,1,66.43,190.81ZM125.66,216A87.66,87.66,0,0,1,101.83,212,167.84,167.84,0,0,1,210.28,96.79a87.35,87.35,0,0,1,5.38,23.55A144.59,144.59,0,0,0,125.66,216Zm89.82-78.44a88.19,88.19,0,0,1-72.67,77.22A128.64,128.64,0,0,1,215.48,137.53Z\"/></svg>",
   "floppy-disk-back":
@@ -172,13 +174,18 @@ function buildSidebarNavigation() {
   const seen = new Set();
   const list = document.createElement("ul");
   list.className = "zen-hn-sidebar-list";
+  const profileLink = document.querySelector("a#me")
+    || document.querySelector("span.pagetop a[href^='user?id=']");
+  const loginLink = document.querySelector("span.pagetop a[href^='login']");
+  const userLink = profileLink || loginLink;
+  const userHref = userLink?.getAttribute("href") || "/login";
+  const userLabel = userLink ? (userLink === loginLink ? "Log in" : "Profile") : "Log in";
   const iconLinks = [
     { href: "/newest", icon: "seal", label: "New" },
     { href: "/active", icon: "lightning", label: "Active" },
     { href: "/best", icon: "crown-simple", label: "Best" },
     { href: "/ask", icon: "question", label: "Ask" },
     { href: "/front", icon: "hourglass", label: "History" },
-    { href: "/submit", icon: "pencil-simple", label: "Submit" },
   ];
   const iconGroup = document.createElement("li");
   iconGroup.className = "zen-hn-sidebar-item zen-hn-sidebar-icons";
@@ -191,6 +198,22 @@ function buildSidebarNavigation() {
     iconLink.innerHTML = renderIcon(item.icon);
     iconGroup.appendChild(iconLink);
   });
+  const bottomGroup = document.createElement("li");
+  bottomGroup.className = "zen-hn-sidebar-item zen-hn-sidebar-bottom zen-hn-sidebar-bottom-group";
+  const submitLink = document.createElement("a");
+  submitLink.className = "zen-hn-sidebar-icon-link";
+  submitLink.href = "/submit";
+  submitLink.setAttribute("aria-label", "Submit");
+  submitLink.setAttribute("title", "Submit");
+  submitLink.innerHTML = renderIcon("pencil-simple");
+  const userIconLink = document.createElement("a");
+  userIconLink.className = "zen-hn-sidebar-icon-link";
+  userIconLink.href = userHref;
+  userIconLink.setAttribute("aria-label", userLabel);
+  userIconLink.setAttribute("title", userLabel);
+  userIconLink.innerHTML = renderIcon("user");
+  bottomGroup.appendChild(submitLink);
+  bottomGroup.appendChild(userIconLink);
   linkNodes.forEach((link) => {
     const href = link.getAttribute("href") || "";
     const text = link.textContent?.trim() || "";
@@ -217,6 +240,7 @@ function buildSidebarNavigation() {
     list.appendChild(item);
   });
   list.appendChild(iconGroup);
+  list.appendChild(bottomGroup);
   if (!list.childNodes.length) {
     return false;
   }
