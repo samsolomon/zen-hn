@@ -39,6 +39,11 @@ General
 - Keep modules single-purpose; avoid mixed responsibilities.
 - Minimize global state and side effects.
 
+Language
+- Default language: TypeScript (.ts / .tsx).
+- All new files must be written in TypeScript unless JavaScript is explicitly requested.
+- Existing JavaScript files may remain as-is but new code should be TypeScript.
+
 Formatting
 - Follow the formatter of the ecosystem once present.
 - Default to 2-space indentation for JSON/YAML; 4-space for code unless project says otherwise.
