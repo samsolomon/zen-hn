@@ -554,13 +554,16 @@ function loadActionStore() {
   }
   actionStoreLoadPromise = new Promise((resolve) => {
     if (!globalThis.chrome?.storage?.local) {
+      console.log("[ZenHN] No chrome.storage.local available, using default store");
       actionStore = getDefaultActionStore();
       resolve(actionStore);
       return;
     }
     chrome.storage.local.get({ [ACTION_STORE_KEY]: null }, (result) => {
       const raw = result ? result[ACTION_STORE_KEY] : null;
+      console.log("[ZenHN] Loaded raw action store:", raw);
       actionStore = normalizeActionStore(raw);
+      console.log("[ZenHN] Normalized action store:", actionStore);
       resolve(actionStore);
     });
   });
@@ -569,14 +572,23 @@ function loadActionStore() {
 
 function scheduleActionStoreSave() {
   if (!globalThis.chrome?.storage?.local || !actionStore) {
+    console.log("[ZenHN] scheduleActionStoreSave: skipped (no storage or store)");
     return;
   }
   if (actionStoreSaveTimer) {
     globalThis.clearTimeout(actionStoreSaveTimer);
   }
+  console.log("[ZenHN] scheduleActionStoreSave: scheduling save...");
   actionStoreSaveTimer = globalThis.setTimeout(() => {
     actionStoreSaveTimer = null;
-    chrome.storage.local.set({ [ACTION_STORE_KEY]: actionStore });
+    console.log("[ZenHN] Saving action store to chrome.storage:", actionStore);
+    chrome.storage.local.set({ [ACTION_STORE_KEY]: actionStore }, () => {
+      if (chrome.runtime.lastError) {
+        console.error("[ZenHN] Error saving action store:", chrome.runtime.lastError);
+      } else {
+        console.log("[ZenHN] Action store saved successfully");
+      }
+    });
   }, ACTION_STORE_DEBOUNCE_MS);
 }
 
@@ -607,17 +619,22 @@ function getUserActionBucket() {
 
 function getStoredAction(kind, id) {
   if (!actionStore || !id) {
+    console.log("[ZenHN] getStoredAction: no store or id", { actionStore: !!actionStore, id });
     return null;
   }
-  const { bucket } = getUserActionBucket();
-  return bucket?.[kind]?.[id] || null;
+  const { username, bucket } = getUserActionBucket();
+  const result = bucket?.[kind]?.[id] || null;
+  console.log("[ZenHN] getStoredAction:", { kind, id, username, result });
+  return result;
 }
 
 function updateStoredAction(kind, id, update) {
   if (!actionStore || !id || !update) {
+    console.log("[ZenHN] updateStoredAction: skipped", { actionStore: !!actionStore, id, update });
     return;
   }
-  const { bucket } = getUserActionBucket();
+  const { username, bucket } = getUserActionBucket();
+  console.log("[ZenHN] updateStoredAction:", { kind, id, update, username });
   const current = bucket?.[kind]?.[id] || {};
   const next = { ...current };
   if (Object.prototype.hasOwnProperty.call(update, "vote")) {
@@ -1123,13 +1140,14 @@ function restyleSubmissions() {
     }
     if (upvoteLink || isUpvotedState) {
       upvoteButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
         const voteHref = isUpvotedState
           ? (unvoteHref || ZEN_LOGIC.buildVoteHref(upvoteHref, "un", window.location.href))
           : upvoteHref;
         if (!voteHref) {
           return;
         }
-        event.preventDefault();
         fetch(voteHref, { credentials: "same-origin", cache: "no-store" });
         isUpvotedState = !isUpvotedState;
         if (effectiveItemId) {
@@ -1155,17 +1173,22 @@ function restyleSubmissions() {
     const favoriteText = favoriteLink?.textContent?.trim().toLowerCase() || "";
     const storedFavorite = storedStoryAction?.favorite;
     const hasFavoriteSignal = Boolean(favoriteLink);
-    let isFavorited = favoriteText === "unfavorite";
-    if (!hasFavoriteSignal && storedFavorite === true) {
-      isFavorited = true;
+    const domFavorited = favoriteText === "unfavorite";
+    let isFavorited = domFavorited || storedFavorite === true;
+    console.log("[ZenHN] Favorite state:", {
+      effectiveItemId,
+      favoriteText,
+      storedFavorite,
+      hasFavoriteSignal,
+      domFavorited,
+      isFavorited,
+    });
+    // Only sync TO storage when DOM shows favorited but we don't have it stored
+    // Never clear stored favorites based on DOM state
+    if (hasFavoriteSignal && effectiveItemId && domFavorited && storedFavorite !== true) {
+      updateStoredAction("stories", effectiveItemId, { favorite: true });
     }
-    if (hasFavoriteSignal && effectiveItemId) {
-      if (isFavorited && storedFavorite !== true) {
-        updateStoredAction("stories", effectiveItemId, { favorite: true });
-      } else if (!isFavorited && storedFavorite === true) {
-        updateStoredAction("stories", effectiveItemId, { favorite: false });
-      }
-    }
+    console.log("[ZenHN] Final favorite state for item", effectiveItemId, ":", isFavorited);
     let favoriteHref = favoriteLink?.getAttribute("href") || "";
 
     const bookmarkButton = document.createElement("button");
@@ -1179,6 +1202,7 @@ function restyleSubmissions() {
     }
     bookmarkButton.addEventListener("click", async (event) => {
       event.preventDefault();
+      event.stopPropagation();
       const wasFavorited = isFavorited;
       isFavorited = ZEN_LOGIC.toggleFavoriteState(isFavorited);
       bookmarkButton.classList.toggle("is-active", isFavorited);
@@ -1234,6 +1258,7 @@ function restyleSubmissions() {
     let copyResetTimer = null;
     linkButton.addEventListener("click", async (event) => {
       event.preventDefault();
+      event.stopPropagation();
       const commentsHref = commentsLink?.getAttribute("href") || "";
       const targetHref = ZEN_LOGIC.resolveSubmissionCopyHref(
         commentsHref,
@@ -1524,13 +1549,14 @@ function restyleFatItem() {
   }
   if (upvoteLink || isUpvotedState) {
     upvoteButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
       const voteHref = isUpvotedState
         ? (unvoteHref || ZEN_LOGIC.buildVoteHref(upvoteHref, "un", window.location.href))
         : upvoteHref;
       if (!voteHref) {
         return;
       }
-      event.preventDefault();
       fetch(voteHref, { credentials: "same-origin", cache: "no-store" });
       isUpvotedState = !isUpvotedState;
       if (itemId) {
@@ -1556,16 +1582,11 @@ function restyleFatItem() {
   const favoriteText = favoriteLink?.textContent?.trim().toLowerCase() || "";
   const storedFavorite = storedStoryAction?.favorite;
   const hasFavoriteSignal = Boolean(favoriteLink);
-  let isFavorited = favoriteText === "unfavorite";
-  if (!hasFavoriteSignal && storedFavorite === true) {
-    isFavorited = true;
-  }
-  if (hasFavoriteSignal && itemId) {
-    if (isFavorited && storedFavorite !== true) {
-      updateStoredAction("stories", itemId, { favorite: true });
-    } else if (!isFavorited && storedFavorite === true) {
-      updateStoredAction("stories", itemId, { favorite: false });
-    }
+  const domFavorited = favoriteText === "unfavorite";
+  let isFavorited = domFavorited || storedFavorite === true;
+  // Only sync TO storage when DOM shows favorited but we don't have it stored
+  if (hasFavoriteSignal && itemId && domFavorited && storedFavorite !== true) {
+    updateStoredAction("stories", itemId, { favorite: true });
   }
   let favoriteHref = favoriteLink?.getAttribute("href") || "";
 
@@ -1580,6 +1601,7 @@ function restyleFatItem() {
   }
   bookmarkButton.addEventListener("click", async (event) => {
     event.preventDefault();
+    event.stopPropagation();
     const wasFavorited = isFavorited;
     isFavorited = ZEN_LOGIC.toggleFavoriteState(isFavorited);
     bookmarkButton.classList.toggle("is-active", isFavorited);
@@ -1635,6 +1657,7 @@ function restyleFatItem() {
   let copyResetTimer = null;
   linkButton.addEventListener("click", async (event) => {
     event.preventDefault();
+    event.stopPropagation();
     const itemHref = ZEN_LOGIC.buildItemHref(itemId, window.location.href);
     const targetHref = itemHref || window.location.href;
     const copied = await copyTextToClipboard(targetHref);
@@ -1704,6 +1727,7 @@ function restyleFatItem() {
   cancelButton.textContent = "Cancel";
   cancelButton.addEventListener("click", (event) => {
     event.preventDefault();
+    event.stopPropagation();
     closeReply();
   });
   if (!hasReplyTarget) {
@@ -1713,6 +1737,7 @@ function restyleFatItem() {
   }
   replySubmitButton.addEventListener("click", async (event) => {
     event.preventDefault();
+    event.stopPropagation();
     const replyText = replyTextarea.value.trim();
     if (!replyText) {
       replyTextarea.focus();
@@ -1747,6 +1772,7 @@ function restyleFatItem() {
   if (hasReplyTarget) {
     replyButton.addEventListener("click", (event) => {
       event.preventDefault();
+      event.stopPropagation();
       const isHidden = replyContainer.classList.toggle("is-hidden");
       if (!isHidden) {
         replyTextarea.focus();
@@ -1820,16 +1846,11 @@ function buildCommentItem(row, options = {}) {
   const favoriteText = favoriteLink?.textContent?.trim().toLowerCase() || "";
   const storedFavorite = storedCommentAction?.favorite;
   const hasFavoriteSignal = Boolean(favoriteLink);
-  let isFavorited = favoriteText === "unfavorite";
-  if (!hasFavoriteSignal && storedFavorite === true) {
-    isFavorited = true;
-  }
-  if (hasFavoriteSignal && commentId) {
-    if (isFavorited && storedFavorite !== true) {
-      updateStoredAction("comments", commentId, { favorite: true });
-    } else if (!isFavorited && storedFavorite === true) {
-      updateStoredAction("comments", commentId, { favorite: false });
-    }
+  const domFavorited = favoriteText === "unfavorite";
+  let isFavorited = domFavorited || storedFavorite === true;
+  // Only sync TO storage when DOM shows favorited but we don't have it stored
+  if (hasFavoriteSignal && commentId && domFavorited && storedFavorite !== true) {
+    updateStoredAction("comments", commentId, { favorite: true });
   }
 
   const indentLevel = Number.isFinite(indentOverride)
@@ -1855,7 +1876,8 @@ function buildCommentItem(row, options = {}) {
   collapseButton.type = "button";
   collapseButton.innerHTML = renderIcon("caret-down");
   setCollapseButtonState(collapseButton, false, hasChildren);
-  collapseButton.addEventListener("click", () => {
+  collapseButton.addEventListener("click", (event) => {
+    event.stopPropagation();
     toggleCommentCollapse(item);
   });
 
@@ -1891,13 +1913,14 @@ function buildCommentItem(row, options = {}) {
   }
   if (upvoteLink || isUpvoted) {
     upvoteButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
       const voteHref = isUpvoted
         ? (unvoteHref || ZEN_LOGIC.buildVoteHref(upvoteHref, "un", window.location.href))
         : upvoteHref;
       if (!voteHref) {
         return;
       }
-      event.preventDefault();
       fetch(voteHref, { credentials: "same-origin", cache: "no-store" });
       const nextState = ZEN_LOGIC.toggleVoteState(
         { isUpvoted, isDownvoted },
@@ -1930,13 +1953,14 @@ function buildCommentItem(row, options = {}) {
   }
   if (downvoteLink || isDownvoted) {
     downvoteButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
       const voteHref = isDownvoted
         ? (unvoteHref || ZEN_LOGIC.buildVoteHref(downvoteHref, "un", window.location.href))
         : downvoteHref;
       if (!voteHref) {
         return;
       }
-      event.preventDefault();
       fetch(voteHref, { credentials: "same-origin", cache: "no-store" });
       const nextState = ZEN_LOGIC.toggleVoteState(
         { isUpvoted, isDownvoted },
@@ -1969,6 +1993,7 @@ function buildCommentItem(row, options = {}) {
   }
   bookmarkButton.addEventListener("click", async (event) => {
     event.preventDefault();
+    event.stopPropagation();
     const wasFavorited = isFavorited;
     isFavorited = ZEN_LOGIC.toggleFavoriteState(isFavorited);
     bookmarkButton.classList.toggle("is-active", isFavorited);
@@ -2007,7 +2032,8 @@ function buildCommentItem(row, options = {}) {
   shareButton.setAttribute("aria-label", "Reply");
   shareButton.innerHTML = renderIcon("share-fat");
   let replyContainer = null;
-  shareButton.addEventListener("click", () => {
+  shareButton.addEventListener("click", (event) => {
+    event.stopPropagation();
     if (replyContainer) {
       const isHidden = replyContainer.classList.toggle("is-hidden");
       if (!isHidden) {
@@ -2030,6 +2056,7 @@ function buildCommentItem(row, options = {}) {
   let copyResetTimer = null;
   linkButton.addEventListener("click", async (event) => {
     event.preventDefault();
+    event.stopPropagation();
     const commentHref = ZEN_LOGIC.buildCommentHref(commentId, window.location.href);
     if (!commentHref) {
       return;
@@ -2088,6 +2115,7 @@ function buildCommentItem(row, options = {}) {
   cancelButton.textContent = "Cancel";
   cancelButton.addEventListener("click", (event) => {
     event.preventDefault();
+    event.stopPropagation();
     closeReply();
   });
   const hasReplyTarget = Boolean(replyResolved || replyHref);
@@ -2098,6 +2126,7 @@ function buildCommentItem(row, options = {}) {
   }
   replyButton.addEventListener("click", async (event) => {
     event.preventDefault();
+    event.stopPropagation();
     const replyText = replyTextarea.value.trim();
     if (!replyText) {
       replyTextarea.focus();
