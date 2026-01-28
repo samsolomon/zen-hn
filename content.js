@@ -45,6 +45,8 @@ const PHOSPHOR_SVGS = {
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M223.85,47.12a16,16,0,0,0-15-15c-12.58-.75-44.73.4-71.41,27.07L132.69,64H74.36A15.91,15.91,0,0,0,63,68.68L28.7,103a16,16,0,0,0,9.07,27.16l38.47,5.37,44.21,44.21,5.37,38.49a15.94,15.94,0,0,0,10.78,12.92,16.11,16.11,0,0,0,5.1.83A15.91,15.91,0,0,0,153,227.3L187.32,193A15.91,15.91,0,0,0,192,181.64V123.31l4.77-4.77C223.45,91.86,224.6,59.71,223.85,47.12ZM74.36,80h42.33L77.16,119.52,40,114.34Zm74.41-9.45a76.65,76.65,0,0,1,59.11-22.47,76.46,76.46,0,0,1-22.42,59.16L128,164.68,91.32,128ZM176,181.64,141.67,216l-5.19-37.17L176,139.31Zm-74.16,9.5C97.34,201,82.29,224,40,224a8,8,0,0,1-8-8c0-42.29,23-57.34,32.86-61.85a8,8,0,0,1,6.64,14.56c-6.43,2.93-20.62,12.36-23.12,38.91,26.55-2.5,36-16.69,38.91-23.12a8,8,0,1,1,14.56,6.64Z\"/></svg>",
   "chat-circle":
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M128,24A104,104,0,0,0,36.18,176.88L24.83,210.93a16,16,0,0,0,20.24,20.24l34.05-11.35A104,104,0,1,0,128,24Zm0,192a87.87,87.87,0,0,1-44.06-11.81,8,8,0,0,0-6.54-.67L40,216,52.47,178.6a8,8,0,0,0-.66-6.54A88,88,0,1,1,128,216Z\"/></svg>",
+  "house-simple":
+    "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M219.31,108.68l-80-80a16,16,0,0,0-22.62,0l-80,80A15.87,15.87,0,0,0,32,120v96a8,8,0,0,0,8,8H216a8,8,0,0,0,8-8V120A15.87,15.87,0,0,0,219.31,108.68ZM208,208H48V120l80-80,80,80Z\"/></svg>",
   "dice-two":
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M192,32H64A32,32,0,0,0,32,64V192a32,32,0,0,0,32,32H192a32,32,0,0,0,32-32V64A32,32,0,0,0,192,32Zm16,160a16,16,0,0,1-16,16H64a16,16,0,0,1-16-16V64A16,16,0,0,1,64,48H192a16,16,0,0,1,16,16Zm-88-84a12,12,0,1,1-12-12A12,12,0,0,1,120,108Zm40,40a12,12,0,1,1-12-12A12,12,0,0,1,160,148Z\"/></svg>",
   "user":
@@ -310,6 +312,7 @@ function buildSidebarNavigation() {
   const userHref = userLink?.getAttribute("href") || "/login";
   const userLabel = userLink ? (userLink === loginLink ? "Log in" : "Profile") : "Log in";
   const iconLinks = [
+    { href: "/news", icon: "house-simple", label: "Home" },
     { href: "/newest", icon: "seal", label: "New" },
     { href: "/active", icon: "lightning", label: "Active" },
     { href: "/best", icon: "crown-simple", label: "Best" },
@@ -322,6 +325,7 @@ function buildSidebarNavigation() {
       action: "random",
     },
   ];
+  const hasHomeIcon = iconLinks.some((item) => item.icon === "house-simple");
   const iconGroup = document.createElement("li");
   iconGroup.className = "zen-hn-sidebar-item zen-hn-sidebar-icons";
   iconLinks.forEach((item) => {
@@ -359,6 +363,9 @@ function buildSidebarNavigation() {
       return;
     }
     if (!isHomeSidebarLink(href, text)) {
+      return;
+    }
+    if (hasHomeIcon) {
       return;
     }
     const key = `${href}::${text}`;
