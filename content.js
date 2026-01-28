@@ -319,13 +319,14 @@ function buildSidebarNavigation() {
   homeButtonItem.className = "zen-hn-sidebar-item";
   const homeButton = document.createElement("a");
   homeButton.className = "zen-hn-sidebar-icon-link zen-hn-home-button";
-  homeButton.href = "/news";
+  homeButton.href = "/";
   homeButton.setAttribute("aria-label", "Home");
   homeButton.setAttribute("title", "Home");
   homeButton.innerHTML = HN_HOME_SVG;
   homeButtonItem.appendChild(homeButton);
 
   const iconLinks = [
+    { href: "/news", icon: "house-simple", label: "News" },
     { href: "/newest", icon: "seal", label: "New" },
     { href: "/active", icon: "lightning", label: "Active" },
     { href: "/best", icon: "crown-simple", label: "Best" },
