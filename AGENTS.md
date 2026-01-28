@@ -43,6 +43,13 @@ Language
 - Default language: TypeScript (.ts / .tsx).
 - All new files must be written in TypeScript unless JavaScript is explicitly requested.
 - Existing JavaScript files may remain as-is but new code should be TypeScript.
+- If a task would normally produce JavaScript: convert it to TypeScript, or ask for confirmation before producing JavaScript.
+- TypeScript must compile under `strict: true`.
+- Avoid `any`; prefer `unknown` and explicit narrowing.
+- Do not add types that don't reflect runtime behavior.
+- Do not use `as` casts to silence errors.
+- Do not change logic to satisfy the type checker.
+- If you produce JavaScript, explain why TypeScript was not used.
 
 Formatting
 - Follow the formatter of the ecosystem once present.
