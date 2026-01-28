@@ -45,6 +45,8 @@ const PHOSPHOR_SVGS = {
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M223.85,47.12a16,16,0,0,0-15-15c-12.58-.75-44.73.4-71.41,27.07L132.69,64H74.36A15.91,15.91,0,0,0,63,68.68L28.7,103a16,16,0,0,0,9.07,27.16l38.47,5.37,44.21,44.21,5.37,38.49a15.94,15.94,0,0,0,10.78,12.92,16.11,16.11,0,0,0,5.1.83A15.91,15.91,0,0,0,153,227.3L187.32,193A15.91,15.91,0,0,0,192,181.64V123.31l4.77-4.77C223.45,91.86,224.6,59.71,223.85,47.12ZM74.36,80h42.33L77.16,119.52,40,114.34Zm74.41-9.45a76.65,76.65,0,0,1,59.11-22.47,76.46,76.46,0,0,1-22.42,59.16L128,164.68,91.32,128ZM176,181.64,141.67,216l-5.19-37.17L176,139.31Zm-74.16,9.5C97.34,201,82.29,224,40,224a8,8,0,0,1-8-8c0-42.29,23-57.34,32.86-61.85a8,8,0,0,1,6.64,14.56c-6.43,2.93-20.62,12.36-23.12,38.91,26.55-2.5,36-16.69,38.91-23.12a8,8,0,1,1,14.56,6.64Z\"/></svg>",
   "chat-circle":
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M128,24A104,104,0,0,0,36.18,176.88L24.83,210.93a16,16,0,0,0,20.24,20.24l34.05-11.35A104,104,0,1,0,128,24Zm0,192a87.87,87.87,0,0,1-44.06-11.81,8,8,0,0,0-6.54-.67L40,216,52.47,178.6a8,8,0,0,0-.66-6.54A88,88,0,1,1,128,216Z\"/></svg>",
+  "dice-two":
+    "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M192,32H64A32,32,0,0,0,32,64V192a32,32,0,0,0,32,32H192a32,32,0,0,0,32-32V64A32,32,0,0,0,192,32Zm16,160a16,16,0,0,1-16,16H64a16,16,0,0,1-16-16V64A16,16,0,0,1,64,48H192a16,16,0,0,1,16,16Zm-88-84a12,12,0,1,1-12-12A12,12,0,0,1,120,108Zm40,40a12,12,0,1,1-12-12A12,12,0,0,1,160,148Z\"/></svg>",
   "user":
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M128,128a48,48,0,1,0-48-48A48,48,0,0,0,128,128Zm0-80a32,32,0,1,1-32,32A32,32,0,0,1,128,48Zm0,88c-44.11,0-80,31.37-80,70a8,8,0,0,0,16,0c0-30.88,28.65-54,64-54s64,23.12,64,54a8,8,0,0,0,16,0C208,167.37,172.11,136,128,136Z\"/></svg>",
   "yarn":
@@ -158,6 +160,133 @@ function isHomeSidebarLink(href, text) {
   return text?.trim().toLowerCase() === "hacker news" && normalized === "news";
 }
 
+const RANDOM_ITEM_MAX_ATTEMPTS = 6;
+
+function normalizeItemId(value) {
+  const parsed = Number.parseInt(value || "", 10);
+  if (!Number.isFinite(parsed) || parsed < 1) {
+    return "";
+  }
+  return String(parsed);
+}
+
+function parseItemIdFromDocument(doc) {
+  if (!doc) {
+    return "";
+  }
+  const rowId = normalizeItemId(doc.querySelector("tr.athing[id]")?.getAttribute("id"));
+  if (rowId) {
+    return rowId;
+  }
+  const linkHref = doc.querySelector("a[href^='item?id=']")?.getAttribute("href") || "";
+  const params = getHrefParams(linkHref);
+  return normalizeItemId(params.get("id"));
+}
+
+async function fetchNewestItemId() {
+  try {
+    const response = await fetch("/newest", {
+      credentials: "same-origin",
+      cache: "no-store",
+    });
+    if (!response.ok) {
+      return "";
+    }
+    const html = await response.text();
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    return parseItemIdFromDocument(doc);
+  } catch (error) {
+    return "";
+  }
+}
+
+function resolveHrefWithBase(href, baseHref) {
+  if (!href) {
+    return "";
+  }
+  try {
+    const base = baseHref || globalThis.location?.href || "https://news.ycombinator.com/";
+    return new URL(href, base).toString();
+  } catch (error) {
+    return href;
+  }
+}
+
+async function resolveStoryHrefFromItem(itemId) {
+  if (!itemId) {
+    return "";
+  }
+  try {
+    const response = await fetch(`item?id=${itemId}`, {
+      credentials: "same-origin",
+      cache: "no-store",
+    });
+    if (!response.ok) {
+      return "";
+    }
+    const html = await response.text();
+    if (/No such item/i.test(html)) {
+      return "";
+    }
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const onStoryHref = doc.querySelector(".onstory a")?.getAttribute("href") || "";
+    if (onStoryHref) {
+      return resolveHrefWithBase(onStoryHref, response.url);
+    }
+    const storyHref = ZEN_LOGIC.buildItemHref(itemId, response.url) || `item?id=${itemId}`;
+    return resolveHrefWithBase(storyHref, response.url);
+  } catch (error) {
+    return "";
+  }
+}
+
+async function resolveRandomStoryHref(maxId) {
+  const max = Number.parseInt(maxId || "", 10);
+  if (!Number.isFinite(max) || max < 1) {
+    return "";
+  }
+  const maxString = String(max);
+  for (let attempt = 0; attempt < RANDOM_ITEM_MAX_ATTEMPTS; attempt += 1) {
+    const candidate = Math.floor(Math.random() * max) + 1;
+    const storyHref = await resolveStoryHrefFromItem(candidate);
+    if (storyHref) {
+      return storyHref;
+    }
+  }
+  return ZEN_LOGIC.buildItemHref(maxString, window.location.href)
+    || `item?id=${maxString}`;
+}
+
+async function handleRandomItemClick(event) {
+  event.preventDefault();
+  const link = event.currentTarget;
+  if (link?.dataset?.randomPending === "true") {
+    return;
+  }
+  if (link) {
+    link.dataset.randomPending = "true";
+    link.setAttribute("aria-busy", "true");
+  }
+  try {
+    const newestId = await fetchNewestItemId();
+    const randomHref = await resolveRandomStoryHref(newestId);
+    if (!randomHref && !newestId) {
+      window.location.href = "/newest";
+      return;
+    }
+    const fallbackHref = newestId
+      ? (ZEN_LOGIC.buildItemHref(newestId, window.location.href) || `item?id=${newestId}`)
+      : "/newest";
+    const targetHref = randomHref || fallbackHref;
+    window.location.href = targetHref;
+  } finally {
+    if (link) {
+      delete link.dataset.randomPending;
+      link.removeAttribute("aria-busy");
+    }
+  }
+}
+
 function buildSidebarNavigation() {
   if (document.getElementById("zen-hn-sidebar")) {
     document.documentElement.dataset.zenHnSidebar = "true";
@@ -186,6 +315,12 @@ function buildSidebarNavigation() {
     { href: "/best", icon: "crown-simple", label: "Best" },
     { href: "/ask", icon: "question", label: "Ask" },
     { href: "/front", icon: "hourglass", label: "History" },
+    {
+      href: "/newest",
+      icon: "dice-two",
+      label: "Random",
+      action: "random",
+    },
   ];
   const iconGroup = document.createElement("li");
   iconGroup.className = "zen-hn-sidebar-item zen-hn-sidebar-icons";
@@ -196,6 +331,9 @@ function buildSidebarNavigation() {
     iconLink.setAttribute("aria-label", item.label);
     iconLink.setAttribute("title", item.label);
     iconLink.innerHTML = renderIcon(item.icon);
+    if (item.action === "random") {
+      iconLink.addEventListener("click", handleRandomItemClick);
+    }
     iconGroup.appendChild(iconLink);
   });
   const bottomGroup = document.createElement("li");
