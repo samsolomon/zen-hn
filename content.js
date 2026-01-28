@@ -330,8 +330,7 @@ function buildSidebarNavigation() {
     { href: "/newest", icon: "seal", label: "New" },
     { href: "/active", icon: "lightning", label: "Active" },
     { href: "/best", icon: "crown-simple", label: "Best" },
-    { href: "/ask", icon: "question", label: "Ask" },
-    { href: "/front", icon: "hourglass", label: "History" },
+    { href: "/ask", icon: "chat-circle", label: "Ask" },
     {
       href: "/newest",
       icon: "dice-two",
