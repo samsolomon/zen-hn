@@ -554,16 +554,13 @@ function loadActionStore() {
   }
   actionStoreLoadPromise = new Promise((resolve) => {
     if (!globalThis.chrome?.storage?.local) {
-      console.log("[ZenHN] No chrome.storage.local available, using default store");
       actionStore = getDefaultActionStore();
       resolve(actionStore);
       return;
     }
     chrome.storage.local.get({ [ACTION_STORE_KEY]: null }, (result) => {
       const raw = result ? result[ACTION_STORE_KEY] : null;
-      console.log("[ZenHN] Loaded raw action store:", raw);
       actionStore = normalizeActionStore(raw);
-      console.log("[ZenHN] Normalized action store:", actionStore);
       resolve(actionStore);
     });
   });
@@ -572,21 +569,16 @@ function loadActionStore() {
 
 function scheduleActionStoreSave() {
   if (!globalThis.chrome?.storage?.local || !actionStore) {
-    console.log("[ZenHN] scheduleActionStoreSave: skipped (no storage or store)");
     return;
   }
   if (actionStoreSaveTimer) {
     globalThis.clearTimeout(actionStoreSaveTimer);
   }
-  console.log("[ZenHN] scheduleActionStoreSave: scheduling save...");
   actionStoreSaveTimer = globalThis.setTimeout(() => {
     actionStoreSaveTimer = null;
-    console.log("[ZenHN] Saving action store to chrome.storage:", actionStore);
     chrome.storage.local.set({ [ACTION_STORE_KEY]: actionStore }, () => {
       if (chrome.runtime.lastError) {
         console.error("[ZenHN] Error saving action store:", chrome.runtime.lastError);
-      } else {
-        console.log("[ZenHN] Action store saved successfully");
       }
     });
   }, ACTION_STORE_DEBOUNCE_MS);
@@ -619,22 +611,17 @@ function getUserActionBucket() {
 
 function getStoredAction(kind, id) {
   if (!actionStore || !id) {
-    console.log("[ZenHN] getStoredAction: no store or id", { actionStore: !!actionStore, id });
     return null;
   }
   const { username, bucket } = getUserActionBucket();
-  const result = bucket?.[kind]?.[id] || null;
-  console.log("[ZenHN] getStoredAction:", { kind, id, username, result });
-  return result;
+  return bucket?.[kind]?.[id] || null;
 }
 
 function updateStoredAction(kind, id, update) {
   if (!actionStore || !id || !update) {
-    console.log("[ZenHN] updateStoredAction: skipped", { actionStore: !!actionStore, id, update });
     return;
   }
-  const { username, bucket } = getUserActionBucket();
-  console.log("[ZenHN] updateStoredAction:", { kind, id, update, username });
+  const { bucket } = getUserActionBucket();
   const current = bucket?.[kind]?.[id] || {};
   const next = { ...current };
   if (Object.prototype.hasOwnProperty.call(update, "vote")) {
@@ -1175,20 +1162,11 @@ function restyleSubmissions() {
     const hasFavoriteSignal = Boolean(favoriteLink);
     const domFavorited = favoriteText === "unfavorite";
     let isFavorited = domFavorited || storedFavorite === true;
-    console.log("[ZenHN] Favorite state:", {
-      effectiveItemId,
-      favoriteText,
-      storedFavorite,
-      hasFavoriteSignal,
-      domFavorited,
-      isFavorited,
-    });
     // Only sync TO storage when DOM shows favorited but we don't have it stored
     // Never clear stored favorites based on DOM state
     if (hasFavoriteSignal && effectiveItemId && domFavorited && storedFavorite !== true) {
       updateStoredAction("stories", effectiveItemId, { favorite: true });
     }
-    console.log("[ZenHN] Final favorite state for item", effectiveItemId, ":", isFavorited);
     let favoriteHref = favoriteLink?.getAttribute("href") || "";
 
     const bookmarkButton = document.createElement("button");
