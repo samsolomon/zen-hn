@@ -2470,13 +2470,16 @@ async function initRestyle() {
   restyleFatItem();
   runRestyleWhenReady();
 
-  // Hide original HN content (center > #hnmain) after restyling
-  const hnmain = document.getElementById("hnmain");
-  const centerWrapper = hnmain?.closest("center");
-  if (centerWrapper) {
-    centerWrapper.style.display = "none";
-  } else if (hnmain) {
-    hnmain.style.display = "none";
+  // Hide original HN content only if we created restyled content
+  const zenHnMain = document.getElementById("zen-hn-main");
+  if (zenHnMain && zenHnMain.children.length > 0) {
+    const hnmain = document.getElementById("hnmain");
+    const centerWrapper = hnmain?.closest("center");
+    if (centerWrapper) {
+      centerWrapper.style.display = "none";
+    } else if (hnmain) {
+      hnmain.style.display = "none";
+    }
   }
 }
 

@@ -133,6 +133,8 @@ html[data-zen-hn-sidebar="loading"] body {
 #zen-hn-sidebar .zen-hn-sidebar-icon-link svg {
   width: 24px;
   height: 24px;
+  display: block;
+  flex-shrink: 0;
 }
 
 #zen-hn-sidebar .zen-hn-sidebar-icon-link:hover {
@@ -222,10 +224,6 @@ html[data-zen-hn-sidebar="loading"] body {
   min-height: 100vh;
   padding: 24px;
   padding-left: calc(var(--sidebar-width) + 24px);
-}
-
-html[data-zen-hn-active="true"] body > center {
-  display: none !important;
 }
 
 td {
