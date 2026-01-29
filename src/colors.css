@@ -14,8 +14,8 @@
   --gray-12: #202020;
 }
 
-/* Radix Gray scale - Dark mode (for future use) */
-.dark-theme {
+/* Radix Gray scale - Dark mode */
+html.dark-theme {
   --gray-1: #111111;
   --gray-2: #191919;
   --gray-3: #222222;
