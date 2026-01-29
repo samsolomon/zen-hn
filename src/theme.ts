@@ -152,7 +152,11 @@ export function buildThemeControl(
     button.setAttribute("aria-label", `${theme.label} theme`);
     button.innerHTML = `${renderIcon(theme.icon)}<span>${theme.label}</span>`;
 
-    button.addEventListener("click", () => {
+    button.addEventListener("click", (e) => {
+      // Stop propagation to prevent HN's click handler from
+      // choking on SVG elements (SVGAnimatedString vs string)
+      e.stopPropagation();
+
       // Update active state
       options.querySelectorAll(".zen-hn-theme-option").forEach((btn) => {
         btn.classList.remove("is-active");
