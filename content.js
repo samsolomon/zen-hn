@@ -466,12 +466,65 @@ function buildSidebarNavigation() {
   return true;
 }
 
+// function buildSubnav() {
+//   if (document.getElementById("zen-hn-subnav")) {
+//     return true;
+//   }
+//
+//   const subnavLinks = [
+//     { href: "/front", label: "Front" },
+//     { href: "/pool", label: "Pool" },
+//     { href: "/invited", label: "Invited" },
+//     { href: "/shownew", label: "Show New" },
+//     { href: "/asknew", label: "Ask New" },
+//     { href: "/best", label: "Best" },
+//     { href: "/active", label: "Active" },
+//     { href: "/classic", label: "Classic" },
+//     { href: "/launches", label: "Launches" },
+//   ];
+//
+//   const nav = document.createElement("nav");
+//   nav.id = "zen-hn-subnav";
+//   nav.className = "zen-hn-subnav";
+//   nav.setAttribute("aria-label", "Secondary navigation");
+//
+//   const list = document.createElement("ul");
+//   list.className = "zen-hn-subnav-list";
+//
+//   const currentPath = window.location.pathname;
+//
+//   subnavLinks.forEach((item) => {
+//     const li = document.createElement("li");
+//     li.className = "zen-hn-subnav-item";
+//
+//     const link = document.createElement("a");
+//     link.className = "zen-hn-subnav-link";
+//     link.href = item.href;
+//     link.textContent = item.label;
+//
+//     if (currentPath === item.href) {
+//       link.classList.add("is-active");
+//       link.setAttribute("aria-current", "page");
+//     }
+//
+//     li.appendChild(link);
+//     list.appendChild(li);
+//   });
+//
+//   nav.appendChild(list);
+//   document.body.appendChild(nav);
+//   document.documentElement.dataset.zenHnSubnav = "true";
+//
+//   return true;
+// }
+
 function runSidebarWhenReady() {
   let attempts = 0;
   const maxAttempts = 60;
   const attempt = () => {
     const built = buildSidebarNavigation();
     if (built) {
+      // buildSubnav();
       return;
     }
     attempts += 1;
@@ -2389,6 +2442,7 @@ function runRestyleWhenReady() {
 async function initRestyle() {
   await loadActionStore();
   buildSidebarNavigation();
+  // buildSubnav();
   if (isUserProfilePage()) {
     document.documentElement.dataset.zenHnUserPage = "true";
   }

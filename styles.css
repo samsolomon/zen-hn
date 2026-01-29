@@ -248,8 +248,15 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   font-size: 32px;
   font-weight: 400;
   line-height: 1.35;
-  color: var(--color-text);
   text-decoration: none;
+}
+
+.hn-fatitem-title:link {
+  color: var(--color-text);
+}
+
+.hn-fatitem-title:visited {
+  color: var(--color-text-muted);
 }
 
 .hn-fatitem-title:hover {
@@ -360,8 +367,15 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   font-size: 22px;
   font-weight: 400;
   line-height: 1.4;
-  color: var(--color-text);
   text-decoration: none;
+}
+
+.hn-submission-title:link {
+  color: var(--color-text);
+}
+
+.hn-submission-title:visited {
+  color: var(--color-text-muted);
 }
 
 .hn-submission-title:hover {
@@ -421,8 +435,15 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 }
 
 .hn-submission-meta a {
-  color: inherit;
   text-decoration: none;
+}
+
+.hn-submission-meta a:link {
+  color: var(--color-text-muted);
+}
+
+.hn-submission-meta a:visited {
+  color: var(--color-text-faint);
 }
 
 .hn-submission-meta a:hover {
@@ -432,7 +453,16 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 .hn-submission-meta .hnuser,
 .hn-submission-meta .hn-submission-user {
   font-weight: 600;
+}
+
+.hn-submission-meta .hnuser:link,
+.hn-submission-meta .hn-submission-user:link {
   color: var(--color-text);
+}
+
+.hn-submission-meta .hnuser:visited,
+.hn-submission-meta .hn-submission-user:visited {
+  color: var(--color-text-muted);
 }
 
 .hn-submission-meta .score,
@@ -690,6 +720,14 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   line-height: 1.5;
   color: var(--color-text);
   margin-left: 44px;
+}
+
+.hn-comment-text a:link {
+  color: var(--color-text-muted);
+}
+
+.hn-comment-text a:visited {
+  color: var(--color-text-faint);
 }
 
 .hn-comment-text a:hover {
@@ -1006,3 +1044,68 @@ html[data-zen-hn-user-page="true"] button[type="button"]:focus-visible {
   outline: 2px solid #c8c1b0;
   outline-offset: 2px;
 }
+
+/* ============================================
+   Subnav (commented out for now)
+   ============================================ */
+
+/*
+html[data-zen-hn-subnav="true"] body {
+  padding-top: 60px;
+}
+
+.zen-hn-subnav {
+  position: fixed;
+  top: 0;
+  left: 60px;
+  right: 0;
+  height: 60px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  pointer-events: none;
+}
+
+.zen-hn-subnav-list {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.zen-hn-subnav-item {
+  margin: 0;
+  padding: 0;
+}
+
+.zen-hn-subnav-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: background-color 120ms ease, color 120ms ease;
+  pointer-events: auto;
+}
+
+.zen-hn-subnav-link:hover {
+  background-color: var(--color-bg-hover);
+  color: var(--color-text);
+}
+
+.zen-hn-subnav-link.is-active {
+  background-color: var(--color-bg-element);
+  color: var(--color-text);
+}
+
+.zen-hn-subnav-link:focus-visible {
+  outline: 2px solid #c8c1b0;
+  outline-offset: 2px;
+}
+*/
