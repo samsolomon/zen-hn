@@ -212,6 +212,18 @@ html[data-zen-hn-sidebar="loading"] body {
   outline-offset: 2px;
 }
 
+#zen-hn-main {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 24px;
+  padding-left: calc(var(--sidebar-width) + 24px);
+}
+
+html[data-zen-hn-active="true"] body > center {
+  display: none !important;
+}
+
 td {
   font-family: inherit !important;
   font-size: initial;

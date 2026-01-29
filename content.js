@@ -311,6 +311,26 @@ function handleThemeToggle(button) {
   }
 }
 
+function getOrCreateZenHnMain() {
+  let main = document.getElementById("zen-hn-main");
+  if (main) return main;
+
+  main = document.createElement("main");
+  main.id = "zen-hn-main";
+
+  // HN wraps #hnmain in a <center> element - insert before that
+  const hnmain = document.getElementById("hnmain");
+  const centerWrapper = hnmain?.closest("center");
+  if (centerWrapper) {
+    centerWrapper.insertAdjacentElement("beforebegin", main);
+  } else if (hnmain) {
+    hnmain.insertAdjacentElement("beforebegin", main);
+  } else {
+    document.body.appendChild(main);
+  }
+  return main;
+}
+
 function buildSidebarNavigation() {
   if (document.getElementById("zen-hn-sidebar")) {
     document.documentElement.dataset.zenHnSidebar = "true";
@@ -1495,7 +1515,7 @@ function restyleSubmissions() {
   }
 
   sourceTable.dataset[ZEN_HN_SUBMISSIONS_KEY] = "true";
-  sourceTable.insertAdjacentElement("beforebegin", container);
+  getOrCreateZenHnMain().appendChild(container);
   sourceTable.style.display = "none";
 }
 
@@ -1522,7 +1542,7 @@ function restyleFatItem() {
     }
     wrapper.appendChild(commentItem);
     fatitem.dataset.zenHnRestyled = "true";
-    fatitem.insertAdjacentElement("beforebegin", wrapper);
+    getOrCreateZenHnMain().appendChild(wrapper);
     fatitem.style.display = "none";
     return;
   }
@@ -1857,7 +1877,7 @@ function restyleFatItem() {
   wrapper.appendChild(replyContainer);
 
   fatitem.dataset.zenHnRestyled = "true";
-  fatitem.insertAdjacentElement("beforebegin", wrapper);
+  getOrCreateZenHnMain().appendChild(wrapper);
   fatitem.style.display = "none";
 }
 
@@ -2348,7 +2368,7 @@ function restyleComments(context) {
     return;
   }
 
-  context.root.insertAdjacentElement("afterend", container);
+  getOrCreateZenHnMain().appendChild(container);
   context.root.style.display = "none";
 }
 
@@ -2449,6 +2469,15 @@ async function initRestyle() {
   restyleSubmissions();
   restyleFatItem();
   runRestyleWhenReady();
+
+  // Hide original HN content (center > #hnmain) after restyling
+  const hnmain = document.getElementById("hnmain");
+  const centerWrapper = hnmain?.closest("center");
+  if (centerWrapper) {
+    centerWrapper.style.display = "none";
+  } else if (hnmain) {
+    hnmain.style.display = "none";
+  }
 }
 
 runSidebarWhenReady();
