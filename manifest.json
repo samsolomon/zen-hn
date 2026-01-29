@@ -14,7 +14,7 @@
         "https://news.ycombinator.com/*",
         "http://news.ycombinator.com/*"
       ],
-      "css": ["dist/styles.css"],
+      "css": ["dist/colors.css", "dist/styles.css"],
       "js": ["dist/logic.js", "dist/icons.js", "dist/content.js"],
       "run_at": "document_start"
     }

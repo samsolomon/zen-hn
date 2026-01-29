@@ -40,7 +40,7 @@ html[data-font-size="larger"] {
 html,
 body,
 td {
-  background-color: #f2f2f2;
+  background-color: var(--color-bg-app);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   font-size: var(--font-size-base) !important;
 }
@@ -246,7 +246,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   font-size: 32px;
   font-weight: 400;
   line-height: 1.35;
-  color: #1c1c1c;
+  color: var(--color-text);
   text-decoration: none;
 }
 
@@ -275,7 +275,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   align-items: center;
   gap: 12px;
   font-size: var(--font-size-base);
-  color: #6b6b6b;
+  color: var(--color-text-muted);
 }
 
 .hn-fatitem-meta,
@@ -332,7 +332,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 .hn-submission-rank {
   font-size: var(--font-size-base);
   font-weight: 400;
-  color: #6b6b6b;
+  color: var(--color-text-muted);
   text-align: right;
   padding-top: 6px;
 }
@@ -358,7 +358,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   font-size: 22px;
   font-weight: 400;
   line-height: 1.4;
-  color: #1c1c1c;
+  color: var(--color-text);
   text-decoration: none;
 }
 
@@ -368,7 +368,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 
 .hn-submission-site {
   font-size: 12px;
-  color: #6b6b6b;
+  color: var(--color-text-muted);
 }
 
 .hn-submission-site a {
@@ -386,7 +386,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   align-items: center;
   gap: 12px;
   font-size: var(--font-size-base);
-  color: #6b6b6b;
+  color: var(--color-text-muted);
 }
 
 .hn-submission-meta,
@@ -467,7 +467,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   flex-direction: column;
   gap: 4px;
   background-color: #ffffff;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-bg-hover);
   border-radius: 10px;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
   z-index: 10;
@@ -501,8 +501,8 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 }
 
 .hn-submission-menu-item:active {
-  background-color: #e8e8e8;
-  border-color: #d8d8d8;
+  background-color: var(--color-bg-element);
+  border-color: var(--color-border-subtle);
   color: #2f2f2f;
 }
 
@@ -542,7 +542,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   align-items: center;
   padding: 6px 12px;
   border-radius: 999px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-bg-hover);
   background-color: #ffffff;
   color: #444444;
   font-size: 13px;
@@ -580,7 +580,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   align-items: center;
   padding: 6px 12px;
   border-radius: 999px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-bg-hover);
   background-color: #ffffff;
   color: #444444;
   font-size: 13px;
@@ -616,7 +616,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 
 .hn-comment-meta {
   font-size: 12px;
-  color: #666666;
+  color: var(--color-text-muted);
   margin-bottom: 6px;
   margin-right: auto;
 }
@@ -650,14 +650,14 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 .hn-comment-meta.has-comhead .hn-comment-age .age a {
   font-size: var(--font-size-base);
   font-weight: 400;
-  color: #6b6b6b;
+  color: var(--color-text-muted);
   text-decoration: none;
 }
 
 .hn-comment-meta.has-comhead .hn-comment-score {
   font-size: var(--font-size-base);
   font-weight: 400;
-  color: #6b6b6b;
+  color: var(--color-text-muted);
   margin-left: 1rem;
 }
 
@@ -667,7 +667,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   gap: 6px;
   font-size: var(--font-size-base);
   font-weight: 400;
-  color: #6b6b6b;
+  color: var(--color-text-muted);
   margin-left: 1rem;
 }
 
@@ -686,7 +686,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 .hn-comment-text {
   font-size: var(--font-size-base);
   line-height: 1.5;
-  color: #222222;
+  color: var(--color-text);
   margin-left: 44px;
 }
 
@@ -714,9 +714,9 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   min-height: 140px;
   padding: 12px 14px;
   border-radius: 10px;
-  border: 1px solid #d6d6d6;
+  border: 1px solid var(--color-border-subtle);
   background-color: #f7f5ef;
-  color: #222222;
+  color: var(--color-text);
   font-size: 14px;
   line-height: 1.5;
   resize: vertical;
@@ -760,7 +760,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   border-radius: 10px;
   border: 1px solid transparent;
   background-color: transparent;
-  color: #666666;
+  color: var(--color-text-muted);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -805,7 +805,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   border: 1px solid transparent;
   border-radius: 6px;
   background: transparent;
-  color: #666666;
+  color: var(--color-text-muted);
   cursor: pointer;
   padding: 0;
   transition: background-color 120ms ease, border-color 120ms ease,
@@ -887,8 +887,8 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 }
 
 .icon-button:hover {
-  background-color: #ededed;
-  border-color: #e0e0e0;
+  background-color: var(--color-bg-subtle);
+  border-color: var(--color-bg-hover);
   color: #444444;
 }
 
@@ -902,8 +902,8 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 
 .icon-button:active {
   transform: translateY(1px) scale(0.98);
-  background-color: #e2e2e2;
-  border-color: #d6d6d6;
+  background-color: var(--color-bg-element);
+  border-color: var(--color-border-subtle);
   color: #333333;
 }
 
