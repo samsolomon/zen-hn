@@ -1000,6 +1000,48 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   }
 }
 
+.hn-form-page {
+  padding: 1rem;
+  max-width: 800px;
+}
+
+.hn-form-page table {
+  border-collapse: collapse;
+}
+
+.hn-form-page td {
+  padding: 4px 8px 4px 0;
+  vertical-align: top;
+}
+
+.hn-form-page input[type="text"],
+.hn-form-page input[type="password"],
+.hn-form-page textarea {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-subtle);
+  background-color: var(--color-bg-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-base);
+  font-family: inherit;
+}
+
+.hn-form-page input[type="text"]:focus,
+.hn-form-page input[type="password"]:focus,
+.hn-form-page textarea:focus {
+  outline: none;
+  border-color: var(--color-border);
+  box-shadow: 0 0 0 2px rgba(199, 191, 177, 0.35);
+}
+
+.hn-form-page a {
+  color: var(--color-text-muted);
+}
+
+.hn-form-page a:hover {
+  text-decoration: underline;
+}
+
 html[op="user"] input[type="submit"],
 html[op="user"] input[type="button"],
 html[op="user"] button[type="submit"],
@@ -1007,7 +1049,11 @@ html[op="user"] button[type="button"],
 html[data-zen-hn-user-page="true"] input[type="submit"],
 html[data-zen-hn-user-page="true"] input[type="button"],
 html[data-zen-hn-user-page="true"] button[type="submit"],
-html[data-zen-hn-user-page="true"] button[type="button"] {
+html[data-zen-hn-user-page="true"] button[type="button"],
+.hn-form-page input[type="submit"],
+.hn-form-page input[type="button"],
+.hn-form-page button[type="submit"],
+.hn-form-page button[type="button"] {
   appearance: none;
   -webkit-appearance: none;
   padding: 8px 16px;
@@ -1030,7 +1076,11 @@ html[op="user"] button[type="button"]:hover,
 html[data-zen-hn-user-page="true"] input[type="submit"]:hover,
 html[data-zen-hn-user-page="true"] input[type="button"]:hover,
 html[data-zen-hn-user-page="true"] button[type="submit"]:hover,
-html[data-zen-hn-user-page="true"] button[type="button"]:hover {
+html[data-zen-hn-user-page="true"] button[type="button"]:hover,
+.hn-form-page input[type="submit"]:hover,
+.hn-form-page input[type="button"]:hover,
+.hn-form-page button[type="submit"]:hover,
+.hn-form-page button[type="button"]:hover {
   background-color: #f1eee7;
   border-color: #bfb6a3;
   color: var(--color-text);
@@ -1043,7 +1093,11 @@ html[op="user"] button[type="button"]:active,
 html[data-zen-hn-user-page="true"] input[type="submit"]:active,
 html[data-zen-hn-user-page="true"] input[type="button"]:active,
 html[data-zen-hn-user-page="true"] button[type="submit"]:active,
-html[data-zen-hn-user-page="true"] button[type="button"]:active {
+html[data-zen-hn-user-page="true"] button[type="button"]:active,
+.hn-form-page input[type="submit"]:active,
+.hn-form-page input[type="button"]:active,
+.hn-form-page button[type="submit"]:active,
+.hn-form-page button[type="button"]:active {
   transform: translateY(1px) scale(0.98);
 }
 
@@ -1054,7 +1108,11 @@ html[op="user"] button[type="button"]:focus-visible,
 html[data-zen-hn-user-page="true"] input[type="submit"]:focus-visible,
 html[data-zen-hn-user-page="true"] input[type="button"]:focus-visible,
 html[data-zen-hn-user-page="true"] button[type="submit"]:focus-visible,
-html[data-zen-hn-user-page="true"] button[type="button"]:focus-visible {
+html[data-zen-hn-user-page="true"] button[type="button"]:focus-visible,
+.hn-form-page input[type="submit"]:focus-visible,
+.hn-form-page input[type="button"]:focus-visible,
+.hn-form-page button[type="submit"]:focus-visible,
+.hn-form-page button[type="button"]:focus-visible {
   outline: 2px solid #c8c1b0;
   outline-offset: 2px;
 }

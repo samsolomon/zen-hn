@@ -1519,6 +1519,60 @@ function restyleSubmissions() {
   sourceTable.style.display = "none";
 }
 
+function restyleSubmitPage() {
+  if (window.location.pathname !== "/submit") {
+    return;
+  }
+  const hnmain = document.getElementById("hnmain");
+  if (!hnmain || hnmain.dataset.zenHnRestyled === "true") {
+    return;
+  }
+
+  // Find form content, skipping the header row
+  const form = hnmain.querySelector("form");
+  const formTable = form?.closest("table") || hnmain.querySelector("table:not(:first-child)");
+
+  // If no form, look for the main content table (skip header)
+  const tables = hnmain.querySelectorAll("tbody > tr > td > table");
+  const contentTable = formTable || (tables.length > 1 ? tables[1] : tables[0]);
+
+  if (!contentTable) {
+    return;
+  }
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "hn-form-page hn-submit-page";
+  wrapper.appendChild(contentTable.cloneNode(true));
+
+  hnmain.dataset.zenHnRestyled = "true";
+  getOrCreateZenHnMain().appendChild(wrapper);
+}
+
+function restyleUserPage() {
+  if (!isUserProfilePage()) {
+    return;
+  }
+  const hnmain = document.getElementById("hnmain");
+  if (!hnmain || hnmain.dataset.zenHnRestyled === "true") {
+    return;
+  }
+
+  // Find the main content table, skipping the header
+  const tables = hnmain.querySelectorAll("tbody > tr > td > table");
+  const contentTable = tables.length > 1 ? tables[1] : tables[0];
+
+  if (!contentTable) {
+    return;
+  }
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "hn-form-page hn-user-page";
+  wrapper.appendChild(contentTable.cloneNode(true));
+
+  hnmain.dataset.zenHnRestyled = "true";
+  getOrCreateZenHnMain().appendChild(wrapper);
+}
+
 function restyleFatItem() {
   const fatitem = document.querySelector("table.fatitem");
   if (!fatitem || fatitem.dataset.zenHnRestyled === "true") {
@@ -2467,6 +2521,8 @@ async function initRestyle() {
     document.documentElement.dataset.zenHnUserPage = "true";
   }
   restyleSubmissions();
+  restyleSubmitPage();
+  restyleUserPage();
   restyleFatItem();
   runRestyleWhenReady();
 
