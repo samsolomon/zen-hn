@@ -624,14 +624,6 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 .hn-comment-meta.has-comhead {
   display: flex;
   align-items: center;
-  font-size: 0;
-}
-
-.hn-comment-meta.has-comhead .comhead {
-  display: flex;
-  align-items: center;
-  font-size: 0 !important;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .comhead {
@@ -643,43 +635,30 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   font-size: inherit !important;
 }
 
-.hn-comment-meta.has-comhead a:not(.hnuser) {
-  display: none;
-}
-
-.hn-comment-meta.has-comhead .navs {
-  display: none;
-}
-
-.hn-comment-meta.has-comhead .age a {
-  display: inline;
-}
-
-.hn-comment-meta.has-comhead .hn-comment-onstory a {
-  display: inline;
-}
-
-.hn-comment-meta.has-comhead .hnuser {
+.hn-comment-meta.has-comhead .hn-comment-user .hnuser {
   font-size: var(--font-size-base);
   font-weight: 600;
   color: #2f2f2f;
-  display: inline-flex;
-  align-items: center;
+  text-decoration: none;
 }
 
-.hn-comment-meta.has-comhead .age {
-  font-size: var(--font-size-base);
-  font-weight: 400;
-  color: #6b6b6b;
-  display: inline-flex;
-  align-items: center;
+.hn-comment-meta.has-comhead .hn-comment-age {
   margin-left: 1rem;
 }
 
-.hn-comment-meta.has-comhead .age a {
-  font-size: inherit;
-  font-weight: inherit;
-  color: inherit;
+.hn-comment-meta.has-comhead .hn-comment-age .age,
+.hn-comment-meta.has-comhead .hn-comment-age .age a {
+  font-size: var(--font-size-base);
+  font-weight: 400;
+  color: #6b6b6b;
+  text-decoration: none;
+}
+
+.hn-comment-meta.has-comhead .hn-comment-score {
+  font-size: var(--font-size-base);
+  font-weight: 400;
+  color: #6b6b6b;
+  margin-left: 1rem;
 }
 
 .hn-comment-meta.has-comhead .hn-comment-onstory {

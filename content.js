@@ -1885,15 +1885,33 @@ function buildCommentItem(row, options = {}) {
   meta.className = "hn-comment-meta";
   if (comhead) {
     meta.classList.add("has-comhead");
-    meta.appendChild(comhead.cloneNode(true));
-    if (showOnStory) {
-      const onStoryLink = comhead.querySelector(".onstory a");
-      if (onStoryLink) {
-        const onStory = document.createElement("span");
-        onStory.className = "hn-comment-onstory";
-        onStory.appendChild(onStoryLink.cloneNode(true));
-        meta.appendChild(onStory);
-      }
+    const userLink = comhead.querySelector(".hnuser");
+    if (userLink) {
+      const userSpan = document.createElement("span");
+      userSpan.className = "hn-comment-user";
+      userSpan.appendChild(userLink.cloneNode(true));
+      meta.appendChild(userSpan);
+    }
+    const ageSpan = comhead.querySelector(".age");
+    if (ageSpan) {
+      const age = document.createElement("span");
+      age.className = "hn-comment-age";
+      age.appendChild(ageSpan.cloneNode(true));
+      meta.appendChild(age);
+    }
+    const scoreSpan = comhead.querySelector(".score");
+    if (scoreSpan) {
+      const score = document.createElement("span");
+      score.className = "hn-comment-score";
+      score.textContent = scoreSpan.textContent;
+      meta.appendChild(score);
+    }
+    const onStoryLink = comhead.querySelector(".onstory a");
+    if (onStoryLink) {
+      const onStory = document.createElement("span");
+      onStory.className = "hn-comment-onstory";
+      onStory.appendChild(onStoryLink.cloneNode(true));
+      meta.appendChild(onStory);
     }
   } else {
     meta.textContent = [user, timestamp].filter(Boolean).join(" • ");
