@@ -67,6 +67,7 @@ const HN_HOME_SVG =
   "<svg width=\"48\" height=\"48\" viewBox=\"0 0 48 48\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"48\" height=\"48\" fill=\"#F26522\"/><path d=\"M7.72159 32V14.5455H10.8835V21.9347H18.9716V14.5455H22.142V32H18.9716V24.5852H10.8835V32H7.72159ZM39.9247 14.5455V32H37.1122L28.8878 20.1108H28.7429V32H25.581V14.5455H28.4105L36.6264 26.4432H36.7798V14.5455H39.9247Z\" fill=\"white\"/></svg>";
 
 const ZEN_LOGIC = globalThis.ZenHnLogic;
+const ZEN_UTILS = globalThis.ZenHnUtils;
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
 const ZEN_HN_SUBMISSIONS_KEY = "zenHnSubmissions";
 const ACTION_STORE_KEY = "zenHnActions";
@@ -156,27 +157,13 @@ function registerSubmissionMenuListeners() {
 }
 
 function isHomeSidebarLink(href, text) {
-  const normalized = (href || "").trim().toLowerCase();
-  if (!normalized) {
-    return false;
-  }
-  if (normalized === "/" || normalized === "news" || normalized === "/news") {
-    return true;
-  }
-  if (normalized.startsWith("news?")) {
-    return true;
-  }
-  return text?.trim().toLowerCase() === "hacker news" && normalized === "news";
+  return ZEN_UTILS.isHomeSidebarLink(href, text);
 }
 
 const RANDOM_ITEM_MAX_ATTEMPTS = 6;
 
 function normalizeItemId(value) {
-  const parsed = Number.parseInt(value || "", 10);
-  if (!Number.isFinite(parsed) || parsed < 1) {
-    return "";
-  }
-  return String(parsed);
+  return ZEN_UTILS.normalizeItemId(value);
 }
 
 function parseItemIdFromDocument(doc) {
@@ -301,6 +288,15 @@ const ZEN_THEME = globalThis.ZenHnTheme;
 
 function applyThemePreference(preference) {
   ZEN_THEME.applyThemePreference(preference);
+}
+
+// Load and apply saved theme preference on startup
+if (typeof chrome !== "undefined" && chrome.storage) {
+  chrome.storage.local.get("theme").then((result) => {
+    if (result.theme) {
+      applyThemePreference(result.theme);
+    }
+  });
 }
 
 function buildThemeControl(currentPreference) {
@@ -611,14 +607,7 @@ function toggleCommentCollapse(item) {
 }
 
 function getHrefParams(href) {
-  if (!href) {
-    return new URLSearchParams();
-  }
-  const queryStart = href.indexOf("?");
-  if (queryStart === -1) {
-    return new URLSearchParams();
-  }
-  return new URLSearchParams(href.slice(queryStart + 1));
+  return ZEN_UTILS.getHrefParams(href);
 }
 
 function getDefaultActionStore() {
@@ -1028,12 +1017,7 @@ function stripParenTextNodes(element) {
 }
 
 function toSentenceCase(text) {
-  const trimmed = (text || "").trim();
-  if (!trimmed) {
-    return "";
-  }
-  const lower = trimmed.toLowerCase();
-  return `${lower.charAt(0).toUpperCase()}${lower.slice(1)}`;
+  return ZEN_UTILS.toSentenceCase(text);
 }
 
 function isUserProfilePage() {
