@@ -15,7 +15,7 @@
         "http://news.ycombinator.com/*"
       ],
       "css": ["dist/colors.css", "dist/styles.css"],
-      "js": ["dist/logic.js", "dist/icons.js", "dist/utils.js", "dist/content.js"],
+      "js": ["dist/logic.js", "dist/icons.js", "dist/utils.js", "dist/pages.js", "dist/content.js"],
       "run_at": "document_start"
     }
   ]

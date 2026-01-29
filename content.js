@@ -68,6 +68,7 @@ const HN_HOME_SVG =
 
 const ZEN_LOGIC = globalThis.ZenHnLogic;
 const ZEN_UTILS = globalThis.ZenHnUtils;
+const ZEN_PAGES = globalThis.ZenHnPages;
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
 const ZEN_HN_SUBMISSIONS_KEY = "zenHnSubmissions";
 const ACTION_STORE_KEY = "zenHnActions";
@@ -2511,6 +2512,7 @@ async function initRestyle() {
   restyleSubmissions();
   restyleSubmitPage();
   restyleUserPage();
+  ZEN_PAGES.restyleChangePwPage();
   restyleFatItem();
   runRestyleWhenReady();
 
