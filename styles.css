@@ -1015,6 +1015,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 }
 
 .hn-form-page input[type="text"],
+.hn-form-page input[type="url"],
 .hn-form-page input[type="password"],
 .hn-form-page textarea {
   padding: 8px 12px;
@@ -1027,6 +1028,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 }
 
 .hn-form-page input[type="text"]:focus,
+.hn-form-page input[type="url"]:focus,
 .hn-form-page input[type="password"]:focus,
 .hn-form-page textarea:focus {
   outline: none;
