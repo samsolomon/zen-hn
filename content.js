@@ -337,13 +337,11 @@ function buildSidebarNavigation() {
     return true;
   }
   const pagetops = Array.from(document.querySelectorAll("span.pagetop"));
-  if (!pagetops.length) {
+  // Allow building sidebar even without pagetop links - we use hardcoded icons
+  if (!pagetops.length && !document.getElementById("hnmain")) {
     return false;
   }
   const linkNodes = pagetops.flatMap((node) => Array.from(node.querySelectorAll("a")));
-  if (!linkNodes.length) {
-    return false;
-  }
   const seen = new Set();
   const list = document.createElement("ul");
   list.className = "zen-hn-sidebar-list";
@@ -1528,21 +1526,17 @@ function restyleSubmitPage() {
     return;
   }
 
-  // Find form content, skipping the header row
+  // Find the form element
   const form = hnmain.querySelector("form");
-  const formTable = form?.closest("table") || hnmain.querySelector("table:not(:first-child)");
-
-  // If no form, look for the main content table (skip header)
-  const tables = hnmain.querySelectorAll("tbody > tr > td > table");
-  const contentTable = formTable || (tables.length > 1 ? tables[1] : tables[0]);
-
-  if (!contentTable) {
+  if (!form) {
     return;
   }
 
   const wrapper = document.createElement("div");
   wrapper.className = "hn-form-page hn-submit-page";
-  wrapper.appendChild(contentTable.cloneNode(true));
+
+  // Move the form (not clone) so submission works
+  wrapper.appendChild(form);
 
   hnmain.dataset.zenHnRestyled = "true";
   getOrCreateZenHnMain().appendChild(wrapper);
@@ -1557,17 +1551,26 @@ function restyleUserPage() {
     return;
   }
 
-  // Find the main content table, skipping the header
-  const tables = hnmain.querySelectorAll("tbody > tr > td > table");
-  const contentTable = tables.length > 1 ? tables[1] : tables[0];
+  // Find the form (for own profile) or content table (for other users)
+  const form = hnmain.querySelector("form");
+  const bigbox = hnmain.querySelector("tr#bigbox > td");
 
-  if (!contentTable) {
+  if (!form && !bigbox) {
     return;
   }
 
   const wrapper = document.createElement("div");
   wrapper.className = "hn-form-page hn-user-page";
-  wrapper.appendChild(contentTable.cloneNode(true));
+
+  // Move the form or content (not clone) so it works
+  if (form) {
+    wrapper.appendChild(form);
+  } else if (bigbox) {
+    // Move all children from bigbox
+    while (bigbox.firstChild) {
+      wrapper.appendChild(bigbox.firstChild);
+    }
+  }
 
   hnmain.dataset.zenHnRestyled = "true";
   getOrCreateZenHnMain().appendChild(wrapper);
