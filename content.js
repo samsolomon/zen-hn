@@ -311,6 +311,21 @@ function handleThemeToggle(button) {
   }
 }
 
+// Theme control functions from TypeScript
+const ZEN_THEME = globalThis.ZenHnTheme;
+
+function applyThemePreference(preference) {
+  ZEN_THEME.applyThemePreference(preference);
+}
+
+function buildThemeControl(currentPreference) {
+  return ZEN_THEME.buildThemeControl(currentPreference, (preference) => {
+    if (typeof chrome !== "undefined" && chrome.storage) {
+      chrome.storage.local.set({ theme: preference });
+    }
+  });
+}
+
 function getOrCreateZenHnMain() {
   let main = document.getElementById("zen-hn-main");
   if (main) return main;
@@ -1565,6 +1580,29 @@ function restyleUserPage() {
   // Move the form or content (not clone) so it works
   if (form) {
     wrapper.appendChild(form);
+
+    // Add theme control section for own profile (has form)
+    const themeSection = document.createElement("div");
+    themeSection.className = "zen-hn-settings-section";
+
+    const sectionTitle = document.createElement("h3");
+    sectionTitle.className = "zen-hn-settings-title";
+    sectionTitle.textContent = "Zen HN Settings";
+    themeSection.appendChild(sectionTitle);
+
+    // Get current theme preference and add control
+    if (typeof chrome !== "undefined" && chrome.storage) {
+      chrome.storage.local.get("theme").then((result) => {
+        const currentTheme = result.theme || "light";
+        const themeControl = buildThemeControl(currentTheme);
+        themeSection.appendChild(themeControl);
+      });
+    } else {
+      const themeControl = buildThemeControl("light");
+      themeSection.appendChild(themeControl);
+    }
+
+    wrapper.appendChild(themeSection);
   } else if (bigbox) {
     // Move all children from bigbox
     while (bigbox.firstChild) {
@@ -2550,4 +2588,17 @@ if (document.readyState === "loading") {
   });
 } else {
   initRestyle();
+}
+
+// Listen for system theme changes when in "system" mode
+if (window.matchMedia) {
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+    if (typeof chrome !== "undefined" && chrome.storage) {
+      chrome.storage.local.get("theme").then((result) => {
+        if (result.theme === "system") {
+          applyThemePreference("system");
+        }
+      });
+    }
+  });
 }

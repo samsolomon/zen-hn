@@ -7,6 +7,8 @@ Purpose
 
 Repository state
 - Root contains: `README.md`, `LICENSE`, `manifest.json`, `content.js`, `styles.css`, `logic.js`, `package.json`, `tests/`.
+- TypeScript source files are in `src/` (e.g., `content.ts`, `theme.ts`, `icons.ts`, `random.ts`).
+- Built assets are output to `dist/` and loaded by the Chrome extension.
 - No `pyproject.toml`, `Cargo.toml`, `go.mod`, `Makefile`, or similar.
 - No Cursor rules in `.cursor/rules/` or `.cursorrules`.
 - No Copilot rules in `.github/copilot-instructions.md`.
@@ -20,10 +22,12 @@ Commands (discovery first)
 - `rg "(Makefile|Justfile|Taskfile|package.json|pyproject.toml|Cargo.toml|go.mod)" -g "*"`
 
 Build / lint / test commands
-- Build: Not defined yet.
+- Build: `npm run build` (bundles TypeScript and copies assets to `dist/`)
+- Typecheck: `npm run typecheck`
 - Lint: Not defined yet.
-- Test: `npm test`
-- Single test: `node --test tests/logic.test.js`
+- Test: `npm test` (runs both JS and TS tests)
+- Single JS test: `node --test tests/logic.test.js`
+- Single TS test: `node --import tsx --test tests/theme.test.ts`
 
 When tools are introduced, update this section with:
 - Install command (e.g., `npm install`, `pip install -r requirements.txt`).
@@ -41,15 +45,18 @@ General
 
 Language
 - Default language: TypeScript (.ts / .tsx).
-- All new files must be written in TypeScript unless JavaScript is explicitly requested.
-- Existing JavaScript files may remain as-is but new code should be TypeScript.
-- If a task would normally produce JavaScript: convert it to TypeScript, or ask for confirmation before producing JavaScript.
+- All new code must be written in TypeScript. Do not write JavaScript.
+- When adding features that require changes to existing JavaScript files (e.g., `content.js`), refactor the affected code into TypeScript modules in `src/`.
+- TypeScript modules are bundled via esbuild and exposed on `globalThis` for `content.js` to consume.
+- Pattern for migrating JS to TS:
+  1. Write the new logic in a TypeScript file under `src/`.
+  2. Export functions from `src/content.ts` and expose them on `globalThis`.
+  3. Update `content.js` to use the TypeScript implementation via `globalThis`.
 - TypeScript must compile under `strict: true`.
 - Avoid `any`; prefer `unknown` and explicit narrowing.
 - Do not add types that don't reflect runtime behavior.
 - Do not use `as` casts to silence errors.
 - Do not change logic to satisfy the type checker.
-- If you produce JavaScript, explain why TypeScript was not used.
 
 Formatting
 - Follow the formatter of the ecosystem once present.
@@ -155,11 +162,17 @@ Agent workflow defaults
 - Keep edits minimal and consistent with existing style.
 
 Future section placeholders
-- Build prerequisites:
 - Lint rules:
-- Test framework:
-- Single-test examples:
 - Formatting tools:
-- Module layout:
 - API conventions:
 - Error taxonomy:
+
+Module layout
+- `src/` - TypeScript source files
+  - `content.ts` - Entry point that exports all modules and exposes them on `globalThis`
+  - `theme.ts` - Theme toggle utilities (light/dark/system)
+  - `icons.ts` - Phosphor icon SVG definitions
+  - `random.ts` - Random item utilities
+- `tests/` - Test files (`.test.js` for JS, `.test.ts` for TS)
+- `dist/` - Built output (do not edit directly)
+- Root JS files (`content.js`, `logic.js`) - Legacy entry points that consume TypeScript via `globalThis`
