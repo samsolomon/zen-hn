@@ -90,23 +90,6 @@ export function applyThemePreference(preference: ThemePreference): void {
   } else {
     html.classList.remove(THEME_CLASS);
   }
-
-  // Update sidebar theme button if it exists
-  const themeButton = document.querySelector(
-    "#zen-hn-sidebar .zen-hn-sidebar-icon-link[aria-label*='theme']"
-  );
-  if (themeButton) {
-    const isDark = html.classList.contains(THEME_CLASS);
-    themeButton.innerHTML = renderIcon(isDark ? "moon" : "sun");
-    themeButton.setAttribute(
-      "aria-label",
-      isDark ? "Switch to light theme" : "Switch to dark theme"
-    );
-    themeButton.setAttribute(
-      "title",
-      isDark ? "Switch to light theme" : "Switch to dark theme"
-    );
-  }
 }
 
 interface ThemeOption {

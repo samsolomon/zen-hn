@@ -296,21 +296,6 @@ async function handleRandomItemClick(event) {
   }
 }
 
-function handleThemeToggle(button) {
-  const html = document.documentElement;
-  const isDark = html.classList.toggle("dark-theme");
-
-  // Update button icon
-  button.innerHTML = renderIcon(isDark ? "moon" : "sun");
-  button.setAttribute("aria-label", isDark ? "Switch to light theme" : "Switch to dark theme");
-  button.setAttribute("title", isDark ? "Switch to light theme" : "Switch to dark theme");
-
-  // Persist preference
-  if (typeof chrome !== "undefined" && chrome.storage) {
-    chrome.storage.local.set({ theme: isDark ? "dark" : "light" });
-  }
-}
-
 // Theme control functions from TypeScript
 const ZEN_THEME = globalThis.ZenHnTheme;
 
@@ -415,27 +400,6 @@ function buildSidebarNavigation() {
   submitLink.setAttribute("title", "Submit");
   submitLink.innerHTML = renderIcon("pencil-simple");
 
-  // Theme toggle button
-  const themeButton = document.createElement("button");
-  themeButton.className = "zen-hn-sidebar-icon-link";
-  themeButton.setAttribute("type", "button");
-  // Check saved preference and apply theme
-  let isDark = false;
-  if (typeof chrome !== "undefined" && chrome.storage) {
-    chrome.storage.local.get("theme").then((result) => {
-      if (result.theme === "dark") {
-        document.documentElement.classList.add("dark-theme");
-        themeButton.innerHTML = renderIcon("moon");
-        themeButton.setAttribute("aria-label", "Switch to light theme");
-        themeButton.setAttribute("title", "Switch to light theme");
-      }
-    });
-  }
-  themeButton.innerHTML = renderIcon("sun");
-  themeButton.setAttribute("aria-label", "Switch to dark theme");
-  themeButton.setAttribute("title", "Switch to dark theme");
-  themeButton.addEventListener("click", () => handleThemeToggle(themeButton));
-
   const userIconLink = document.createElement("a");
   userIconLink.className = "zen-hn-sidebar-icon-link";
   userIconLink.href = userHref;
@@ -443,7 +407,6 @@ function buildSidebarNavigation() {
   userIconLink.setAttribute("title", userLabel);
   userIconLink.innerHTML = renderIcon("user");
   bottomGroup.appendChild(submitLink);
-  bottomGroup.appendChild(themeButton);
   bottomGroup.appendChild(userIconLink);
   linkNodes.forEach((link) => {
     const href = link.getAttribute("href") || "";
