@@ -37,6 +37,10 @@ html[data-font-size="larger"] {
   --font-size-scale: 1.15;
 }
 
+html.dark-theme {
+  --sidebar-border: var(--color-border-subtle);
+}
+
 html,
 body,
 td {
