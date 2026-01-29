@@ -13,8 +13,8 @@
   --sidebar-padding-y: 18px;
   --sidebar-bg: #f7f5ef;
   --sidebar-border: #e0ddd6;
-  --sidebar-link-color: #2f2f2f;
-  --sidebar-link-hover: #1c1c1c;
+  --sidebar-link-color: var(--color-text);
+  --sidebar-link-hover: var(--color-text);
 }
 
 html[data-font-size="smaller"] {
@@ -257,7 +257,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 .hn-fatitem-toptext {
   font-size: 14px;
   font-weight: 400;
-  color: #2f2f2f;
+  color: var(--color-text);
   margin-top: -2px;
 }
 
@@ -295,7 +295,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 .hn-fatitem-meta .hnuser,
 .hn-fatitem-meta .hn-fatitem-user {
   font-weight: 600;
-  color: #2f2f2f;
+  color: var(--color-text);
 }
 
 .hn-fatitem-meta .score,
@@ -430,7 +430,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 .hn-submission-meta .hnuser,
 .hn-submission-meta .hn-submission-user {
   font-weight: 600;
-  color: #2f2f2f;
+  color: var(--color-text);
 }
 
 .hn-submission-meta .score,
@@ -466,7 +466,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   display: none;
   flex-direction: column;
   gap: 4px;
-  background-color: #ffffff;
+  background-color: var(--color-bg-surface);
   border: 1px solid var(--color-bg-hover);
   border-radius: 10px;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
@@ -486,7 +486,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   border-radius: 8px;
   border: 1px solid transparent;
   background: transparent;
-  color: #3f3f3f;
+  color: var(--color-text);
   font-size: var(--font-size-base);
   font-weight: 400;
   text-align: left;
@@ -495,15 +495,15 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 }
 
 .hn-submission-menu-item:hover {
-  background-color: #f1f1f1;
-  border-color: #e3e3e3;
-  color: #333333;
+  background-color: var(--color-bg-subtle);
+  border-color: var(--color-bg-hover);
+  color: var(--color-text);
 }
 
 .hn-submission-menu-item:active {
   background-color: var(--color-bg-element);
   border-color: var(--color-border-subtle);
-  color: #2f2f2f;
+  color: var(--color-text);
 }
 
 .hn-submission-menu-item:focus-visible {
@@ -517,7 +517,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   align-items: center;
   gap: 8px;
   font-size: 12px;
-  color: #8a8a8a;
+  color: var(--color-text-faint);
 }
 
 .hn-submission-extras a {
@@ -530,7 +530,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 }
 
 .hn-submission-sep {
-  color: #c2c2c2;
+  color: var(--color-border-strong);
 }
 
 .hn-submissions-more {
@@ -543,8 +543,8 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   padding: 6px 12px;
   border-radius: 999px;
   border: 1px solid var(--color-bg-hover);
-  background-color: #ffffff;
-  color: #444444;
+  background-color: var(--color-bg-surface);
+  color: var(--color-text);
   font-size: 13px;
   font-weight: 600;
   text-decoration: none;
@@ -553,9 +553,9 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 }
 
 .hn-submissions-more .morelink:hover {
-  background-color: #ededed;
-  border-color: #d6d6d6;
-  color: #333333;
+  background-color: var(--color-bg-subtle);
+  border-color: var(--color-border-subtle);
+  color: var(--color-text);
 }
 
 .hn-submissions-more .morelink:active {
@@ -581,8 +581,8 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   padding: 6px 12px;
   border-radius: 999px;
   border: 1px solid var(--color-bg-hover);
-  background-color: #ffffff;
-  color: #444444;
+  background-color: var(--color-bg-surface);
+  color: var(--color-text);
   font-size: 13px;
   font-weight: 600;
   text-decoration: none;
@@ -591,9 +591,9 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 }
 
 .hn-comment-more .morelink:hover {
-  background-color: #ededed;
-  border-color: #d6d6d6;
-  color: #333333;
+  background-color: var(--color-bg-subtle);
+  border-color: var(--color-border-subtle);
+  color: var(--color-text);
 }
 
 .hn-comment-more .morelink:active {
@@ -638,7 +638,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 .hn-comment-meta.has-comhead .hn-comment-user .hnuser {
   font-size: var(--font-size-base);
   font-weight: 600;
-  color: #2f2f2f;
+  color: var(--color-text);
   text-decoration: none;
 }
 
@@ -733,7 +733,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   border-radius: 10px;
   border: 1px solid #e0ddd6;
   background-color: #f1eee7;
-  color: #333333;
+  color: var(--color-text);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -770,7 +770,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 
 .hn-reply-cancel:hover {
   background-color: #eee9df;
-  color: #444444;
+  color: var(--color-text);
 }
 
 .hn-reply-cancel:active {
@@ -889,7 +889,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 .icon-button:hover {
   background-color: var(--color-bg-subtle);
   border-color: var(--color-bg-hover);
-  color: #444444;
+  color: var(--color-text);
 }
 
 .icon-button:disabled {
@@ -897,14 +897,14 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   cursor: default;
   background-color: transparent;
   border-color: transparent;
-  color: #808080;
+  color: var(--color-text-faint);
 }
 
 .icon-button:active {
   transform: translateY(1px) scale(0.98);
   background-color: var(--color-bg-element);
   border-color: var(--color-border-subtle);
-  color: #333333;
+  color: var(--color-text);
 }
 
 .icon-button.is-active {
@@ -960,7 +960,7 @@ html[data-zen-hn-user-page="true"] button[type="button"] {
   border-radius: 10px;
   border: 1px solid #c8c1b0;
   background-color: transparent;
-  color: #333333;
+  color: var(--color-text);
   font-size: 13px;
   font-weight: 600;
   font-family: inherit;
@@ -979,7 +979,7 @@ html[data-zen-hn-user-page="true"] button[type="submit"]:hover,
 html[data-zen-hn-user-page="true"] button[type="button"]:hover {
   background-color: #f1eee7;
   border-color: #bfb6a3;
-  color: #2f2f2f;
+  color: var(--color-text);
 }
 
 html[op="user"] input[type="submit"]:active,
