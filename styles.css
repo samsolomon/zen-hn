@@ -950,17 +950,16 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 }
 
 .icon-button.is-active {
-  background-color: var(--gray-4);
   color: var(--gray-12);
 }
 
 .icon-button.is-active:hover {
-  background-color: var(--gray-5);
+  background-color: var(--color-overlay-hover);
   color: var(--gray-12);
 }
 
 .icon-button.is-active:active {
-  background-color: var(--gray-6);
+  background-color: var(--color-overlay-pressed);
   color: var(--gray-12);
 }
 
