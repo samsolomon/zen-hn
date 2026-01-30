@@ -135,6 +135,69 @@ const ZenHnLogic = {
       return href.includes("un=t") ? href : `${href}${href.includes("?") ? "&" : "?"}un=t`;
     }
   },
+  resolveHrefWithBase(href, baseHref) {
+    if (!href) {
+      return "";
+    }
+    try {
+      const base = baseHref || globalThis.location?.href || "https://news.ycombinator.com/";
+      return new URL(href, base).toString();
+    } catch (error) {
+      return href;
+    }
+  },
+  isUserProfilePage() {
+    const op = document.documentElement.getAttribute("op") || "";
+    if (op.toLowerCase() === "user") {
+      return true;
+    }
+    return globalThis.location?.pathname === "/user";
+  },
+  getIndentLevelFromRow(row) {
+    if (!row) {
+      return 0;
+    }
+    const indentImg = row.querySelector("td.ind img");
+    const indentWidth = Number.parseInt(indentImg?.getAttribute("width") || "0", 10) || 0;
+    return Math.round(indentWidth / 40) || 0;
+  },
+  getIndentLevelFromItem(item) {
+    if (!item) {
+      return 0;
+    }
+    return Number.parseInt(item.dataset?.indentLevel || "0", 10) || 0;
+  },
+  getCommentId(row, comhead) {
+    if (!row) {
+      return "";
+    }
+    const link = comhead?.querySelector("a[href^='item?id=']")
+      || row.querySelector("a[href^='item?id=']");
+    if (!link) {
+      return "";
+    }
+    const href = link.getAttribute("href") || "";
+    const queryStart = href.indexOf("?");
+    if (queryStart === -1) {
+      return "";
+    }
+    const params = new URLSearchParams(href.slice(queryStart + 1));
+    return params.get("id") || "";
+  },
+  getReplyHref(row, comhead) {
+    if (!row) {
+      return "";
+    }
+    const linkByHref = row.querySelector("a[href^='reply?id=']");
+    const linkByText = comhead
+      ? Array.from(comhead.querySelectorAll("a")).find((link) => {
+          const text = link.textContent?.trim().toLowerCase();
+          return text === "reply";
+        })
+      : null;
+    const link = linkByHref || linkByText;
+    return link?.getAttribute("href") || "";
+  },
 };
 
 if (typeof module !== "undefined" && module.exports) {

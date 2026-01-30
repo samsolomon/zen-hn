@@ -171,27 +171,19 @@ function registerSubmissionMenuListeners() {
   });
 }
 
-function isHomeSidebarLink(href, text) {
-  return ZEN_UTILS.isHomeSidebarLink(href, text);
-}
-
 const RANDOM_ITEM_MAX_ATTEMPTS = 6;
-
-function normalizeItemId(value) {
-  return ZEN_UTILS.normalizeItemId(value);
-}
 
 function parseItemIdFromDocument(doc) {
   if (!doc) {
     return "";
   }
-  const rowId = normalizeItemId(doc.querySelector("tr.athing[id]")?.getAttribute("id"));
+  const rowId = ZEN_UTILS.normalizeItemId(doc.querySelector("tr.athing[id]")?.getAttribute("id"));
   if (rowId) {
     return rowId;
   }
   const linkHref = doc.querySelector("a[href^='item?id=']")?.getAttribute("href") || "";
-  const params = getHrefParams(linkHref);
-  return normalizeItemId(params.get("id"));
+  const params = ZEN_UTILS.getHrefParams(linkHref);
+  return ZEN_UTILS.normalizeItemId(params.get("id"));
 }
 
 async function fetchNewestItemId() {
@@ -208,18 +200,6 @@ async function fetchNewestItemId() {
     return parseItemIdFromDocument(doc);
   } catch (error) {
     return "";
-  }
-}
-
-function resolveHrefWithBase(href, baseHref) {
-  if (!href) {
-    return "";
-  }
-  try {
-    const base = baseHref || globalThis.location?.href || "https://news.ycombinator.com/";
-    return new URL(href, base).toString();
-  } catch (error) {
-    return href;
   }
 }
 
@@ -242,10 +222,10 @@ async function resolveStoryHrefFromItem(itemId) {
     const doc = new DOMParser().parseFromString(html, "text/html");
     const onStoryHref = doc.querySelector(".onstory a")?.getAttribute("href") || "";
     if (onStoryHref) {
-      return resolveHrefWithBase(onStoryHref, response.url);
+      return ZEN_LOGIC.resolveHrefWithBase(onStoryHref, response.url);
     }
     const storyHref = ZEN_LOGIC.buildItemHref(itemId, response.url) || `item?id=${itemId}`;
-    return resolveHrefWithBase(storyHref, response.url);
+    return ZEN_LOGIC.resolveHrefWithBase(storyHref, response.url);
   } catch (error) {
     return "";
   }
@@ -434,7 +414,7 @@ function buildSidebarNavigation() {
     if (!href || !text) {
       return;
     }
-    if (!isHomeSidebarLink(href, text)) {
+    if (!ZEN_UTILS.isHomeSidebarLink(href, text)) {
       return;
     }
     if (hasHomeIcon) {
@@ -555,19 +535,6 @@ function runSidebarWhenReady() {
   attempt();
 }
 
-function getIndentLevelFromRow(row) {
-  if (!row) {
-    return 0;
-  }
-  const indentImg = row.querySelector("td.ind img");
-  const indentWidth = Number.parseInt(indentImg?.getAttribute("width") || "0", 10) || 0;
-  return Math.round(indentWidth / 40) || 0;
-}
-
-function getIndentLevelFromItem(item) {
-  return Number.parseInt(item?.dataset.indentLevel || "0", 10) || 0;
-}
-
 function setCollapseButtonState(button, isCollapsed, hasChildren) {
   if (!button) {
     return;
@@ -582,10 +549,10 @@ function setCollapseButtonState(button, isCollapsed, hasChildren) {
 }
 
 function hideDescendantComments(item) {
-  const baseLevel = getIndentLevelFromItem(item);
+  const baseLevel = ZEN_LOGIC.getIndentLevelFromItem(item);
   let sibling = item.nextElementSibling;
   while (sibling && sibling.classList.contains("hn-comment")) {
-    const level = getIndentLevelFromItem(sibling);
+    const level = ZEN_LOGIC.getIndentLevelFromItem(sibling);
     if (level <= baseLevel) {
       break;
     }
@@ -595,11 +562,11 @@ function hideDescendantComments(item) {
 }
 
 function restoreDescendantVisibility(item) {
-  const baseLevel = getIndentLevelFromItem(item);
+  const baseLevel = ZEN_LOGIC.getIndentLevelFromItem(item);
   let sibling = item.nextElementSibling;
   const collapsedStack = [];
   while (sibling && sibling.classList.contains("hn-comment")) {
-    const level = getIndentLevelFromItem(sibling);
+    const level = ZEN_LOGIC.getIndentLevelFromItem(sibling);
     if (level <= baseLevel) {
       break;
     }
@@ -630,10 +597,6 @@ function toggleCommentCollapse(item) {
   }
 }
 
-function getHrefParams(href) {
-  return ZEN_UTILS.getHrefParams(href);
-}
-
 function loadActionStore() {
   return ZEN_ACTION_STORE.loadActionStore();
 }
@@ -644,60 +607,6 @@ function getStoredAction(kind, id) {
 
 function updateStoredAction(kind, id, update) {
   return ZEN_ACTION_STORE.updateStoredAction(kind, id, update);
-}
-
-function getCommentId(row, comhead) {
-  const link = comhead?.querySelector("a[href^='item?id=']")
-    || row.querySelector("a[href^='item?id=']");
-  if (!link) {
-    return "";
-  }
-  const href = link.getAttribute("href") || "";
-  const params = getHrefParams(href);
-  return params.get("id") || "";
-}
-
-function getReplyHref(row, comhead) {
-  const linkByHref = row.querySelector("a[href^='reply?id=']");
-  const linkByText = comhead
-    ? Array.from(comhead.querySelectorAll("a")).find((link) => {
-        const text = link.textContent?.trim().toLowerCase();
-        return text === "reply";
-      })
-    : null;
-  const link = linkByHref || linkByText;
-  return link?.getAttribute("href") || "";
-}
-
-async function copyTextToClipboard(text) {
-  if (!text) {
-    return false;
-  }
-  if (navigator.clipboard?.writeText) {
-    try {
-      await navigator.clipboard.writeText(text);
-      return true;
-    } catch (error) {
-      // Fall through to legacy copy.
-    }
-  }
-  const textarea = document.createElement("textarea");
-  textarea.value = text;
-  textarea.setAttribute("readonly", "");
-  textarea.style.position = "fixed";
-  textarea.style.top = "0";
-  textarea.style.left = "0";
-  textarea.style.opacity = "0";
-  document.body.appendChild(textarea);
-  textarea.select();
-  let success = false;
-  try {
-    success = document.execCommand("copy");
-  } catch (error) {
-    success = false;
-  }
-  document.body.removeChild(textarea);
-  return success;
 }
 
 async function resolveReplyForm(replyHref) {
@@ -876,16 +785,8 @@ async function resolveStoryFavoriteLink(itemId) {
   };
 }
 
-function isUserProfilePage() {
-  const op = document.documentElement.getAttribute("op") || "";
-  if (op.toLowerCase() === "user") {
-    return true;
-  }
-  return window.location.pathname === "/user";
-}
-
 function restyleSubmissions() {
-  if (isUserProfilePage()) {
+  if (ZEN_LOGIC.isUserProfilePage()) {
     return;
   }
   const bigboxRow = document.querySelector("tr#bigbox");
@@ -1182,7 +1083,7 @@ function restyleSubmissions() {
         effectiveItemId,
         window.location.href,
       ) || window.location.href;
-      const copied = await copyTextToClipboard(targetHref);
+      const copied = await ZEN_UTILS.copyTextToClipboard(targetHref);
       if (copied) {
         if (copyResetTimer) {
           window.clearTimeout(copyResetTimer);
@@ -1373,7 +1274,7 @@ function restyleSubmitPage() {
 }
 
 function restyleUserPage() {
-  if (!isUserProfilePage()) {
+  if (!ZEN_LOGIC.isUserProfilePage()) {
     return;
   }
   const hnmain = document.getElementById("hnmain");
@@ -1667,7 +1568,7 @@ function restyleFatItem() {
     event.stopPropagation();
     const itemHref = ZEN_LOGIC.buildItemHref(itemId, window.location.href);
     const targetHref = itemHref || window.location.href;
-    const copied = await copyTextToClipboard(targetHref);
+    const copied = await ZEN_UTILS.copyTextToClipboard(targetHref);
     if (copied) {
       if (copyResetTimer) {
         window.clearTimeout(copyResetTimer);
@@ -1833,8 +1734,8 @@ function buildCommentItem(row, options = {}) {
       })
     : null;
   const favoriteLink = favoriteLinkById || favoriteLinkByText;
-  const commentId = getCommentId(row, comhead);
-  const replyHref = replyHrefOverride ?? getReplyHref(row, comhead);
+  const commentId = ZEN_LOGIC.getCommentId(row, comhead);
+  const replyHref = replyHrefOverride ?? ZEN_LOGIC.getReplyHref(row, comhead);
   const storedCommentAction = getStoredAction("comments", commentId);
   let { isUpvoted, isDownvoted } = ZEN_LOGIC.getVoteState(row);
   const hasVoteLinks = Boolean(upvoteLink || downvoteLink || unvoteLink);
@@ -1862,7 +1763,7 @@ function buildCommentItem(row, options = {}) {
 
   const indentLevel = Number.isFinite(indentOverride)
     ? indentOverride
-    : getIndentLevelFromRow(row);
+    : ZEN_LOGIC.getIndentLevelFromRow(row);
   const hasChildren = typeof hasChildrenOverride === "boolean"
     ? hasChildrenOverride
     : false;
@@ -2101,7 +2002,7 @@ function buildCommentItem(row, options = {}) {
     if (!commentHref) {
       return;
     }
-    const copied = await copyTextToClipboard(commentHref);
+    const copied = await ZEN_UTILS.copyTextToClipboard(commentHref);
     if (copied) {
       if (copyResetTimer) {
         window.clearTimeout(copyResetTimer);
@@ -2241,8 +2142,8 @@ function restyleComments(context) {
 
   document.documentElement.dataset[ZEN_HN_RESTYLE_KEY] = "true";
   rows.forEach((row, index) => {
-    const indentLevel = getIndentLevelFromRow(row);
-    const nextIndentLevel = getIndentLevelFromRow(rows[index + 1]);
+    const indentLevel = ZEN_LOGIC.getIndentLevelFromRow(row);
+    const nextIndentLevel = ZEN_LOGIC.getIndentLevelFromRow(rows[index + 1]);
     const hasChildren = nextIndentLevel > indentLevel;
     const item = buildCommentItem(row, { indentLevel, hasChildren });
     if (!item) {
@@ -2394,7 +2295,7 @@ async function initRestyle() {
   await loadActionStore();
   buildSidebarNavigation();
   // buildSubnav();
-  if (isUserProfilePage()) {
+  if (ZEN_LOGIC.isUserProfilePage()) {
     document.documentElement.dataset.zenHnUserPage = "true";
   }
   restyleSubmissions();

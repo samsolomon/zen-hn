@@ -235,6 +235,107 @@ export function buildNextFavoriteHref(
   }
 }
 
+/**
+ * Resolve an href to an absolute URL using a base URL
+ * @param href - The href to resolve (may be relative)
+ * @param baseHref - Optional base URL for resolution
+ * @returns Absolute URL string, or the original href if resolution fails
+ */
+export function resolveHrefWithBase(href: string, baseHref?: string): string {
+  if (!href) {
+    return "";
+  }
+  try {
+    const base = baseHref || globalThis.location?.href || "https://news.ycombinator.com/";
+    return new URL(href, base).toString();
+  } catch {
+    return href;
+  }
+}
+
+/**
+ * Check if the current page is a user profile page
+ * @returns True if on a user profile page
+ */
+export function isUserProfilePage(): boolean {
+  const op = document.documentElement.getAttribute("op") || "";
+  if (op.toLowerCase() === "user") {
+    return true;
+  }
+  return globalThis.location?.pathname === "/user";
+}
+
+/**
+ * Extract indent level from a comment row's indent image width
+ * @param row - The table row element containing the comment
+ * @returns Indent level (0 for root comments, higher for nested)
+ */
+export function getIndentLevelFromRow(row: Element | null): number {
+  if (!row) {
+    return 0;
+  }
+  const indentImg = row.querySelector("td.ind img");
+  const indentWidth = Number.parseInt(indentImg?.getAttribute("width") || "0", 10) || 0;
+  return Math.round(indentWidth / 40) || 0;
+}
+
+/**
+ * Get indent level from a comment item's dataset
+ * @param item - The element with indentLevel in its dataset
+ * @returns Indent level number
+ */
+export function getIndentLevelFromItem(item: Element | null): number {
+  if (!item || !(item instanceof HTMLElement)) {
+    return 0;
+  }
+  return Number.parseInt(item.dataset.indentLevel || "0", 10) || 0;
+}
+
+/**
+ * Extract comment ID from a comment row or comhead element
+ * @param row - The comment row element
+ * @param comhead - Optional comhead element within the row
+ * @returns Comment ID string, or empty string if not found
+ */
+export function getCommentId(row: Element | null, comhead?: Element | null): string {
+  if (!row) {
+    return "";
+  }
+  const link = comhead?.querySelector("a[href^='item?id=']")
+    || row.querySelector("a[href^='item?id=']");
+  if (!link) {
+    return "";
+  }
+  const href = link.getAttribute("href") || "";
+  const queryStart = href.indexOf("?");
+  if (queryStart === -1) {
+    return "";
+  }
+  const params = new URLSearchParams(href.slice(queryStart + 1));
+  return params.get("id") || "";
+}
+
+/**
+ * Get reply link href from a comment row or comhead element
+ * @param row - The comment row element
+ * @param comhead - Optional comhead element within the row
+ * @returns Reply href string, or empty string if not found
+ */
+export function getReplyHref(row: Element | null, comhead?: Element | null): string {
+  if (!row) {
+    return "";
+  }
+  const linkByHref = row.querySelector("a[href^='reply?id=']");
+  const linkByText = comhead
+    ? Array.from(comhead.querySelectorAll("a")).find((link) => {
+        const text = link.textContent?.trim().toLowerCase();
+        return text === "reply";
+      })
+    : null;
+  const link = linkByHref || linkByText;
+  return link?.getAttribute("href") || "";
+}
+
 // Legacy global export for compatibility
 const ZenHnLogic = {
   buildVoteHref,
@@ -252,6 +353,12 @@ const ZenHnLogic = {
   addCommentClickHandler,
   getVoteState,
   buildNextFavoriteHref,
+  resolveHrefWithBase,
+  isUserProfilePage,
+  getIndentLevelFromRow,
+  getIndentLevelFromItem,
+  getCommentId,
+  getReplyHref,
 };
 
 (globalThis as Record<string, unknown>).ZenHnLogic = ZenHnLogic;

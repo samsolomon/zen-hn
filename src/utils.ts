@@ -88,6 +88,42 @@ export function stripParenTextNodes(element: Element | null): void {
   });
 }
 
+/**
+ * Copy text to the clipboard using the modern API with legacy fallback
+ * @param text - The text to copy
+ * @returns Promise that resolves to true if copy succeeded, false otherwise
+ */
+export async function copyTextToClipboard(text: string): Promise<boolean> {
+  if (!text) {
+    return false;
+  }
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      // Fall through to legacy copy
+    }
+  }
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.top = "0";
+  textarea.style.left = "0";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  let success = false;
+  try {
+    success = document.execCommand("copy");
+  } catch {
+    success = false;
+  }
+  document.body.removeChild(textarea);
+  return success;
+}
+
 // Expose on globalThis for content.js to access
 (globalThis as Record<string, unknown>).ZenHnUtils = {
   toSentenceCase,
@@ -95,4 +131,5 @@ export function stripParenTextNodes(element: Element | null): void {
   getHrefParams,
   isHomeSidebarLink,
   stripParenTextNodes,
+  copyTextToClipboard,
 };
