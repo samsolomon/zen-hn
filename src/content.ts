@@ -42,6 +42,8 @@ export {
   buildThemeSelectWithStorage,
   appendThemeSelect,
   appendAppearanceControls,
+  styleNativeSelect,
+  styleUserPageSelects,
 } from "./colorMode";
 
 // Import everything for globalThis exposure
@@ -79,6 +81,8 @@ import {
   buildThemeSelectWithStorage,
   appendThemeSelect,
   appendAppearanceControls,
+  styleNativeSelect,
+  styleUserPageSelects,
 } from "./colorMode";
 
 // Expose on globalThis for content.js to access
@@ -116,4 +120,6 @@ import {
   buildThemeSelectWithStorage,
   appendThemeSelect,
   appendAppearanceControls,
+  styleNativeSelect,
+  styleUserPageSelects,
 };

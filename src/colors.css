@@ -1044,6 +1044,7 @@ html.dark-theme[data-theme="sky"] {
   --color-overlay-hover: var(--black-a1);
   --color-overlay-active: var(--black-a2);
   --color-overlay-pressed: var(--black-a3);
+  --color-focus-ring: color-mix(in srgb, var(--gray-8) 40%, transparent);
 }
 
 html.dark-theme {

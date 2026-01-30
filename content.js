@@ -1537,6 +1537,11 @@ function restyleUserPage() {
 
   hnmain.dataset.zenHnRestyled = "true";
   getOrCreateZenHnMain().appendChild(wrapper);
+
+  // Style native HN selects (showdead, noprocrast) - must be after wrapper is in DOM
+  if (form) {
+    ZEN_COLOR_MODE.styleUserPageSelects();
+  }
 }
 
 function restyleFatItem() {

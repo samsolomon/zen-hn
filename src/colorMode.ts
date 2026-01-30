@@ -423,3 +423,33 @@ export async function appendAppearanceControls(container: HTMLElement): Promise<
   await appendColorModeControl(container);
   await appendThemeSelect(container);
 }
+
+/**
+ * Style a native select element with the zen-hn select styling
+ * Wraps the select in a wrapper div for chevron pseudo-elements
+ */
+export function styleNativeSelect(select: HTMLSelectElement): void {
+  // Skip if already styled
+  if (select.classList.contains("zen-hn-theme-select")) return;
+
+  // Create wrapper
+  const wrapper = document.createElement("div");
+  wrapper.className = "zen-hn-theme-select-wrapper";
+
+  // Insert wrapper before select and move select inside
+  select.parentNode?.insertBefore(wrapper, select);
+  wrapper.appendChild(select);
+
+  // Add styling class to select
+  select.classList.add("zen-hn-theme-select");
+}
+
+/**
+ * Style all native selects on the user settings page
+ */
+export function styleUserPageSelects(): void {
+  const selects = document.querySelectorAll<HTMLSelectElement>(
+    'select[name="showd"], select[name="nopro"]'
+  );
+  selects.forEach(styleNativeSelect);
+}
