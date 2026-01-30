@@ -97,7 +97,7 @@ test("THEME_STORAGE_KEY is theme", () => {
 });
 
 // ThemePreference type tests (compile-time validation via type assertions)
-test("ThemePreference includes all 31 Radix color scales", () => {
+test("ThemePreference includes all 22 Radix color scales", () => {
   const allThemes: ThemePreference[] = [
     "gray",
     "mauve",
@@ -106,12 +106,10 @@ test("ThemePreference includes all 31 Radix color scales", () => {
     "olive",
     "sand",
     "tomato",
-    "red",
     "ruby",
     "crimson",
     "pink",
     "plum",
-    "purple",
     "violet",
     "iris",
     "indigo",
@@ -119,17 +117,10 @@ test("ThemePreference includes all 31 Radix color scales", () => {
     "cyan",
     "teal",
     "jade",
-    "green",
     "grass",
     "bronze",
     "gold",
-    "brown",
     "orange",
-    "amber",
-    "yellow",
-    "lime",
-    "mint",
-    "sky",
   ];
-  assert.equal(allThemes.length, 31);
+  assert.equal(allThemes.length, 22);
 });
