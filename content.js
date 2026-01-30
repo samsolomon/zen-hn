@@ -69,15 +69,9 @@ const HN_HOME_SVG =
 const ZEN_LOGIC = globalThis.ZenHnLogic;
 const ZEN_UTILS = globalThis.ZenHnUtils;
 const ZEN_PAGES = globalThis.ZenHnPages;
+const ZEN_ACTION_STORE = globalThis.ZenHnActionStore;
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
 const ZEN_HN_SUBMISSIONS_KEY = "zenHnSubmissions";
-const ACTION_STORE_KEY = "zenHnActions";
-const ACTION_STORE_VERSION = 1;
-const ACTION_STORE_DEBOUNCE_MS = 250;
-
-let actionStore = null;
-let actionStoreLoadPromise = null;
-let actionStoreSaveTimer = null;
 
 document.documentElement.dataset.zenHnActive = "true";
 
@@ -597,129 +591,16 @@ function getHrefParams(href) {
   return ZEN_UTILS.getHrefParams(href);
 }
 
-function getDefaultActionStore() {
-  return { version: ACTION_STORE_VERSION, byUser: {} };
-}
-
-function normalizeActionStore(raw) {
-  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
-    return getDefaultActionStore();
-  }
-  const version = Number(raw.version);
-  if (version !== ACTION_STORE_VERSION) {
-    return getDefaultActionStore();
-  }
-  if (!raw.byUser || typeof raw.byUser !== "object" || Array.isArray(raw.byUser)) {
-    return getDefaultActionStore();
-  }
-  return { version: ACTION_STORE_VERSION, byUser: raw.byUser };
-}
-
 function loadActionStore() {
-  if (actionStoreLoadPromise) {
-    return actionStoreLoadPromise;
-  }
-  actionStoreLoadPromise = new Promise((resolve) => {
-    if (!globalThis.chrome?.storage?.local) {
-      actionStore = getDefaultActionStore();
-      resolve(actionStore);
-      return;
-    }
-    chrome.storage.local.get({ [ACTION_STORE_KEY]: null }, (result) => {
-      const raw = result ? result[ACTION_STORE_KEY] : null;
-      actionStore = normalizeActionStore(raw);
-      resolve(actionStore);
-    });
-  });
-  return actionStoreLoadPromise;
-}
-
-function scheduleActionStoreSave() {
-  if (!globalThis.chrome?.storage?.local || !actionStore) {
-    return;
-  }
-  if (actionStoreSaveTimer) {
-    globalThis.clearTimeout(actionStoreSaveTimer);
-  }
-  actionStoreSaveTimer = globalThis.setTimeout(() => {
-    actionStoreSaveTimer = null;
-    chrome.storage.local.set({ [ACTION_STORE_KEY]: actionStore }, () => {
-      if (chrome.runtime.lastError) {
-        console.error("[ZenHN] Error saving action store:", chrome.runtime.lastError);
-      }
-    });
-  }, ACTION_STORE_DEBOUNCE_MS);
-}
-
-function getCurrentUserKey() {
-  const meLink = document.querySelector("a#me");
-  const headerLink = document.querySelector("span.pagetop a[href^='user?id=']");
-  const link = meLink || headerLink;
-  if (!link) {
-    return "anonymous";
-  }
-  const href = link.getAttribute("href") || "";
-  const params = getHrefParams(href);
-  const fromHref = params.get("id") || "";
-  const fromText = link.textContent?.trim() || "";
-  return fromHref || fromText || "anonymous";
-}
-
-function getUserActionBucket() {
-  if (!actionStore) {
-    actionStore = getDefaultActionStore();
-  }
-  const username = getCurrentUserKey();
-  if (!actionStore.byUser[username]) {
-    actionStore.byUser[username] = { stories: {}, comments: {} };
-  }
-  return { username, bucket: actionStore.byUser[username] };
+  return ZEN_ACTION_STORE.loadActionStore();
 }
 
 function getStoredAction(kind, id) {
-  if (!actionStore || !id) {
-    return null;
-  }
-  const { username, bucket } = getUserActionBucket();
-  return bucket?.[kind]?.[id] || null;
+  return ZEN_ACTION_STORE.getStoredAction(kind, id);
 }
 
 function updateStoredAction(kind, id, update) {
-  if (!actionStore || !id || !update) {
-    return;
-  }
-  const { bucket } = getUserActionBucket();
-  const current = bucket?.[kind]?.[id] || {};
-  const next = { ...current };
-  if (Object.prototype.hasOwnProperty.call(update, "vote")) {
-    if (update.vote === "up" || update.vote === "down") {
-      next.vote = update.vote;
-    } else {
-      delete next.vote;
-    }
-  }
-  if (Object.prototype.hasOwnProperty.call(update, "favorite")) {
-    if (update.favorite === true) {
-      next.favorite = true;
-    } else {
-      delete next.favorite;
-    }
-  }
-  if (!next.vote && !next.favorite) {
-    if (bucket?.[kind]) {
-      delete bucket[kind][id];
-      if (Object.keys(bucket[kind]).length === 0) {
-        delete bucket[kind];
-      }
-    }
-  } else {
-    next.updatedAt = Date.now();
-    if (!bucket[kind]) {
-      bucket[kind] = {};
-    }
-    bucket[kind][id] = next;
-  }
-  scheduleActionStoreSave();
+  return ZEN_ACTION_STORE.updateStoredAction(kind, id, update);
 }
 
 function getCommentId(row, comhead) {
@@ -1107,7 +988,7 @@ function restyleSubmissions() {
         updateStoredAction("stories", effectiveItemId, { vote: "up" });
       }
     }
-    if (!domUpvoted && !hasVoteLinks && storedVote === "up") {
+    if (!domUpvoted && storedVote === "up") {
       isUpvotedState = true;
     } else if (domUpvoted) {
       isUpvotedState = true;

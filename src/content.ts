@@ -14,6 +14,24 @@ export {
 } from "./icons";
 
 export {
+  ACTION_STORE_KEY,
+  ACTION_STORE_VERSION,
+  ACTION_STORE_DEBOUNCE_MS,
+  loadActionStore,
+  getCurrentUserKey,
+  getStoredAction,
+  updateStoredAction,
+  isActionStoreLoaded,
+  getActionStore,
+  type VoteDirection,
+  type ActionItem,
+  type UserActionBucket,
+  type ActionStore,
+  type ActionKind,
+  type ActionUpdate,
+} from "./actionStore";
+
+export {
   type ColorModePreference,
   type ThemePreference,
   COLOR_MODE_CLASS,
@@ -53,6 +71,18 @@ import {
   renderIcon,
   registerIcon,
 } from "./icons";
+
+import {
+  ACTION_STORE_KEY,
+  ACTION_STORE_VERSION,
+  ACTION_STORE_DEBOUNCE_MS,
+  loadActionStore,
+  getCurrentUserKey,
+  getStoredAction,
+  updateStoredAction,
+  isActionStoreLoaded,
+  getActionStore,
+} from "./actionStore";
 
 import {
   COLOR_MODE_CLASS,
@@ -122,4 +152,16 @@ import {
   appendAppearanceControls,
   styleNativeSelect,
   styleUserPageSelects,
+};
+
+(globalThis as Record<string, unknown>).ZenHnActionStore = {
+  ACTION_STORE_KEY,
+  ACTION_STORE_VERSION,
+  ACTION_STORE_DEBOUNCE_MS,
+  loadActionStore,
+  getCurrentUserKey,
+  getStoredAction,
+  updateStoredAction,
+  isActionStoreLoaded,
+  getActionStore,
 };
