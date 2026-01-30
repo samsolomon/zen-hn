@@ -45,3 +45,12 @@ html.dark-theme {
   --color-text-muted: var(--gray-11);
   --color-text: var(--gray-12);
 }
+
+/* Spacing scale (4px base) */
+:root {
+  --space-50: 0.25rem;  /* 4px */
+  --space-100: 0.5rem;  /* 8px */
+  --space-200: 1rem;    /* 16px */
+  --space-300: 1.5rem;  /* 24px */
+  --space-400: 2rem;    /* 32px */
+}
