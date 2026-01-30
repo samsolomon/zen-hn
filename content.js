@@ -284,29 +284,14 @@ async function handleRandomItemClick(event) {
   }
 }
 
-// Theme control functions from TypeScript
-const ZEN_THEME = globalThis.ZenHnTheme;
+// Color mode control functions from TypeScript
+const ZEN_COLOR_MODE = globalThis.ZenHnColorMode;
 
-function applyThemePreference(preference) {
-  ZEN_THEME.applyThemePreference(preference);
-}
+// Initialize color mode from storage on startup
+ZEN_COLOR_MODE.initColorMode();
 
-// Load and apply saved theme preference on startup
-if (typeof chrome !== "undefined" && chrome.storage) {
-  chrome.storage.local.get("theme").then((result) => {
-    if (result.theme) {
-      applyThemePreference(result.theme);
-    }
-  });
-}
-
-function buildThemeControl(currentPreference) {
-  return ZEN_THEME.buildThemeControl(currentPreference, (preference) => {
-    if (typeof chrome !== "undefined" && chrome.storage) {
-      chrome.storage.local.set({ theme: preference });
-    }
-  });
-}
+// Listen for system color scheme changes
+ZEN_COLOR_MODE.listenForSystemColorModeChanges();
 
 function getOrCreateZenHnMain() {
   let main = document.getElementById("zen-hn-main");
@@ -1529,28 +1514,19 @@ function restyleUserPage() {
   if (form) {
     wrapper.appendChild(form);
 
-    // Add theme control section for own profile (has form)
-    const themeSection = document.createElement("div");
-    themeSection.className = "zen-hn-settings-section";
+    // Add color mode control section for own profile (has form)
+    const settingsSection = document.createElement("div");
+    settingsSection.className = "zen-hn-settings-section";
 
     const sectionTitle = document.createElement("h3");
     sectionTitle.className = "zen-hn-settings-title";
     sectionTitle.textContent = "Zen HN Settings";
-    themeSection.appendChild(sectionTitle);
+    settingsSection.appendChild(sectionTitle);
 
-    // Get current theme preference and add control
-    if (typeof chrome !== "undefined" && chrome.storage) {
-      chrome.storage.local.get("theme").then((result) => {
-        const currentTheme = result.theme || "light";
-        const themeControl = buildThemeControl(currentTheme);
-        themeSection.appendChild(themeControl);
-      });
-    } else {
-      const themeControl = buildThemeControl("light");
-      themeSection.appendChild(themeControl);
-    }
+    // Add color mode control with storage persistence
+    ZEN_COLOR_MODE.appendColorModeControl(settingsSection);
 
-    wrapper.appendChild(themeSection);
+    wrapper.appendChild(settingsSection);
   } else if (bigbox) {
     // Move all children from bigbox
     while (bigbox.firstChild) {
@@ -2539,15 +2515,3 @@ if (document.readyState === "loading") {
   initRestyle();
 }
 
-// Listen for system theme changes when in "system" mode
-if (window.matchMedia) {
-  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
-    if (typeof chrome !== "undefined" && chrome.storage) {
-      chrome.storage.local.get("theme").then((result) => {
-        if (result.theme === "system") {
-          applyThemePreference("system");
-        }
-      });
-    }
-  });
-}

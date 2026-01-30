@@ -1058,24 +1058,24 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   margin: 0 0 16px 0;
 }
 
-.zen-hn-theme-control {
+.zen-hn-color-mode-control {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
-.zen-hn-theme-label {
+.zen-hn-color-mode-label {
   font-size: var(--font-size-base);
   color: var(--color-text);
-  min-width: 60px;
+  min-width: 80px;
 }
 
-.zen-hn-theme-options {
+.zen-hn-color-mode-options {
   display: flex;
   gap: 8px;
 }
 
-.zen-hn-theme-option {
+.zen-hn-color-mode-option {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -1091,24 +1091,24 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
 }
 
-.zen-hn-theme-option svg {
+.zen-hn-color-mode-option svg {
   width: 16px;
   height: 16px;
 }
 
-.zen-hn-theme-option:hover {
+.zen-hn-color-mode-option:hover {
   background-color: var(--color-bg-subtle);
   border-color: var(--color-border);
   color: var(--color-text);
 }
 
-.zen-hn-theme-option.is-active {
+.zen-hn-color-mode-option.is-active {
   background-color: var(--color-bg-element);
   border-color: var(--color-border);
   color: var(--color-text);
 }
 
-.zen-hn-theme-option:focus-visible {
+.zen-hn-color-mode-option:focus-visible {
   outline: 2px solid var(--color-border);
   outline-offset: 2px;
 }

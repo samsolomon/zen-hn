@@ -14,19 +14,25 @@ export {
 } from "./icons";
 
 export {
-  type ThemePreference,
-  THEME_CLASS,
-  THEME_STORAGE_KEY,
-  toggleTheme,
-  getThemeIcon,
-  getThemeLabel,
-  parseThemeFromStorage,
+  type ColorModePreference,
+  COLOR_MODE_CLASS,
+  COLOR_MODE_STORAGE_KEY,
+  getSavedColorMode,
+  saveColorMode,
+  initColorMode,
+  listenForSystemColorModeChanges,
+  toggleColorMode,
+  getColorModeIcon,
+  getColorModeLabel,
+  parseColorModeFromStorage,
   getSystemPrefersDark,
-  getThemeStorageValue,
-  isValidThemePreference,
-  applyThemePreference,
-  buildThemeControl,
-} from "./theme";
+  getColorModeStorageValue,
+  isValidColorModePreference,
+  applyColorMode,
+  buildColorModeControl,
+  buildColorModeControlWithStorage,
+  appendColorModeControl,
+} from "./colorMode";
 
 // Import everything for globalThis exposure
 import {
@@ -37,18 +43,24 @@ import {
 } from "./icons";
 
 import {
-  THEME_CLASS,
-  THEME_STORAGE_KEY,
-  toggleTheme,
-  getThemeIcon,
-  getThemeLabel,
-  parseThemeFromStorage,
+  COLOR_MODE_CLASS,
+  COLOR_MODE_STORAGE_KEY,
+  getSavedColorMode,
+  saveColorMode,
+  initColorMode,
+  listenForSystemColorModeChanges,
+  toggleColorMode,
+  getColorModeIcon,
+  getColorModeLabel,
+  parseColorModeFromStorage,
   getSystemPrefersDark,
-  getThemeStorageValue,
-  isValidThemePreference,
-  applyThemePreference,
-  buildThemeControl,
-} from "./theme";
+  getColorModeStorageValue,
+  isValidColorModePreference,
+  applyColorMode,
+  buildColorModeControl,
+  buildColorModeControlWithStorage,
+  appendColorModeControl,
+} from "./colorMode";
 
 // Expose on globalThis for content.js to access
 (globalThis as Record<string, unknown>).ZenHnIcons = {
@@ -58,16 +70,22 @@ import {
   registerIcon,
 };
 
-(globalThis as Record<string, unknown>).ZenHnTheme = {
-  THEME_CLASS,
-  THEME_STORAGE_KEY,
-  toggleTheme,
-  getThemeIcon,
-  getThemeLabel,
-  parseThemeFromStorage,
+(globalThis as Record<string, unknown>).ZenHnColorMode = {
+  COLOR_MODE_CLASS,
+  COLOR_MODE_STORAGE_KEY,
+  getSavedColorMode,
+  saveColorMode,
+  initColorMode,
+  listenForSystemColorModeChanges,
+  toggleColorMode,
+  getColorModeIcon,
+  getColorModeLabel,
+  parseColorModeFromStorage,
   getSystemPrefersDark,
-  getThemeStorageValue,
-  isValidThemePreference,
-  applyThemePreference,
-  buildThemeControl,
+  getColorModeStorageValue,
+  isValidColorModePreference,
+  applyColorMode,
+  buildColorModeControl,
+  buildColorModeControlWithStorage,
+  appendColorModeControl,
 };
