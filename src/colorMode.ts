@@ -5,7 +5,38 @@
 import { renderIcon } from "./icons";
 
 export type ColorModePreference = "light" | "dark" | "system";
-export type ThemePreference = "default";
+export type ThemePreference =
+  | "gray"
+  | "mauve"
+  | "slate"
+  | "sage"
+  | "olive"
+  | "sand"
+  | "tomato"
+  | "red"
+  | "ruby"
+  | "crimson"
+  | "pink"
+  | "plum"
+  | "purple"
+  | "violet"
+  | "iris"
+  | "indigo"
+  | "blue"
+  | "cyan"
+  | "teal"
+  | "jade"
+  | "green"
+  | "grass"
+  | "bronze"
+  | "gold"
+  | "brown"
+  | "orange"
+  | "amber"
+  | "yellow"
+  | "lime"
+  | "mint"
+  | "sky";
 
 export const COLOR_MODE_CLASS = "dark-theme";
 export const COLOR_MODE_STORAGE_KEY = "colorMode";
@@ -246,7 +277,37 @@ interface ThemeOption {
 }
 
 const THEME_OPTIONS: ThemeOption[] = [
-  { value: "default", label: "Default" },
+  { value: "amber", label: "Amber" },
+  { value: "blue", label: "Blue" },
+  { value: "bronze", label: "Bronze" },
+  { value: "brown", label: "Brown" },
+  { value: "crimson", label: "Crimson" },
+  { value: "cyan", label: "Cyan" },
+  { value: "gold", label: "Gold" },
+  { value: "grass", label: "Grass" },
+  { value: "gray", label: "Gray" },
+  { value: "green", label: "Green" },
+  { value: "indigo", label: "Indigo" },
+  { value: "iris", label: "Iris" },
+  { value: "jade", label: "Jade" },
+  { value: "lime", label: "Lime" },
+  { value: "mauve", label: "Mauve" },
+  { value: "mint", label: "Mint" },
+  { value: "olive", label: "Olive" },
+  { value: "orange", label: "Orange" },
+  { value: "pink", label: "Pink" },
+  { value: "plum", label: "Plum" },
+  { value: "purple", label: "Purple" },
+  { value: "red", label: "Red" },
+  { value: "ruby", label: "Ruby" },
+  { value: "sage", label: "Sage" },
+  { value: "sand", label: "Sand" },
+  { value: "sky", label: "Sky" },
+  { value: "slate", label: "Slate" },
+  { value: "teal", label: "Teal" },
+  { value: "tomato", label: "Tomato" },
+  { value: "violet", label: "Violet" },
+  { value: "yellow", label: "Yellow" },
 ];
 
 /**
@@ -264,6 +325,29 @@ export async function getSavedTheme(): Promise<ThemePreference | undefined> {
 export async function saveTheme(theme: ThemePreference): Promise<void> {
   if (!hasChromeStorage()) return;
   await chrome.storage.local.set({ [THEME_STORAGE_KEY]: theme });
+}
+
+/**
+ * Apply a theme to the document
+ * @param theme - The theme to apply
+ */
+export function applyTheme(theme: ThemePreference): void {
+  const html = document.documentElement;
+  if (theme === "gray") {
+    html.removeAttribute("data-theme");
+  } else {
+    html.setAttribute("data-theme", theme);
+  }
+}
+
+/**
+ * Initialize theme from saved preference
+ */
+export async function initTheme(): Promise<void> {
+  const saved = await getSavedTheme();
+  if (saved) {
+    applyTheme(saved);
+  }
 }
 
 /**
@@ -300,6 +384,7 @@ export function buildThemeSelect(
 
   select.addEventListener("change", () => {
     const value = select.value as ThemePreference;
+    applyTheme(value);
     onChange?.(value);
   });
 
@@ -326,7 +411,7 @@ export function buildThemeSelectWithStorage(currentTheme: ThemePreference): HTML
  */
 export async function appendThemeSelect(container: HTMLElement): Promise<void> {
   const saved = await getSavedTheme();
-  const current = saved || "default";
+  const current = saved || "gray";
   const control = buildThemeSelectWithStorage(current);
   container.appendChild(control);
 }

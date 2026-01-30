@@ -287,8 +287,9 @@ async function handleRandomItemClick(event) {
 // Color mode control functions from TypeScript
 const ZEN_COLOR_MODE = globalThis.ZenHnColorMode;
 
-// Initialize color mode from storage on startup
+// Initialize color mode and theme from storage on startup
 ZEN_COLOR_MODE.initColorMode();
+ZEN_COLOR_MODE.initTheme();
 
 // Listen for system color scheme changes
 ZEN_COLOR_MODE.listenForSystemColorModeChanges();
