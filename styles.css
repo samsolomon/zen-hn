@@ -350,8 +350,12 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   padding: 12px 14px;
   border-radius: 10px;
   transition: background-color 120ms ease;
+  cursor: pointer;
 }
 
+.hn-submission:hover {
+  background-color: var(--color-overlay-hover);
+}
 
 .hn-submission-rank {
   font-size: var(--font-size-base);
