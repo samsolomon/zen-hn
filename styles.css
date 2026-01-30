@@ -950,15 +950,18 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 }
 
 .icon-button.is-active {
-  background-color: #ffe3c8;
-  border-color: #f7b77e;
-  color: #b85000;
+  background-color: var(--gray-4);
+  color: var(--gray-12);
 }
 
 .icon-button.is-active:hover {
-  background-color: #ffd7b2;
-  border-color: #f2a765;
-  color: #9a4300;
+  background-color: var(--gray-5);
+  color: var(--gray-12);
+}
+
+.icon-button.is-active:active {
+  background-color: var(--gray-6);
+  color: var(--gray-12);
 }
 
 .icon-button.is-flipped {

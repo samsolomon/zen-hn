@@ -1,10 +1,16 @@
 const PHOSPHOR_SVGS = {
   "arrow-fat-up":
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M229.66,114.34l-96-96a8,8,0,0,0-11.32,0l-96,96A8,8,0,0,0,32,128H72v80a16,16,0,0,0,16,16h80a16,16,0,0,0,16-16V128h40a8,8,0,0,0,5.66-13.66ZM176,112a8,8,0,0,0-8,8v88H88V120a8,8,0,0,0-8-8H51.31L128,35.31,204.69,112Z\"/></svg>",
+  "arrow-fat-up-fill":
+    "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M232,120a8,8,0,0,1-8,8H184v80a16,16,0,0,1-16,16H88a16,16,0,0,1-16-16V128H32a8,8,0,0,1-5.66-13.66l96-96a8,8,0,0,1,11.32,0l96,96A8,8,0,0,1,232,120Z\"/></svg>",
   "arrow-fat-down":
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M231.39,132.94A8,8,0,0,0,224,128H184V48a16,16,0,0,0-16-16H88A16,16,0,0,0,72,48v80H32a8,8,0,0,0-5.66,13.66l96,96a8,8,0,0,0,11.32,0l96-96A8,8,0,0,0,231.39,132.94ZM128,220.69,51.31,144H80a8,8,0,0,0,8-8V48h80v88a8,8,0,0,0,8,8h28.69Z\"/></svg>",
+  "arrow-fat-down-fill":
+    "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M229.66,141.66l-96,96a8,8,0,0,1-11.32,0l-96-96A8,8,0,0,1,32,128H72V48A16,16,0,0,1,88,32h80a16,16,0,0,1,16,16v80h40a8,8,0,0,1,5.66,13.66Z\"/></svg>",
   "bookmark-simple":
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M184,32H72A16,16,0,0,0,56,48V224a8,8,0,0,0,12.24,6.78L128,193.43l59.77,37.35A8,8,0,0,0,200,224V48A16,16,0,0,0,184,32Zm0,177.57-51.77-32.35a8,8,0,0,0-8.48,0L72,209.57V48H184Z\"/></svg>",
+  "bookmark-simple-fill":
+    "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M184,32H72A16,16,0,0,0,56,48V224a8,8,0,0,0,12.24,6.78L128,193.43l59.77,37.35A8,8,0,0,0,200,224V48A16,16,0,0,0,184,32Z\"/></svg>",
   "share-fat":
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M237.66,106.35l-80-80A8,8,0,0,0,144,32V72.35c-25.94,2.22-54.59,14.92-78.16,34.91-28.38,24.08-46.05,55.11-49.76,87.37a12,12,0,0,0,20.68,9.58h0c11-11.71,50.14-48.74,107.24-52V192a8,8,0,0,0,13.66,5.65l80-80A8,8,0,0,0,237.66,106.35ZM160,172.69V144a8,8,0,0,0-8-8c-28.08,0-55.43,7.33-81.29,21.8a196.17,196.17,0,0,0-36.57,26.52c5.8-23.84,20.42-46.51,42.05-64.86C99.41,99.77,127.75,88,152,88a8,8,0,0,0,8-8V51.32L220.69,112Z\"/></svg>",
   "link-simple":
@@ -1064,7 +1070,7 @@ function restyleSubmissions() {
     upvoteButton.type = "button";
     upvoteButton.setAttribute("aria-label", "Upvote");
     upvoteButton.setAttribute("aria-pressed", isUpvotedState ? "true" : "false");
-    upvoteButton.innerHTML = renderIcon("arrow-fat-up");
+    upvoteButton.innerHTML = renderIcon(isUpvotedState ? "arrow-fat-up-fill" : "arrow-fat-up");
     if (isUpvotedState) {
       upvoteButton.classList.add("is-active");
     }
@@ -1085,6 +1091,7 @@ function restyleSubmissions() {
         }
         upvoteButton.classList.toggle("is-active", isUpvotedState);
         upvoteButton.setAttribute("aria-pressed", isUpvotedState ? "true" : "false");
+        upvoteButton.innerHTML = renderIcon(isUpvotedState ? "arrow-fat-up-fill" : "arrow-fat-up");
       });
     } else {
       upvoteButton.hidden = true;
@@ -1117,10 +1124,13 @@ function restyleSubmissions() {
     bookmarkButton.type = "button";
     bookmarkButton.setAttribute("aria-label", "Favorite");
     bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
-    bookmarkButton.innerHTML = renderIcon("bookmark-simple");
+    bookmarkButton.innerHTML = renderIcon(isFavorited ? "bookmark-simple-fill" : "bookmark-simple");
     if (isFavorited) {
       bookmarkButton.classList.add("is-active");
     }
+    const updateBookmarkIcon = () => {
+      bookmarkButton.innerHTML = renderIcon(isFavorited ? "bookmark-simple-fill" : "bookmark-simple");
+    };
     bookmarkButton.addEventListener("click", async (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -1128,6 +1138,7 @@ function restyleSubmissions() {
       isFavorited = ZEN_LOGIC.toggleFavoriteState(isFavorited);
       bookmarkButton.classList.toggle("is-active", isFavorited);
       bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+      updateBookmarkIcon();
       if (effectiveItemId) {
         updateStoredAction("stories", effectiveItemId, { favorite: isFavorited });
       }
@@ -1139,6 +1150,7 @@ function restyleSubmissions() {
           isFavorited = wasFavorited;
           bookmarkButton.classList.toggle("is-active", isFavorited);
           bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+          updateBookmarkIcon();
           if (effectiveItemId) {
             updateStoredAction("stories", effectiveItemId, { favorite: isFavorited });
           }
@@ -1150,6 +1162,7 @@ function restyleSubmissions() {
         isFavorited = wasFavorited;
         bookmarkButton.classList.toggle("is-active", isFavorited);
         bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+        updateBookmarkIcon();
         if (effectiveItemId) {
           updateStoredAction("stories", effectiveItemId, { favorite: isFavorited });
         }
@@ -1159,6 +1172,7 @@ function restyleSubmissions() {
       isFavorited = ZEN_LOGIC.willFavoriteFromHref(favoriteHref);
       bookmarkButton.classList.toggle("is-active", isFavorited);
       bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+      updateBookmarkIcon();
       if (effectiveItemId) {
         updateStoredAction("stories", effectiveItemId, { favorite: isFavorited });
       }
@@ -1542,7 +1556,7 @@ function restyleFatItem() {
   upvoteButton.type = "button";
   upvoteButton.setAttribute("aria-label", "Upvote");
   upvoteButton.setAttribute("aria-pressed", isUpvotedState ? "true" : "false");
-  upvoteButton.innerHTML = renderIcon("arrow-fat-up");
+  upvoteButton.innerHTML = renderIcon(isUpvotedState ? "arrow-fat-up-fill" : "arrow-fat-up");
   if (isUpvotedState) {
     upvoteButton.classList.add("is-active");
   }
@@ -1563,6 +1577,7 @@ function restyleFatItem() {
       }
       upvoteButton.classList.toggle("is-active", isUpvotedState);
       upvoteButton.setAttribute("aria-pressed", isUpvotedState ? "true" : "false");
+      upvoteButton.innerHTML = renderIcon(isUpvotedState ? "arrow-fat-up-fill" : "arrow-fat-up");
     });
   } else {
     upvoteButton.hidden = true;
@@ -1594,10 +1609,13 @@ function restyleFatItem() {
   bookmarkButton.type = "button";
   bookmarkButton.setAttribute("aria-label", "Favorite");
   bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
-  bookmarkButton.innerHTML = renderIcon("bookmark-simple");
+  bookmarkButton.innerHTML = renderIcon(isFavorited ? "bookmark-simple-fill" : "bookmark-simple");
   if (isFavorited) {
     bookmarkButton.classList.add("is-active");
   }
+  const updateFatitemBookmarkIcon = () => {
+    bookmarkButton.innerHTML = renderIcon(isFavorited ? "bookmark-simple-fill" : "bookmark-simple");
+  };
   bookmarkButton.addEventListener("click", async (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -1605,6 +1623,7 @@ function restyleFatItem() {
     isFavorited = ZEN_LOGIC.toggleFavoriteState(isFavorited);
     bookmarkButton.classList.toggle("is-active", isFavorited);
     bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+    updateFatitemBookmarkIcon();
     if (itemId) {
       updateStoredAction("stories", itemId, { favorite: isFavorited });
     }
@@ -1616,6 +1635,7 @@ function restyleFatItem() {
         isFavorited = wasFavorited;
         bookmarkButton.classList.toggle("is-active", isFavorited);
         bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+        updateFatitemBookmarkIcon();
         if (itemId) {
           updateStoredAction("stories", itemId, { favorite: isFavorited });
         }
@@ -1627,6 +1647,7 @@ function restyleFatItem() {
       isFavorited = wasFavorited;
       bookmarkButton.classList.toggle("is-active", isFavorited);
       bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+      updateFatitemBookmarkIcon();
       if (itemId) {
         updateStoredAction("stories", itemId, { favorite: isFavorited });
       }
@@ -1636,6 +1657,7 @@ function restyleFatItem() {
     isFavorited = ZEN_LOGIC.willFavoriteFromHref(favoriteHref);
     bookmarkButton.classList.toggle("is-active", isFavorited);
     bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+    updateFatitemBookmarkIcon();
     if (itemId) {
       updateStoredAction("stories", itemId, { favorite: isFavorited });
     }
@@ -1924,10 +1946,26 @@ function buildCommentItem(row, options = {}) {
   upvoteButton.type = "button";
   upvoteButton.setAttribute("aria-label", "Upvote");
   upvoteButton.setAttribute("aria-pressed", isUpvoted ? "true" : "false");
-  upvoteButton.innerHTML = renderIcon("arrow-fat-up");
+  upvoteButton.innerHTML = renderIcon(isUpvoted ? "arrow-fat-up-fill" : "arrow-fat-up");
   if (isUpvoted) {
     upvoteButton.classList.add("is-active");
   }
+
+  const downvoteButton = document.createElement("button");
+  downvoteButton.className = "icon-button";
+  downvoteButton.type = "button";
+  downvoteButton.setAttribute("aria-label", "Downvote");
+  downvoteButton.setAttribute("aria-pressed", isDownvoted ? "true" : "false");
+  downvoteButton.innerHTML = renderIcon(isDownvoted ? "arrow-fat-down-fill" : "arrow-fat-down");
+  if (isDownvoted) {
+    downvoteButton.classList.add("is-active");
+  }
+
+  const updateVoteIcons = () => {
+    upvoteButton.innerHTML = renderIcon(isUpvoted ? "arrow-fat-up-fill" : "arrow-fat-up");
+    downvoteButton.innerHTML = renderIcon(isDownvoted ? "arrow-fat-down-fill" : "arrow-fat-down");
+  };
+
   if (upvoteLink || isUpvoted) {
     upvoteButton.addEventListener("click", (event) => {
       event.preventDefault();
@@ -1954,20 +1992,12 @@ function buildCommentItem(row, options = {}) {
       upvoteButton.setAttribute("aria-pressed", isUpvoted ? "true" : "false");
       downvoteButton.classList.toggle("is-active", isDownvoted);
       downvoteButton.setAttribute("aria-pressed", isDownvoted ? "true" : "false");
+      updateVoteIcons();
     });
   } else {
     upvoteButton.hidden = true;
   }
 
-  const downvoteButton = document.createElement("button");
-  downvoteButton.className = "icon-button";
-  downvoteButton.type = "button";
-  downvoteButton.setAttribute("aria-label", "Downvote");
-  downvoteButton.setAttribute("aria-pressed", isDownvoted ? "true" : "false");
-  downvoteButton.innerHTML = renderIcon("arrow-fat-down");
-  if (isDownvoted) {
-    downvoteButton.classList.add("is-active");
-  }
   if (downvoteLink || isDownvoted) {
     downvoteButton.addEventListener("click", (event) => {
       event.preventDefault();
@@ -1994,6 +2024,7 @@ function buildCommentItem(row, options = {}) {
       downvoteButton.setAttribute("aria-pressed", isDownvoted ? "true" : "false");
       upvoteButton.classList.toggle("is-active", isUpvoted);
       upvoteButton.setAttribute("aria-pressed", isUpvoted ? "true" : "false");
+      updateVoteIcons();
     });
   } else {
     downvoteButton.hidden = true;
@@ -2004,10 +2035,13 @@ function buildCommentItem(row, options = {}) {
   bookmarkButton.type = "button";
   bookmarkButton.setAttribute("aria-label", "Favorite");
   bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
-  bookmarkButton.innerHTML = renderIcon("bookmark-simple");
+  bookmarkButton.innerHTML = renderIcon(isFavorited ? "bookmark-simple-fill" : "bookmark-simple");
   if (isFavorited) {
     bookmarkButton.classList.add("is-active");
   }
+  const updateCommentBookmarkIcon = () => {
+    bookmarkButton.innerHTML = renderIcon(isFavorited ? "bookmark-simple-fill" : "bookmark-simple");
+  };
   bookmarkButton.addEventListener("click", async (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -2015,6 +2049,7 @@ function buildCommentItem(row, options = {}) {
     isFavorited = ZEN_LOGIC.toggleFavoriteState(isFavorited);
     bookmarkButton.classList.toggle("is-active", isFavorited);
     bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+    updateCommentBookmarkIcon();
     if (commentId) {
       updateStoredAction("comments", commentId, { favorite: isFavorited });
     }
@@ -2027,6 +2062,7 @@ function buildCommentItem(row, options = {}) {
         isFavorited = wasFavorited;
         bookmarkButton.classList.toggle("is-active", isFavorited);
         bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+        updateCommentBookmarkIcon();
         if (commentId) {
           updateStoredAction("comments", commentId, { favorite: isFavorited });
         }
@@ -2038,6 +2074,7 @@ function buildCommentItem(row, options = {}) {
     isFavorited = ZEN_LOGIC.willFavoriteFromHref(favoriteHref);
     bookmarkButton.classList.toggle("is-active", isFavorited);
     bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
+    updateCommentBookmarkIcon();
     if (commentId) {
       updateStoredAction("comments", commentId, { favorite: isFavorited });
     }
