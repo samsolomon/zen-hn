@@ -13,7 +13,7 @@
   --sidebar-padding-y: 18px;
   --sidebar-bg: #f7f5ef;
   --sidebar-border: var(--color-border-subtle);
-  --sidebar-link-color: var(--color-text);
+  --sidebar-link-color: var(--gray-9);
   --sidebar-link-hover: var(--color-text);
 }
 
@@ -1373,7 +1373,7 @@ html[data-zen-hn-subnav="true"] body {
 }
 
 /* Faint text */
-a:visited,
+a:visited:not(.zen-hn-sidebar-icon-link),
 .hnmore a:link,
 .hnmore a:visited,
 .age a:visited,
