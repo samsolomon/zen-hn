@@ -617,8 +617,8 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 #hn-comment-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin: 24px auto;
+  gap: 0;
+  margin: var(--space-300) 0;
   padding: 0 0 32px;
 }
 
