@@ -15,8 +15,10 @@ export {
 
 export {
   type ColorModePreference,
+  type ThemePreference,
   COLOR_MODE_CLASS,
   COLOR_MODE_STORAGE_KEY,
+  THEME_STORAGE_KEY,
   getSavedColorMode,
   saveColorMode,
   initColorMode,
@@ -32,6 +34,12 @@ export {
   buildColorModeControl,
   buildColorModeControlWithStorage,
   appendColorModeControl,
+  getSavedTheme,
+  saveTheme,
+  buildThemeSelect,
+  buildThemeSelectWithStorage,
+  appendThemeSelect,
+  appendAppearanceControls,
 } from "./colorMode";
 
 // Import everything for globalThis exposure
@@ -45,6 +53,7 @@ import {
 import {
   COLOR_MODE_CLASS,
   COLOR_MODE_STORAGE_KEY,
+  THEME_STORAGE_KEY,
   getSavedColorMode,
   saveColorMode,
   initColorMode,
@@ -60,6 +69,12 @@ import {
   buildColorModeControl,
   buildColorModeControlWithStorage,
   appendColorModeControl,
+  getSavedTheme,
+  saveTheme,
+  buildThemeSelect,
+  buildThemeSelectWithStorage,
+  appendThemeSelect,
+  appendAppearanceControls,
 } from "./colorMode";
 
 // Expose on globalThis for content.js to access
@@ -73,6 +88,7 @@ import {
 (globalThis as Record<string, unknown>).ZenHnColorMode = {
   COLOR_MODE_CLASS,
   COLOR_MODE_STORAGE_KEY,
+  THEME_STORAGE_KEY,
   getSavedColorMode,
   saveColorMode,
   initColorMode,
@@ -88,4 +104,10 @@ import {
   buildColorModeControl,
   buildColorModeControlWithStorage,
   appendColorModeControl,
+  getSavedTheme,
+  saveTheme,
+  buildThemeSelect,
+  buildThemeSelectWithStorage,
+  appendThemeSelect,
+  appendAppearanceControls,
 };

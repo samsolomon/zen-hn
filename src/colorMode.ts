@@ -5,9 +5,11 @@
 import { renderIcon } from "./icons";
 
 export type ColorModePreference = "light" | "dark" | "system";
+export type ThemePreference = "default";
 
 export const COLOR_MODE_CLASS = "dark-theme";
 export const COLOR_MODE_STORAGE_KEY = "colorMode";
+export const THEME_STORAGE_KEY = "theme";
 
 /**
  * Check if Chrome storage API is available
@@ -232,4 +234,107 @@ export async function appendColorModeControl(container: HTMLElement): Promise<vo
   const current = saved || "light";
   const control = buildColorModeControlWithStorage(current);
   container.appendChild(control);
+}
+
+// =============================================================================
+// Theme (color palette) controls
+// =============================================================================
+
+interface ThemeOption {
+  value: ThemePreference;
+  label: string;
+}
+
+const THEME_OPTIONS: ThemeOption[] = [
+  { value: "default", label: "Default" },
+];
+
+/**
+ * Get the saved theme preference from storage
+ */
+export async function getSavedTheme(): Promise<ThemePreference | undefined> {
+  if (!hasChromeStorage()) return undefined;
+  const result = await chrome.storage.local.get(THEME_STORAGE_KEY);
+  return result[THEME_STORAGE_KEY] as ThemePreference | undefined;
+}
+
+/**
+ * Save theme preference to storage
+ */
+export async function saveTheme(theme: ThemePreference): Promise<void> {
+  if (!hasChromeStorage()) return;
+  await chrome.storage.local.set({ [THEME_STORAGE_KEY]: theme });
+}
+
+/**
+ * Build a theme select control
+ * @param currentTheme - The currently selected theme
+ * @param onChange - Callback when theme selection changes
+ */
+export function buildThemeSelect(
+  currentTheme: ThemePreference,
+  onChange?: (theme: ThemePreference) => void
+): HTMLElement {
+  const container = document.createElement("div");
+  container.className = "zen-hn-theme-select-control";
+
+  const label = document.createElement("label");
+  label.className = "zen-hn-theme-select-label";
+  label.textContent = "Theme";
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "zen-hn-theme-select-wrapper";
+
+  const select = document.createElement("select");
+  select.className = "zen-hn-theme-select";
+
+  THEME_OPTIONS.forEach((option) => {
+    const optionEl = document.createElement("option");
+    optionEl.value = option.value;
+    optionEl.textContent = option.label;
+    if (currentTheme === option.value) {
+      optionEl.selected = true;
+    }
+    select.appendChild(optionEl);
+  });
+
+  select.addEventListener("change", () => {
+    const value = select.value as ThemePreference;
+    onChange?.(value);
+  });
+
+  label.setAttribute("for", "zen-hn-theme-select");
+  select.id = "zen-hn-theme-select";
+
+  wrapper.appendChild(select);
+  container.appendChild(label);
+  container.appendChild(wrapper);
+  return container;
+}
+
+/**
+ * Build a theme select with automatic storage persistence
+ */
+export function buildThemeSelectWithStorage(currentTheme: ThemePreference): HTMLElement {
+  return buildThemeSelect(currentTheme, (theme) => {
+    saveTheme(theme);
+  });
+}
+
+/**
+ * Build and append a theme select to a container, loading the current preference from storage
+ */
+export async function appendThemeSelect(container: HTMLElement): Promise<void> {
+  const saved = await getSavedTheme();
+  const current = saved || "default";
+  const control = buildThemeSelectWithStorage(current);
+  container.appendChild(control);
+}
+
+/**
+ * Append all appearance controls (color mode + theme) to a container
+ */
+export async function appendAppearanceControls(container: HTMLElement): Promise<void> {
+  await appendColorModeControl(container);
+  await appendThemeSelect(container);
 }

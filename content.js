@@ -1523,8 +1523,8 @@ function restyleUserPage() {
     sectionTitle.textContent = "Zen HN Settings";
     settingsSection.appendChild(sectionTitle);
 
-    // Add color mode control with storage persistence
-    ZEN_COLOR_MODE.appendColorModeControl(settingsSection);
+    // Add appearance controls (color mode + theme)
+    ZEN_COLOR_MODE.appendAppearanceControls(settingsSection);
 
     wrapper.appendChild(settingsSection);
   } else if (bigbox) {

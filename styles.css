@@ -1113,6 +1113,72 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   outline-offset: 2px;
 }
 
+.zen-hn-theme-select-control {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.zen-hn-theme-select-label {
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  min-width: 80px;
+}
+
+.zen-hn-theme-select-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.zen-hn-theme-select-wrapper::before,
+.zen-hn-theme-select-wrapper::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  width: 5px;
+  height: 5px;
+  border-right: 1.5px solid var(--color-text-muted);
+  border-bottom: 1.5px solid var(--color-text-muted);
+  pointer-events: none;
+}
+
+.zen-hn-theme-select-wrapper::before {
+  top: 50%;
+  transform: translateY(-100%) rotate(-135deg);
+}
+
+.zen-hn-theme-select-wrapper::after {
+  top: 50%;
+  transform: translateY(0%) rotate(45deg);
+}
+
+.zen-hn-theme-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 8px 32px 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-subtle);
+  background-color: var(--color-bg-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.zen-hn-theme-select:hover {
+  background-color: var(--color-bg-subtle);
+  border-color: var(--color-border);
+}
+
+.zen-hn-theme-select:focus {
+  outline: none;
+  border-color: var(--color-border);
+  box-shadow: 0 0 0 2px rgba(199, 191, 177, 0.35);
+}
+
 html[op="user"] input[type="submit"],
 html[op="user"] input[type="button"],
 html[op="user"] button[type="submit"],
