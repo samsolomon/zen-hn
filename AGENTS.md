@@ -78,7 +78,7 @@ Types
 Naming
 - Use descriptive, intention-revealing names.
 - Functions and methods use verbs; data uses nouns.
-- Use consistent casing: `camelCase` for JS/TS, `snake_case` for Python, etc.
+- Use consistent casing: `camelCase` for JS/TS
 - Avoid abbreviations unless well-known in the codebase.
 
 Error handling
