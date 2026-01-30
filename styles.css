@@ -12,7 +12,7 @@
   --sidebar-padding-x: 16px;
   --sidebar-padding-y: 18px;
   --sidebar-bg: #f7f5ef;
-  --sidebar-border: #e0ddd6;
+  --sidebar-border: var(--color-border-subtle);
   --sidebar-link-color: var(--color-text);
   --sidebar-link-hover: var(--color-text);
 }
@@ -35,10 +35,6 @@ html[data-font-size="large"] {
 
 html[data-font-size="larger"] {
   --font-size-scale: 1.15;
-}
-
-html.dark-theme {
-  --sidebar-border: var(--color-border-subtle);
 }
 
 html,
@@ -1195,7 +1191,7 @@ html[data-zen-hn-user-page="true"] button[type="button"],
   -webkit-appearance: none;
   padding: 8px 16px;
   border-radius: 10px;
-  border: 1px solid #c8c1b0;
+  border: 1px solid var(--color-border);
   background-color: transparent;
   color: var(--color-text);
   font-size: 13px;
@@ -1218,8 +1214,8 @@ html[data-zen-hn-user-page="true"] button[type="button"]:hover,
 .hn-form-page input[type="button"]:hover,
 .hn-form-page button[type="submit"]:hover,
 .hn-form-page button[type="button"]:hover {
-  background-color: #f1eee7;
-  border-color: #bfb6a3;
+  background-color: var(--color-bg-subtle);
+  border-color: var(--color-border-strong);
   color: var(--color-text);
 }
 
@@ -1250,7 +1246,7 @@ html[data-zen-hn-user-page="true"] button[type="button"]:focus-visible,
 .hn-form-page input[type="button"]:focus-visible,
 .hn-form-page button[type="submit"]:focus-visible,
 .hn-form-page button[type="button"]:focus-visible {
-  outline: 2px solid #c8c1b0;
+  outline: 2px solid var(--color-border);
   outline-offset: 2px;
 }
 
