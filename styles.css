@@ -344,11 +344,11 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 
 .hn-submission {
   display: grid;
-  grid-template-columns: minmax(24px, auto) 1fr;
-  gap: 12px;
+  grid-template-columns: minmax(var(--space-300), auto) 1fr;
+  gap: var(--space-150);
   align-items: start;
-  padding: 12px 14px;
-  border-radius: 10px;
+  padding: var(--space-150) var(--space-150);
+  border-radius: var(--space-100);
   transition: background-color 120ms ease;
   cursor: pointer;
 }
