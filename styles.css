@@ -148,6 +148,15 @@ html[data-zen-hn-sidebar="loading"] body {
   outline-offset: 2px;
 }
 
+#zen-hn-sidebar .zen-hn-sidebar-icon-link.is-active {
+  color: var(--gray-12);
+}
+
+#zen-hn-sidebar .zen-hn-sidebar-icon-link.is-active:hover {
+  background-color: var(--color-overlay-hover);
+  color: var(--gray-12);
+}
+
 #zen-hn-sidebar .zen-hn-home-button {
   border: 1px solid transparent;
   background-color: transparent;
