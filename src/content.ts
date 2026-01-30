@@ -115,6 +115,9 @@ import {
   styleUserPageSelects,
 } from "./colorMode";
 
+// Import logic module (self-exposes on globalThis)
+import "./logic";
+
 // Expose on globalThis for content.js to access
 (globalThis as Record<string, unknown>).ZenHnIcons = {
   PHOSPHOR_SVGS,

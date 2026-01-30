@@ -1381,14 +1381,7 @@ function restyleSubmissions() {
     body.appendChild(subRow);
 
     if (effectiveItemId) {
-      item.addEventListener("click", (event) => {
-        // Don't navigate if clicking on interactive elements
-        const target = event.target;
-        if (target.closest("a, button, input, textarea, select, [role='button']")) {
-          return;
-        }
-        window.location.href = `/item?id=${effectiveItemId}`;
-      });
+      ZEN_LOGIC.addSubmissionClickHandler(item, effectiveItemId);
     }
 
     item.appendChild(rank);
@@ -2262,6 +2255,8 @@ function buildCommentItem(row, options = {}) {
   replyActions.appendChild(cancelButton);
   replyContainer.appendChild(replyTextarea);
   replyContainer.appendChild(replyActions);
+
+  ZEN_LOGIC.addCommentClickHandler(item, toggleCommentCollapse);
 
   item.appendChild(header);
   item.appendChild(text);

@@ -338,7 +338,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 .hn-submissions {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0;
   padding: 0 0 24px;
 }
 
@@ -656,6 +656,12 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   padding: .75rem 1rem;
   margin-left: clamp(0px, calc(var(--indent-level, 0) * 1rem), 6rem);
   position: relative;
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.hn-comment:hover {
+  background-color: var(--color-overlay-hover);
 }
 
 .hn-comment-header {
