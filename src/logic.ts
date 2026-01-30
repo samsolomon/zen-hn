@@ -184,6 +184,57 @@ export function addCommentClickHandler(
   });
 }
 
+/**
+ * Extract vote state from a DOM element by checking for voted arrow classes
+ * @param row - DOM element containing vote arrows
+ * @returns Vote state with isUpvoted and isDownvoted flags
+ */
+export function getVoteState(row: Element | null): VoteState {
+  if (!row) {
+    return { isUpvoted: false, isDownvoted: false };
+  }
+  const upArrow = row.querySelector(".votearrow:not(.down)");
+  const downArrow = row.querySelector(".votearrow.down");
+  let isUpvoted = Boolean(upArrow?.classList.contains("voted"));
+  let isDownvoted = Boolean(downArrow?.classList.contains("voted"));
+  if (isUpvoted && isDownvoted) {
+    isDownvoted = false;
+  }
+  return { isUpvoted, isDownvoted };
+}
+
+/**
+ * Build the next favorite href by toggling the favorite state in the URL
+ * @param href - Current favorite href
+ * @param willBeFavorited - Whether the item will be favorited (true) or unfavorited (false)
+ * @param baseHref - Optional base URL for resolution
+ * @returns Updated href with correct favorite state
+ */
+export function buildNextFavoriteHref(
+  href: string,
+  willBeFavorited: boolean,
+  baseHref?: string
+): string {
+  if (!href) {
+    return "";
+  }
+  try {
+    const base = baseHref || globalThis.location?.href || "https://news.ycombinator.com/";
+    const url = new URL(href, base);
+    if (willBeFavorited) {
+      url.searchParams.delete("un");
+    } else {
+      url.searchParams.set("un", "t");
+    }
+    return url.toString();
+  } catch {
+    if (willBeFavorited) {
+      return href.replace(/([?&])un=t(&|$)/, "$1").replace(/[?&]$/, "");
+    }
+    return href.includes("un=t") ? href : `${href}${href.includes("?") ? "&" : "?"}un=t`;
+  }
+}
+
 // Legacy global export for compatibility
 const ZenHnLogic = {
   buildVoteHref,
@@ -199,6 +250,8 @@ const ZenHnLogic = {
   isInteractiveElement,
   addSubmissionClickHandler,
   addCommentClickHandler,
+  getVoteState,
+  buildNextFavoriteHref,
 };
 
 (globalThis as Record<string, unknown>).ZenHnLogic = ZenHnLogic;

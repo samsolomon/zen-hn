@@ -65,10 +65,34 @@ export function isHomeSidebarLink(href: string, text: string): boolean {
   return text?.trim().toLowerCase() === "hacker news" && normalized === "news";
 }
 
+/**
+ * Remove parentheses from text nodes within an element
+ * Removes empty text nodes after stripping, or updates content if text remains
+ * @param element - The element whose text nodes to process
+ */
+export function stripParenTextNodes(element: Element | null): void {
+  if (!element) {
+    return;
+  }
+  const nodes = Array.from(element.childNodes);
+  nodes.forEach((node) => {
+    if (node.nodeType !== Node.TEXT_NODE) {
+      return;
+    }
+    const nextText = node.textContent?.replace(/[()]/g, "").trim() || "";
+    if (!nextText) {
+      node.remove();
+      return;
+    }
+    node.textContent = nextText;
+  });
+}
+
 // Expose on globalThis for content.js to access
 (globalThis as Record<string, unknown>).ZenHnUtils = {
   toSentenceCase,
   normalizeItemId,
   getHrefParams,
   isHomeSidebarLink,
+  stripParenTextNodes,
 };

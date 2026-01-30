@@ -669,17 +669,6 @@ function getReplyHref(row, comhead) {
   return link?.getAttribute("href") || "";
 }
 
-function getVoteState(row) {
-  const upArrow = row.querySelector(".votearrow:not(.down)");
-  const downArrow = row.querySelector(".votearrow.down");
-  let isUpvoted = Boolean(upArrow?.classList.contains("voted"));
-  let isDownvoted = Boolean(downArrow?.classList.contains("voted"));
-  if (isUpvoted && isDownvoted) {
-    isDownvoted = false;
-  }
-  return { isUpvoted, isDownvoted };
-}
-
 async function copyTextToClipboard(text) {
   if (!text) {
     return false;
@@ -887,50 +876,6 @@ async function resolveStoryFavoriteLink(itemId) {
   };
 }
 
-
-
-function buildNextFavoriteHref(href, willBeFavorited) {
-  if (!href) {
-    return "";
-  }
-  try {
-    const url = new URL(href, window.location.href);
-    if (willBeFavorited) {
-      url.searchParams.delete("un");
-    } else {
-      url.searchParams.set("un", "t");
-    }
-    return url.toString();
-  } catch (error) {
-    if (willBeFavorited) {
-      return href.replace(/([?&])un=t(&|$)/, "$1").replace(/[?&]$/, "");
-    }
-    return href.includes("un=t") ? href : `${href}${href.includes("?") ? "&" : "?"}un=t`;
-  }
-}
-
-function stripParenTextNodes(element) {
-  if (!element) {
-    return;
-  }
-  const nodes = Array.from(element.childNodes);
-  nodes.forEach((node) => {
-    if (node.nodeType !== Node.TEXT_NODE) {
-      return;
-    }
-    const nextText = node.textContent?.replace(/[()]/g, "").trim() || "";
-    if (!nextText) {
-      node.remove();
-      return;
-    }
-    node.textContent = nextText;
-  });
-}
-
-function toSentenceCase(text) {
-  return ZEN_UTILS.toSentenceCase(text);
-}
-
 function isUserProfilePage() {
   const op = document.documentElement.getAttribute("op") || "";
   if (op.toLowerCase() === "user") {
@@ -990,7 +935,7 @@ function restyleSubmissions() {
     const subtextRow = row.nextElementSibling;
     const subtext = subtextRow?.querySelector(".subtext");
 
-    const { isUpvoted } = getVoteState(row);
+    const { isUpvoted } = ZEN_LOGIC.getVoteState(row);
     let isUpvotedState = isUpvoted;
     let upvoteLink = row.querySelector("a[id^='up_']");
     let unvoteLink = row.querySelector("a[id^='un_'], a[href*='how=un']");
@@ -1059,7 +1004,7 @@ function restyleSubmissions() {
         clone.classList.add(className);
       }
       if (className === "hn-submission-site" || clone.classList.contains("sitebit")) {
-        stripParenTextNodes(clone);
+        ZEN_UTILS.stripParenTextNodes(clone);
       }
       meta.appendChild(clone);
     };
@@ -1213,7 +1158,7 @@ function restyleSubmissions() {
       if (effectiveItemId) {
         updateStoredAction("stories", effectiveItemId, { favorite: isFavorited });
       }
-      favoriteHref = buildNextFavoriteHref(favoriteHref, !isFavorited);
+      favoriteHref = ZEN_LOGIC.buildNextFavoriteHref(favoriteHref, !isFavorited);
     });
 
     const linkButton = document.createElement("button");
@@ -1298,7 +1243,7 @@ function restyleSubmissions() {
         if (!href) {
           return null;
         }
-        const label = toSentenceCase(link.textContent);
+        const label = ZEN_UTILS.toSentenceCase(link.textContent);
         if (!label) {
           return null;
         }
@@ -1530,7 +1475,7 @@ function restyleFatItem() {
 
   const itemId = new URLSearchParams(window.location.search).get("id") || "";
   const storedStoryAction = getStoredAction("stories", itemId);
-  const { isUpvoted } = getVoteState(fatitem);
+  const { isUpvoted } = ZEN_LOGIC.getVoteState(fatitem);
   let isUpvotedState = isUpvoted;
 
   const wrapper = document.createElement("div");
@@ -1559,7 +1504,7 @@ function restyleFatItem() {
       clone.classList.add(className);
     }
     if (className === "hn-fatitem-site" || clone.classList.contains("sitebit")) {
-      stripParenTextNodes(clone);
+      ZEN_UTILS.stripParenTextNodes(clone);
     }
     meta.appendChild(clone);
   };
@@ -1702,7 +1647,7 @@ function restyleFatItem() {
     if (itemId) {
       updateStoredAction("stories", itemId, { favorite: isFavorited });
     }
-    favoriteHref = buildNextFavoriteHref(favoriteHref, !isFavorited);
+    favoriteHref = ZEN_LOGIC.buildNextFavoriteHref(favoriteHref, !isFavorited);
   });
 
   const linkButton = document.createElement("button");
@@ -1891,7 +1836,7 @@ function buildCommentItem(row, options = {}) {
   const commentId = getCommentId(row, comhead);
   const replyHref = replyHrefOverride ?? getReplyHref(row, comhead);
   const storedCommentAction = getStoredAction("comments", commentId);
-  let { isUpvoted, isDownvoted } = getVoteState(row);
+  let { isUpvoted, isDownvoted } = ZEN_LOGIC.getVoteState(row);
   const hasVoteLinks = Boolean(upvoteLink || downvoteLink || unvoteLink);
   const storedVote = storedCommentAction?.vote;
   if (hasVoteLinks && commentId) {
