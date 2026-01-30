@@ -1318,3 +1318,20 @@ html[data-zen-hn-subnav="true"] body {
   outline-offset: 2px;
 }
 */
+
+/* Muted text */
+.sitestr,
+.sitebit,
+.age,
+.hn-fatitem-site {
+  color: var(--color-text-muted);
+}
+
+/* Faint text */
+a:visited,
+.hnmore a:link,
+.hnmore a:visited,
+.age a:visited,
+.hn-fatitem-comments:visited {
+  color: var(--color-text-faint) !important;
+}
