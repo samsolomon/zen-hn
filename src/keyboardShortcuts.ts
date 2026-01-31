@@ -3,7 +3,8 @@
  *
  * Shortcuts:
  * - j/k: Move focus down/up through items
- * - Enter: Open focused item
+ * - Enter: Open comments
+ * - Shift+Enter: Open story link
  * - O: Open in new tab
  * - u: Upvote
  * - f: Favorite/bookmark
@@ -17,6 +18,7 @@
  * - g+s: Go to Ask
  * - g+t: Go to Submit
  * - g+r: Random story
+ * - /: Search (opens Algolia search palette)
  * - ?: Show help modal
  * - Escape: Clear focus / close modal
  */
@@ -26,6 +28,7 @@ import { toggleCommentCollapse } from "./commentCollapse";
 
 const FOCUS_CLASS = "is-keyboard-focused";
 const MODAL_ID = "zen-hn-shortcuts-modal";
+const SEARCH_PALETTE_ID = "zen-hn-search-palette";
 const CHORD_TIMEOUT_MS = 500;
 const LAST_LIST_PAGE_KEY = "zenHnLastListPage";
 
@@ -155,6 +158,27 @@ function moveFocus(direction: "up" | "down"): void {
 
   if (nextIndex !== currentIndex) {
     setFocus(items[nextIndex]);
+  }
+}
+
+/**
+ * Open the focused item's story link (the actual article URL)
+ */
+function openStoryLink(newTab: boolean): void {
+  if (!focusedItem) {
+    return;
+  }
+
+  // For submissions, find the title link
+  const titleLink = focusedItem.querySelector<HTMLAnchorElement>(
+    ".hn-submission-title"
+  );
+  if (titleLink) {
+    if (newTab) {
+      window.open(titleLink.href, "_blank");
+    } else {
+      window.location.href = titleLink.href;
+    }
   }
 }
 
@@ -313,6 +337,79 @@ function closeHelpModal(): void {
 }
 
 /**
+ * Check if search palette is open
+ */
+function isSearchPaletteOpen(): boolean {
+  return document.getElementById(SEARCH_PALETTE_ID) !== null;
+}
+
+/**
+ * Close the search palette
+ */
+function closeSearchPalette(): void {
+  const palette = document.getElementById(SEARCH_PALETTE_ID);
+  if (palette) {
+    palette.remove();
+  }
+}
+
+/**
+ * Handle search submission
+ */
+function handleSearchSubmit(query: string): void {
+  if (query.trim()) {
+    window.location.href = `https://hn.algolia.com/?query=${encodeURIComponent(query.trim())}`;
+  }
+}
+
+/**
+ * Show the search palette
+ */
+function showSearchPalette(): void {
+  if (isSearchPaletteOpen()) {
+    closeSearchPalette();
+    return;
+  }
+
+  const palette = document.createElement("div");
+  palette.id = SEARCH_PALETTE_ID;
+  palette.className = "zen-hn-search-palette";
+  palette.setAttribute("role", "dialog");
+  palette.setAttribute("aria-label", "Search Hacker News");
+
+  const backdrop = document.createElement("div");
+  backdrop.className = "zen-hn-search-backdrop";
+  backdrop.addEventListener("click", closeSearchPalette);
+
+  const content = document.createElement("div");
+  content.className = "zen-hn-search-content";
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "zen-hn-search-input";
+  input.placeholder = "Search Hacker News...";
+  input.setAttribute("aria-label", "Search query");
+
+  input.addEventListener("keydown", (e: KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSearchSubmit(input.value);
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      closeSearchPalette();
+    }
+  });
+
+  content.appendChild(input);
+  palette.appendChild(backdrop);
+  palette.appendChild(content);
+  document.body.appendChild(palette);
+
+  // Focus the input
+  input.focus();
+}
+
+/**
  * Show the help modal
  */
 function showHelpModal(): void {
@@ -324,6 +421,7 @@ function showHelpModal(): void {
   const shortcuts = [
     { key: "j / k / ↓ / ↑", action: "Move focus down / up" },
     { key: "Enter", action: "Open comments" },
+    { key: "Shift + Enter", action: "Open story link" },
     { key: "O", action: "Open comments in new tab" },
     { key: "u", action: "Upvote" },
     { key: "f", action: "Favorite / bookmark" },
@@ -337,6 +435,7 @@ function showHelpModal(): void {
     { key: "g s", action: "Go to Ask" },
     { key: "g t", action: "Go to Submit" },
     { key: "g r", action: "Random story" },
+    { key: "/", action: "Search" },
     { key: "?", action: "Show this help" },
     { key: "Esc", action: "Back / clear focus / close" },
   ];
@@ -437,6 +536,10 @@ function handleKeyDown(event: KeyboardEvent): void {
   // Handle escape key
   if (key === "Escape") {
     clearPendingChord();
+    if (isSearchPaletteOpen()) {
+      closeSearchPalette();
+      return;
+    }
     if (isHelpModalOpen()) {
       closeHelpModal();
       return;
@@ -460,8 +563,15 @@ function handleKeyDown(event: KeyboardEvent): void {
     return;
   }
 
-  // Don't process shortcuts if modal is open (except Escape and ?)
-  if (isHelpModalOpen()) {
+  // Handle search palette toggle
+  if (key === "/") {
+    event.preventDefault();
+    showSearchPalette();
+    return;
+  }
+
+  // Don't process shortcuts if modal is open (except Escape, ?, and /)
+  if (isHelpModalOpen() || isSearchPaletteOpen()) {
     return;
   }
 
@@ -496,11 +606,15 @@ function handleKeyDown(event: KeyboardEvent): void {
     return;
   }
 
-  // Open item
+  // Open item (Shift+Enter opens story link, Enter opens comments)
   if (key === "Enter") {
     if (focusedItem) {
       event.preventDefault();
-      openFocusedItem(false);
+      if (event.shiftKey) {
+        openStoryLink(false);
+      } else {
+        openFocusedItem(false);
+      }
     }
     return;
   }
