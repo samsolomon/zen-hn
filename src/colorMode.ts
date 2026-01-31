@@ -205,6 +205,9 @@ export function buildColorModeControl(
     button.className = "zen-hn-color-mode-option";
     if (currentPreference === option.value) {
       button.classList.add("is-active");
+      button.setAttribute("aria-pressed", "true");
+    } else {
+      button.setAttribute("aria-pressed", "false");
     }
     button.setAttribute("data-color-mode", option.value);
     button.setAttribute("aria-label", `${option.label} mode`);
@@ -218,8 +221,10 @@ export function buildColorModeControl(
       // Update active state
       options.querySelectorAll(".zen-hn-color-mode-option").forEach((btn) => {
         btn.classList.remove("is-active");
+        btn.setAttribute("aria-pressed", "false");
       });
       button.classList.add("is-active");
+      button.setAttribute("aria-pressed", "true");
 
       // Apply color mode and notify
       applyColorMode(option.value);
