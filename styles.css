@@ -15,7 +15,6 @@
   --sidebar-border: var(--color-border-subtle);
   --sidebar-link-color: var(--gray-9);
   --sidebar-link-hover: var(--color-text);
-  --bottom-nav-height: 56px;
 }
 
 html[data-font-size="smaller"] {
@@ -1010,71 +1009,9 @@ html[data-zen-hn-enabled="true"] .comhead {
 }
 
 /* ==========================================================================
-   Responsive Design - Mobile (≤720px) + Bottom Navigation
+   Responsive Design - Mobile (≤720px)
    ========================================================================== */
 @media (max-width: 720px) {
-  /* Transform sidebar to bottom navigation */
-  html[data-zen-hn-sidebar="true"] body,
-  html[data-zen-hn-sidebar="loading"] body {
-    padding-left: 0;
-    padding-bottom: var(--bottom-nav-height);
-  }
-
-  #zen-hn-sidebar {
-    top: auto;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    height: var(--bottom-nav-height);
-    border-right: none;
-    border-top: 1px solid var(--sidebar-border);
-    background-color: var(--color-bg-app);
-  }
-
-  #zen-hn-sidebar .zen-hn-sidebar-nav {
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: center;
-    height: 100%;
-    padding: 0 var(--space-100);
-    gap: 0;
-  }
-
-  #zen-hn-sidebar .zen-hn-sidebar-list {
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: center;
-    width: 100%;
-    gap: 0;
-  }
-
-  #zen-hn-sidebar .zen-hn-sidebar-icons {
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: center;
-    gap: 0;
-  }
-
-  #zen-hn-sidebar .zen-hn-sidebar-bottom {
-    display: none;
-  }
-
-  /* Hide home button on mobile - it's redundant with News icon */
-  #zen-hn-sidebar .zen-hn-home-button {
-    display: none;
-  }
-
-  #zen-hn-sidebar .zen-hn-sidebar-icon-link {
-    width: 44px;
-    height: 44px;
-  }
-
-  #zen-hn-sidebar .zen-hn-sidebar-link.is-home-icon {
-    width: 44px;
-    height: 44px;
-  }
-
   /* Main content padding */
   #zen-hn-main {
     padding: 0 var(--space-150);
