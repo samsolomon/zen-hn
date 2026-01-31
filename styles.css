@@ -1049,7 +1049,19 @@ html[data-zen-hn-enabled="true"] .comhead {
     gap: 0;
   }
 
+  #zen-hn-sidebar .zen-hn-sidebar-icons {
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    gap: 0;
+  }
+
   #zen-hn-sidebar .zen-hn-sidebar-bottom {
+    display: none;
+  }
+
+  /* Hide home button on mobile - it's redundant with News icon */
+  #zen-hn-sidebar .zen-hn-home-button {
     display: none;
   }
 
