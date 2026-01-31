@@ -162,6 +162,31 @@ Future section placeholders
 - API conventions:
 - Error taxonomy:
 
+CSS design tokens
+- Always use design tokens from `src/colors.css` instead of hardcoded values.
+- Tokens are defined as CSS custom properties and work in both light and dark modes.
+
+Spacing tokens (use for margin, padding, gap):
+- `--space-25` (2px), `--space-50` (4px), `--space-75` (6px), `--space-100` (8px)
+- `--space-150` (12px), `--space-200` (16px), `--space-250` (20px), `--space-300` (24px)
+- `--space-400` (32px), `--space-500` (40px), `--space-600` (48px), `--space-800` (64px)
+
+Radius tokens (use for border-radius):
+- `--radius-25` (2px), `--radius-50` (4px), `--radius-75` (6px), `--radius-100` (8px)
+- `--radius-150` (12px), `--radius-200` (16px), `--radius-full` (9999px)
+
+Semantic color tokens (preferred over raw gray scale):
+- Backgrounds: `--color-bg-surface`, `--color-bg-app`, `--color-bg-subtle`, `--color-bg-element`, `--color-bg-hover`, `--color-bg-active`
+- Borders: `--color-border-subtle`, `--color-border`, `--color-border-strong`
+- Text: `--color-text`, `--color-text-muted`, `--color-text-faint`
+- Overlays: `--color-overlay-hover`, `--color-overlay-active`, `--color-overlay-pressed`
+- Focus: `--color-focus-ring`
+
+Raw color scales (use only when semantic tokens don't fit):
+- `--gray-1` through `--gray-12` (Radix gray scale, adapts to theme)
+- `--black-a1` through `--black-a12` (black with alpha)
+- `--white-a1` through `--white-a12` (white with alpha)
+
 Module layout
 - `src/` - TypeScript source files
   - `main.ts` - Entry point that initializes the extension
