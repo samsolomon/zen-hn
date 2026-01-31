@@ -103,6 +103,11 @@ export function restyleComments(context: CommentContext | null): void {
 
   getOrCreateZenHnMain().appendChild(container);
   (context.root as HTMLElement).style.display = "none";
+  // Also hide the center wrapper if present
+  const centerWrapper = (context.root as HTMLElement).closest("center") as HTMLElement | null;
+  if (centerWrapper) {
+    centerWrapper.style.display = "none";
+  }
 }
 
 export function findCommentContext(): CommentContext | null {
@@ -120,6 +125,18 @@ export function findCommentContext(): CommentContext | null {
   const bigboxTable = document.querySelector("tr#bigbox table");
   if (bigboxTable && getCommentRows(bigboxTable).length > 0) {
     return { root: bigboxTable, mode: "table" };
+  }
+
+  // For /threads pages, use table mode to move content to zen-hn-main
+  const pathname = window.location.pathname;
+  if (pathname === "/threads") {
+    const hnMain = document.querySelector("table#hnmain");
+    if (hnMain) {
+      const rows = getCommentRows(hnMain);
+      if (rows.length > 0) {
+        return { root: hnMain, mode: "table", rows };
+      }
+    }
   }
 
   const hnMain = document.querySelector("table#hnmain");

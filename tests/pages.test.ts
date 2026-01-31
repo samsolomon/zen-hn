@@ -1,6 +1,6 @@
 import { test, describe, mock } from "node:test";
 import assert from "node:assert/strict";
-import { addUserSubnav, runUserSubnavWhenReady } from "../src/pages";
+import { addUserSubnav, runUserSubnavWhenReady, restyleUserListPage } from "../src/pages";
 
 describe("addUserSubnav", () => {
   test("returns false when extension is disabled", () => {
@@ -212,5 +212,145 @@ describe("runUserSubnavWhenReady", () => {
     });
 
     assert.doesNotThrow(() => runUserSubnavWhenReady());
+  });
+});
+
+describe("restyleUserListPage", () => {
+  test("returns false for /threads (handled by restyleComments instead)", () => {
+    const mockDocument = {
+      getElementById: mock.fn(() => null),
+    };
+
+    Object.defineProperty(globalThis, "document", {
+      value: mockDocument,
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "window", {
+      value: {
+        location: {
+          pathname: "/threads",
+          search: "?id=testuser",
+        },
+      },
+      configurable: true,
+    });
+
+    const result = restyleUserListPage();
+    assert.equal(result, false);
+    // getElementById should not be called since /threads is not in USER_LIST_PAGES
+    assert.equal(mockDocument.getElementById.mock.callCount(), 0);
+  });
+
+  test("returns false for non-user-list pages", () => {
+    const mockDocument = {
+      getElementById: mock.fn(() => null),
+    };
+
+    Object.defineProperty(globalThis, "document", {
+      value: mockDocument,
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "window", {
+      value: {
+        location: {
+          pathname: "/news",
+          search: "",
+        },
+      },
+      configurable: true,
+    });
+
+    const result = restyleUserListPage();
+    assert.equal(result, false);
+  });
+
+  test("returns false when hnmain not found", () => {
+    const mockDocument = {
+      getElementById: mock.fn(() => null),
+    };
+
+    Object.defineProperty(globalThis, "document", {
+      value: mockDocument,
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "window", {
+      value: {
+        location: {
+          pathname: "/favorites",
+          search: "?id=testuser",
+        },
+      },
+      configurable: true,
+    });
+
+    const result = restyleUserListPage();
+    assert.equal(result, false);
+  });
+
+  test("returns false when already restyled", () => {
+    const mockHnMain = {
+      dataset: { zenHnRestyled: "true" },
+      querySelector: mock.fn(() => null),
+    };
+
+    const mockDocument = {
+      getElementById: mock.fn((id: string) => {
+        if (id === "hnmain") return mockHnMain;
+        return null;
+      }),
+    };
+
+    Object.defineProperty(globalThis, "document", {
+      value: mockDocument,
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "window", {
+      value: {
+        location: {
+          pathname: "/favorites",
+          search: "?id=testuser",
+        },
+      },
+      configurable: true,
+    });
+
+    const result = restyleUserListPage();
+    assert.equal(result, false);
+  });
+
+  test("returns false when no content table found", () => {
+    const mockHnMain = {
+      dataset: {},
+      querySelector: mock.fn(() => null),
+    };
+
+    const mockDocument = {
+      getElementById: mock.fn((id: string) => {
+        if (id === "hnmain") return mockHnMain;
+        return null;
+      }),
+    };
+
+    Object.defineProperty(globalThis, "document", {
+      value: mockDocument,
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "window", {
+      value: {
+        location: {
+          pathname: "/submitted",
+          search: "?id=testuser",
+        },
+      },
+      configurable: true,
+    });
+
+    const result = restyleUserListPage();
+    assert.equal(result, false);
   });
 });

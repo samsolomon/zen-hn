@@ -233,8 +233,9 @@ export function restyleUserPage(): boolean {
 
 /**
  * Pages that are user list pages (not the profile page itself)
+ * Note: /threads is handled by restyleComments() instead
  */
-const USER_LIST_PAGES = ["/favorites", "/upvoted", "/submitted", "/threads"];
+const USER_LIST_PAGES = ["/favorites", "/upvoted", "/submitted"];
 
 /**
  * Check if the current page is a user list page
@@ -266,20 +267,23 @@ export function restyleUserListPage(): boolean {
     return false;
   }
 
-  // Create wrapper for the content
+  // Mark as restyled
+  hnmain.dataset[ZEN_HN_RESTYLE_KEY] = "true";
+
+  // Clone content table to zen-hn-main
   const wrapper = document.createElement("div");
   wrapper.className = "hn-user-list-page";
-
-  // Clone the content table to preserve it
   const contentClone = contentTable.cloneNode(true) as HTMLElement;
   wrapper.appendChild(contentClone);
-
-  // Mark as restyled and add to zen-hn-main
-  hnmain.dataset[ZEN_HN_RESTYLE_KEY] = "true";
   getOrCreateZenHnMain().appendChild(wrapper);
 
-  // Hide the original content
-  (contentTable as HTMLElement).style.display = "none";
+  // Hide the original HN content
+  const centerWrapper = hnmain.closest("center") as HTMLElement | null;
+  if (centerWrapper) {
+    centerWrapper.style.display = "none";
+  } else {
+    hnmain.style.display = "none";
+  }
 
   return true;
 }
