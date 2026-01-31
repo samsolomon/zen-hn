@@ -118,11 +118,7 @@ function createBottomGroup(): HTMLLIElement {
   userLink.href = userInfo.href;
   userLink.setAttribute("aria-label", userInfo.label);
   userLink.setAttribute("title", userInfo.label);
-  const isUserActive =
-    currentPath === "/user" ||
-    currentPath.startsWith("/user?") ||
-    currentPath.startsWith("/user?id=") ||
-    currentPath.includes("/user?id=");
+  const isUserActive = currentPath === "/user";
   if (isUserActive) {
     userLink.innerHTML = renderIcon("user-fill");
     userLink.classList.add("is-active");
