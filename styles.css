@@ -1501,7 +1501,7 @@ html[data-zen-hn-enabled="true"] .comhead {
   border: 1px solid var(--color-border-subtle);
   background-color: var(--color-bg-surface);
   color: var(--color-text);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-base);
   font-family: inherit;
   cursor: pointer;
   transition: background-color 120ms ease, border-color 120ms ease, transform 80ms ease;
@@ -1558,6 +1558,42 @@ html[data-zen-hn-enabled="true"] .comhead {
 
 .zen-hn-font-family-button[data-font-family="ibm-plex"] {
   font-family: var(--font-stack-ibm-plex);
+}
+
+/* HN Settings Section */
+.zen-hn-hn-settings-section {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+/* Setting toggle control (shared by HN settings and Zen HN settings) */
+.zen-hn-setting-toggle-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+}
+
+.zen-hn-setting-toggle-control:first-of-type {
+  padding-top: 0;
+}
+
+.zen-hn-setting-toggle-label-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.zen-hn-setting-toggle-label {
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+}
+
+.zen-hn-setting-toggle-description {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
 }
 
 /* External escape toggle control */
