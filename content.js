@@ -177,72 +177,12 @@ function getCommentRows(table) {
   return ZEN_LOGIC.getCommentRows(table);
 }
 
-function getStoryRows(root) {
-  if (!root) {
-    return [];
-  }
-  const rows = Array.from(root.querySelectorAll("tr.athing"));
-  return rows.filter(
-    (row) => !row.classList.contains("comtr") && !row.querySelector(".comment .commtext"),
-  );
-}
-
 function findCommentContext() {
-  const commentTree = document.querySelector("table.comment-tree");
-  if (commentTree) {
-    return { root: commentTree, mode: "table" };
-  }
-
-  const itemTables = Array.from(document.querySelectorAll("table.itemlist"));
-  const itemTable = itemTables.find((table) => getCommentRows(table).length > 0);
-  if (itemTable) {
-    return { root: itemTable, mode: "table" };
-  }
-
-  const bigboxTable = document.querySelector("tr#bigbox table");
-  if (bigboxTable && getCommentRows(bigboxTable).length > 0) {
-    return { root: bigboxTable, mode: "table" };
-  }
-
-  const hnMain = document.querySelector("table#hnmain");
-  if (!hnMain) {
-    return null;
-  }
-  const rows = getCommentRows(hnMain);
-  if (!rows.length) {
-    return null;
-  }
-  const insertAfter = document.querySelector("tr#bigbox") || rows[0];
-  return {
-    root: hnMain,
-    mode: "rows",
-    rows,
-    insertAfter,
-  };
+  return ZEN_RESTYLE_COMMENTS.findCommentContext();
 }
 
 function runRestyleWhenReady() {
-  let attempts = 0;
-  const maxAttempts = 20;
-  const attempt = () => {
-    if (document.documentElement.dataset[ZEN_HN_RESTYLE_KEY] === "true") {
-      return;
-    }
-    const context = findCommentContext();
-    if (!context) {
-      attempts += 1;
-      if (attempts >= maxAttempts) {
-        if (document.documentElement.dataset[ZEN_HN_RESTYLE_KEY] === "loading") {
-          delete document.documentElement.dataset[ZEN_HN_RESTYLE_KEY];
-        }
-        return;
-      }
-      window.requestAnimationFrame(attempt);
-      return;
-    }
-    restyleComments(context);
-  };
-  attempt();
+  return ZEN_RESTYLE_COMMENTS.runRestyleWhenReady();
 }
 
 async function initRestyle() {

@@ -96,7 +96,12 @@ export { buildCommentItem, type BuildCommentItemOptions } from "./buildCommentIt
 
 export { restyleFatItem } from "./restyleFatItem";
 
-export { restyleComments, type CommentContext } from "./restyleComments";
+export {
+  restyleComments,
+  findCommentContext,
+  runRestyleWhenReady,
+  type CommentContext,
+} from "./restyleComments";
 
 export {
   resolveFavoriteLink,
@@ -275,6 +280,8 @@ import {
 
 import {
   restyleComments,
+  findCommentContext,
+  runRestyleWhenReady,
 } from "./restyleComments";
 
 import {
@@ -393,6 +400,8 @@ import {
 
 (globalThis as Record<string, unknown>).ZenHnRestyleComments = {
   restyleComments,
+  findCommentContext,
+  runRestyleWhenReady,
 };
 
 (globalThis as Record<string, unknown>).ZenHnLogic = {

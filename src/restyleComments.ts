@@ -105,7 +105,67 @@ export function restyleComments(context: CommentContext | null): void {
   (context.root as HTMLElement).style.display = "none";
 }
 
+export function findCommentContext(): CommentContext | null {
+  const commentTree = document.querySelector("table.comment-tree");
+  if (commentTree) {
+    return { root: commentTree, mode: "table" };
+  }
+
+  const itemTables = Array.from(document.querySelectorAll("table.itemlist"));
+  const itemTable = itemTables.find((table) => getCommentRows(table).length > 0);
+  if (itemTable) {
+    return { root: itemTable, mode: "table" };
+  }
+
+  const bigboxTable = document.querySelector("tr#bigbox table");
+  if (bigboxTable && getCommentRows(bigboxTable).length > 0) {
+    return { root: bigboxTable, mode: "table" };
+  }
+
+  const hnMain = document.querySelector("table#hnmain");
+  if (!hnMain) {
+    return null;
+  }
+  const rows = getCommentRows(hnMain);
+  if (!rows.length) {
+    return null;
+  }
+  const insertAfter = document.querySelector("tr#bigbox") || rows[0];
+  return {
+    root: hnMain,
+    mode: "rows",
+    rows,
+    insertAfter,
+  };
+}
+
+export function runRestyleWhenReady(): void {
+  let attempts = 0;
+  const maxAttempts = 20;
+  const attempt = (): void => {
+    if (document.documentElement.dataset[ZEN_HN_RESTYLE_KEY] === "true") {
+      return;
+    }
+    const context = findCommentContext();
+    if (!context) {
+      attempts += 1;
+      if (attempts >= maxAttempts) {
+        if (document.documentElement.dataset[ZEN_HN_RESTYLE_KEY] === "loading") {
+          delete document.documentElement.dataset[ZEN_HN_RESTYLE_KEY];
+        }
+        return;
+      }
+      window.requestAnimationFrame(attempt);
+      return;
+    }
+    restyleComments(context);
+  };
+  attempt();
+}
+
 // Expose on globalThis for content.js to access
 (globalThis as Record<string, unknown>).ZenHnRestyleComments = {
   restyleComments,
+  findCommentContext,
+  runRestyleWhenReady,
 };
