@@ -111,6 +111,8 @@ export { buildSidebarNavigation, runSidebarWhenReady } from "./sidebar";
 
 export { getOrCreateZenHnMain } from "./getOrCreateZenHnMain";
 
+export { restyleChangePwPage, restyleSubmitPage, restyleUserPage } from "./pages";
+
 export { restyleSubmissions, getStoryRows } from "./restyleSubmissions";
 
 export {

@@ -151,81 +151,11 @@ function restyleSubmissions() {
 }
 
 function restyleSubmitPage() {
-  if (window.location.pathname !== "/submit") {
-    return;
-  }
-  const hnmain = document.getElementById("hnmain");
-  if (!hnmain || hnmain.dataset.zenHnRestyled === "true") {
-    return;
-  }
-
-  // Find the form element
-  const form = hnmain.querySelector("form");
-  if (!form) {
-    return;
-  }
-
-  const wrapper = document.createElement("div");
-  wrapper.className = "hn-form-page hn-submit-page";
-
-  // Move the form (not clone) so submission works
-  wrapper.appendChild(form);
-
-  hnmain.dataset.zenHnRestyled = "true";
-  getOrCreateZenHnMain().appendChild(wrapper);
+  return ZEN_PAGES.restyleSubmitPage();
 }
 
 function restyleUserPage() {
-  if (!ZEN_LOGIC.isUserProfilePage()) {
-    return;
-  }
-  const hnmain = document.getElementById("hnmain");
-  if (!hnmain || hnmain.dataset.zenHnRestyled === "true") {
-    return;
-  }
-
-  // Find the form (for own profile) or content table (for other users)
-  const form = hnmain.querySelector("form");
-  const bigbox = hnmain.querySelector("tr#bigbox > td");
-
-  if (!form && !bigbox) {
-    return;
-  }
-
-  const wrapper = document.createElement("div");
-  wrapper.className = "hn-form-page hn-user-page";
-
-  // Move the form or content (not clone) so it works
-  if (form) {
-    wrapper.appendChild(form);
-
-    // Add color mode control section for own profile (has form)
-    const settingsSection = document.createElement("div");
-    settingsSection.className = "zen-hn-settings-section";
-
-    const sectionTitle = document.createElement("h3");
-    sectionTitle.className = "zen-hn-settings-title";
-    sectionTitle.textContent = "Zen HN Settings";
-    settingsSection.appendChild(sectionTitle);
-
-    // Add appearance controls (color mode + theme)
-    ZEN_COLOR_MODE.appendAppearanceControls(settingsSection);
-
-    wrapper.appendChild(settingsSection);
-  } else if (bigbox) {
-    // Move all children from bigbox
-    while (bigbox.firstChild) {
-      wrapper.appendChild(bigbox.firstChild);
-    }
-  }
-
-  hnmain.dataset.zenHnRestyled = "true";
-  getOrCreateZenHnMain().appendChild(wrapper);
-
-  // Style native HN selects (showdead, noprocrast) - must be after wrapper is in DOM
-  if (form) {
-    ZEN_COLOR_MODE.styleUserPageSelects();
-  }
+  return ZEN_PAGES.restyleUserPage();
 }
 
 function restyleFatItem() {
