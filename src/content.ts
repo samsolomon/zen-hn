@@ -89,6 +89,12 @@ export {
   toggleCommentCollapse,
 } from "./commentCollapse";
 
+export {
+  resolveFavoriteLink,
+  resolveStoryFavoriteLink,
+  type FavoriteLinkResult,
+} from "./favorites";
+
 // Import everything for globalThis exposure
 import {
   PHOSPHOR_SVGS,
@@ -158,6 +164,8 @@ import {
   handleRandomItemClick,
 } from "./random";
 
+import "./logic";
+
 import {
   setCollapseButtonState,
   hideDescendantComments,
@@ -165,8 +173,10 @@ import {
   toggleCommentCollapse,
 } from "./commentCollapse";
 
-// Import logic module (self-exposes on globalThis)
-import "./logic";
+import {
+  resolveFavoriteLink,
+  resolveStoryFavoriteLink,
+} from "./favorites";
 
 // Expose on globalThis for content.js to access
 (globalThis as Record<string, unknown>).ZenHnIcons = {
@@ -242,4 +252,9 @@ import "./logic";
   hideDescendantComments,
   restoreDescendantVisibility,
   toggleCommentCollapse,
+};
+
+(globalThis as Record<string, unknown>).ZenHnFavorites = {
+  resolveFavoriteLink,
+  resolveStoryFavoriteLink,
 };
