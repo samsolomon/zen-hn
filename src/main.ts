@@ -20,49 +20,13 @@ async function getEnabled(): Promise<boolean> {
 }
 
 function enableExtension(): void {
+  // CSS handles showing/hiding based on this attribute
   document.documentElement.dataset.zenHnEnabled = "true";
-
-  // Show zen-hn elements
-  const zenMain = document.getElementById("zen-hn-main");
-  if (zenMain) {
-    zenMain.style.display = "";
-  }
-  const zenSidebar = document.getElementById("zen-hn-sidebar");
-  if (zenSidebar) {
-    zenSidebar.style.display = "";
-  }
-
-  // Hide original HN content
-  const hnmain = document.getElementById("hnmain");
-  const centerWrapper = hnmain?.closest("center") as HTMLElement | null;
-  if (centerWrapper) {
-    centerWrapper.style.display = "none";
-  } else if (hnmain) {
-    hnmain.style.display = "none";
-  }
 }
 
 function disableExtension(): void {
+  // CSS handles showing/hiding based on this attribute
   document.documentElement.dataset.zenHnEnabled = "false";
-
-  // Hide zen-hn elements
-  const zenMain = document.getElementById("zen-hn-main");
-  if (zenMain) {
-    zenMain.style.display = "none";
-  }
-  const zenSidebar = document.getElementById("zen-hn-sidebar");
-  if (zenSidebar) {
-    zenSidebar.style.display = "none";
-  }
-
-  // Show original HN content
-  const hnmain = document.getElementById("hnmain");
-  const centerWrapper = hnmain?.closest("center") as HTMLElement | null;
-  if (centerWrapper) {
-    centerWrapper.style.display = "";
-  } else if (hnmain) {
-    hnmain.style.display = "";
-  }
 }
 
 function listenForToggle(): void {
@@ -83,17 +47,13 @@ function listenForToggle(): void {
 async function init(): Promise<void> {
   const enabled = await getEnabled();
 
-  // Set initial enabled state
+  // Set initial enabled state (CSS uses this to show/hide UI)
   document.documentElement.dataset.zenHnEnabled = enabled ? "true" : "false";
 
   // Listen for toggle messages from background script
   listenForToggle();
 
-  if (!enabled) {
-    // Extension is disabled, don't initialize
-    return;
-  }
-
+  // Always initialize - CSS controls visibility based on enabled state
   // Mark extension as active
   document.documentElement.dataset.zenHnActive = "true";
 

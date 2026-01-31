@@ -1447,3 +1447,60 @@ a:visited:not(.zen-hn-sidebar-icon-link),
 .hn-fatitem-comments:visited {
   color: var(--color-text-faint) !important;
 }
+
+/* ==========================================================================
+   Disabled state - revert to original HN
+   ========================================================================== */
+
+html[data-zen-hn-enabled="false"],
+html[data-zen-hn-enabled="false"] body,
+html[data-zen-hn-enabled="false"] td {
+  background-color: revert !important;
+  font-family: revert !important;
+  font-size: revert !important;
+}
+
+html[data-zen-hn-enabled="false"] body {
+  padding-left: 0 !important;
+  text-rendering: revert;
+  -webkit-font-smoothing: revert;
+}
+
+html[data-zen-hn-enabled="false"] #zen-hn-sidebar,
+html[data-zen-hn-enabled="false"] #zen-hn-main {
+  display: none !important;
+}
+
+html[data-zen-hn-enabled="false"] #hnmain,
+html[data-zen-hn-enabled="false"] center:has(#hnmain) {
+  display: revert !important;
+}
+
+html[data-zen-hn-enabled="false"] a,
+html[data-zen-hn-enabled="false"] a:link,
+html[data-zen-hn-enabled="false"] a:visited {
+  color: revert !important;
+}
+
+html[data-zen-hn-enabled="false"] .title,
+html[data-zen-hn-enabled="false"] .titleline,
+html[data-zen-hn-enabled="false"] .titleline a,
+html[data-zen-hn-enabled="false"] .storylink {
+  font-size: revert !important;
+  font-weight: revert !important;
+  line-height: revert !important;
+}
+
+html[data-zen-hn-enabled="false"] .subtext,
+html[data-zen-hn-enabled="false"] .comhead,
+html[data-zen-hn-enabled="false"] .comment {
+  font-size: revert !important;
+  color: revert !important;
+}
+
+html[data-zen-hn-enabled="false"] .athing,
+html[data-zen-hn-enabled="false"] .fatitem,
+html[data-zen-hn-enabled="false"] .itemlist,
+html[data-zen-hn-enabled="false"] .comment-tree {
+  display: revert !important;
+}
