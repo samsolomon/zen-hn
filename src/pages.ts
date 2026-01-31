@@ -236,6 +236,11 @@ export function restyleUserPage(): boolean {
  * This is called separately from restyleUserPage since these pages have different content
  */
 export function addUserSubnav(): boolean {
+  // Skip if extension is disabled
+  if (document.documentElement.dataset.zenHnEnabled === "false") {
+    return false;
+  }
+
   // Skip if not a user subnav page or already has subnav
   if (!isUserSubnavPage()) {
     return false;
@@ -262,6 +267,11 @@ export function addUserSubnav(): boolean {
  * Run addUserSubnav early to prevent flash
  */
 export function runUserSubnavWhenReady(): void {
+  // Skip if extension is disabled
+  if (document.documentElement.dataset.zenHnEnabled === "false") {
+    return;
+  }
+
   // Set loading state early
   if (isUserSubnavPage()) {
     document.documentElement.setAttribute("data-zen-hn-subnav", "loading");

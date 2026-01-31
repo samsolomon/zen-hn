@@ -37,12 +37,43 @@ html[data-font-size="larger"] {
   --font-size-scale: 1.15;
 }
 
+/* Font family stacks */
+:root {
+  --font-stack-system: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-stack-humanist: Seravek, "Gill Sans Nova", Ubuntu, Calibri, "DejaVu Sans", sans-serif;
+  --font-stack-geometric: Avenir, Montserrat, Corbel, "URW Gothic", source-sans-pro, sans-serif;
+  --font-stack-classical: Optima, Candara, "Noto Sans", source-sans-pro, sans-serif;
+  --font-stack-serif: Charter, "Bitstream Charter", "Sitka Text", Cambria, serif;
+  --font-stack-mono: "SF Mono", ui-monospace, Menlo, Monaco, "Cascadia Mono", monospace;
+  --font-stack: var(--font-stack-system);
+}
+
+html[data-font-family="humanist"] {
+  --font-stack: var(--font-stack-humanist);
+}
+
+html[data-font-family="geometric"] {
+  --font-stack: var(--font-stack-geometric);
+}
+
+html[data-font-family="classical"] {
+  --font-stack: var(--font-stack-classical);
+}
+
+html[data-font-family="serif"] {
+  --font-stack: var(--font-stack-serif);
+}
+
+html[data-font-family="mono"] {
+  --font-stack: var(--font-stack-mono);
+}
+
 /* Base typography - only apply when extension is enabled */
 html[data-zen-hn-enabled="true"],
 html[data-zen-hn-enabled="true"] body,
 html[data-zen-hn-enabled="true"] td {
   background-color: var(--color-bg-app);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  font-family: var(--font-stack) !important;
   font-size: var(--font-size-base) !important;
 }
 
@@ -56,7 +87,7 @@ html[data-zen-hn-enabled="true"] input,
 html[data-zen-hn-enabled="true"] textarea,
 html[data-zen-hn-enabled="true"] select,
 html[data-zen-hn-enabled="true"] button {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-stack);
 }
 
 html[data-zen-hn-enabled="true"][data-zen-hn-sidebar="true"] body {
@@ -693,7 +724,7 @@ html[data-zen-hn-enabled="true"][data-zen-hn-restyled="true"] table.comment-tree
 }
 
 html[data-zen-hn-enabled="true"] .comhead {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  font-family: var(--font-stack) !important;
 }
 
 .hn-submission-meta .comhead,
@@ -1401,6 +1432,61 @@ html[data-zen-hn-enabled="true"] .comhead {
   outline-offset: 2px;
 }
 
+/* Font family control */
+.zen-hn-font-family-control {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-100);
+  margin-top: 12px;
+}
+
+.zen-hn-font-family-label {
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+}
+
+.zen-hn-font-family-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-75);
+}
+
+.zen-hn-font-family-button {
+  appearance: none;
+  -webkit-appearance: none;
+  display: flex;
+  align-items: center;
+  padding: var(--space-50) var(--space-100);
+  border-radius: var(--radius-100);
+  border: 1px solid var(--color-border-subtle);
+  background-color: var(--color-bg-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, transform 80ms ease;
+}
+
+.zen-hn-font-family-button:hover {
+  background-color: var(--color-bg-hover);
+  border-color: var(--color-border);
+}
+
+.zen-hn-font-family-button:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.zen-hn-font-family-button.is-active {
+  background-color: var(--color-bg-element) !important;
+  border-color: var(--color-border-strong) !important;
+  border-width: 2px !important;
+}
+
+.zen-hn-font-family-button:focus-visible {
+  outline: 2px solid var(--color-border);
+  outline-offset: 2px;
+}
+
 /* External escape toggle control */
 .zen-hn-external-escape-control {
   display: flex;
@@ -1671,76 +1757,13 @@ html[data-zen-hn-enabled="true"] .hn-fatitem-comments:visited {
 }
 
 /* ==========================================================================
-   Disabled state - revert to original HN
+   Disabled state - fallback to hide zen-hn elements if somehow present
    ========================================================================== */
 
-html[data-zen-hn-enabled="false"],
-html[data-zen-hn-enabled="false"] body,
-html[data-zen-hn-enabled="false"] td {
-  background-color: revert !important;
-  font-family: revert !important;
-  font-size: revert !important;
-}
-
-html[data-zen-hn-enabled="false"] body {
-  padding-left: 0 !important;
-  text-rendering: revert !important;
-  -webkit-font-smoothing: revert !important;
-}
-
-/* Hide zen-hn elements */
 html[data-zen-hn-enabled="false"] #zen-hn-sidebar,
-html[data-zen-hn-enabled="false"] #zen-hn-main {
+html[data-zen-hn-enabled="false"] #zen-hn-main,
+html[data-zen-hn-enabled="false"] .zen-hn-subnav {
   display: none !important;
-}
-
-/* Show original HN elements (override inline styles set by JS) */
-html[data-zen-hn-enabled="false"] #hnmain,
-html[data-zen-hn-enabled="false"] center:has(#hnmain),
-html[data-zen-hn-enabled="false"] table.fatitem,
-html[data-zen-hn-enabled="false"] table.itemlist,
-html[data-zen-hn-enabled="false"] table.comment-tree,
-html[data-zen-hn-enabled="false"] .athing,
-html[data-zen-hn-enabled="false"] .spacer,
-html[data-zen-hn-enabled="false"] .morespace,
-html[data-zen-hn-enabled="false"] tr.athing,
-html[data-zen-hn-enabled="false"] .pagetop,
-html[data-zen-hn-enabled="false"] .hnname {
-  display: revert !important;
-  visibility: visible !important;
-}
-
-/* Reset link colors */
-html[data-zen-hn-enabled="false"] a,
-html[data-zen-hn-enabled="false"] a:link,
-html[data-zen-hn-enabled="false"] a:visited {
-  color: revert !important;
-}
-
-/* Reset text styles */
-html[data-zen-hn-enabled="false"] .title,
-html[data-zen-hn-enabled="false"] .titleline,
-html[data-zen-hn-enabled="false"] .titleline a,
-html[data-zen-hn-enabled="false"] .storylink {
-  font-size: revert !important;
-  font-weight: revert !important;
-  line-height: revert !important;
-}
-
-html[data-zen-hn-enabled="false"] .subtext,
-html[data-zen-hn-enabled="false"] .comhead,
-html[data-zen-hn-enabled="false"] .comment {
-  font-size: revert !important;
-  color: revert !important;
-}
-
-/* Reset table structure */
-html[data-zen-hn-enabled="false"] table,
-html[data-zen-hn-enabled="false"] tbody,
-html[data-zen-hn-enabled="false"] tr,
-html[data-zen-hn-enabled="false"] td {
-  display: revert !important;
-  visibility: visible !important;
 }
 
 /* ==========================================================================

@@ -145,6 +145,11 @@ function hideHeaderElements(): void {
 }
 
 export function buildSidebarNavigation(): boolean {
+  // Skip if extension is disabled
+  if (document.documentElement.dataset.zenHnEnabled === "false") {
+    return false;
+  }
+
   if (document.getElementById("zen-hn-sidebar")) {
     document.documentElement.dataset.zenHnSidebar = "true";
     return true;
@@ -188,6 +193,11 @@ export function buildSidebarNavigation(): boolean {
 }
 
 export function runSidebarWhenReady(): void {
+  // Skip if extension is disabled
+  if (document.documentElement.dataset.zenHnEnabled === "false") {
+    return;
+  }
+
   let attempts = 0;
   const maxAttempts = 60;
 

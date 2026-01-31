@@ -3,7 +3,7 @@
  * This file runs last and initializes the extension.
  */
 
-import { initColorMode, initTheme, listenForSystemColorModeChanges } from "./colorMode";
+import { initColorMode, initTheme, initFontFamily, listenForSystemColorModeChanges } from "./colorMode";
 import { runSidebarWhenReady } from "./sidebar";
 import { runCommentCollapseWhenReady } from "./commentCollapse";
 import { runUserSubnavWhenReady } from "./pages";
@@ -21,36 +21,14 @@ async function getEnabled(): Promise<boolean> {
   return result[ENABLED_STORAGE_KEY] !== false;
 }
 
-function enableExtension(): void {
-  console.log('[zen-hn] enableExtension called');
-  document.documentElement.dataset.zenHnEnabled = "true";
-  console.log('[zen-hn] data-zen-hn-enabled:', document.documentElement.dataset.zenHnEnabled);
-}
-
-function disableExtension(): void {
-  console.log('[zen-hn] disableExtension called');
-  document.documentElement.dataset.zenHnEnabled = "false";
-  console.log('[zen-hn] data-zen-hn-enabled:', document.documentElement.dataset.zenHnEnabled);
-
-  // Debug: log what elements exist and their styles
-  const hnmain = document.getElementById('hnmain');
-  const centerWrapper = hnmain?.closest('center');
-  console.log('[zen-hn] hnmain:', hnmain, 'display:', hnmain?.style.display);
-  console.log('[zen-hn] centerWrapper:', centerWrapper, 'display:', (centerWrapper as HTMLElement)?.style.display);
-  console.log('[zen-hn] computed display:', hnmain ? getComputedStyle(hnmain).display : 'n/a');
-}
-
 function listenForToggle(): void {
   if (!chrome?.runtime?.onMessage) {
     return;
   }
   chrome.runtime.onMessage.addListener((message) => {
     if (message.type === "zenHnToggle") {
-      if (message.enabled) {
-        enableExtension();
-      } else {
-        disableExtension();
-      }
+      // Reload the page to ensure clean state
+      window.location.reload();
     }
   });
 }
@@ -64,7 +42,11 @@ async function init(): Promise<void> {
   // Listen for toggle messages from background script
   listenForToggle();
 
-  // Always initialize - CSS controls visibility based on enabled state
+  // EXIT EARLY if disabled - do not modify the DOM at all
+  if (!enabled) {
+    return;
+  }
+
   // Mark extension as active
   document.documentElement.dataset.zenHnActive = "true";
 
@@ -77,9 +59,10 @@ async function init(): Promise<void> {
     document.documentElement.dataset[ZEN_HN_RESTYLE_KEY] = "loading";
   }
 
-  // Initialize color mode and theme from storage on startup
+  // Initialize color mode, theme, and font family from storage on startup
   initColorMode();
   initTheme();
+  initFontFamily();
 
   // Listen for system color scheme changes
   listenForSystemColorModeChanges();

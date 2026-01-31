@@ -3,6 +3,33 @@ import assert from "node:assert/strict";
 import { buildSidebarNavigation, runSidebarWhenReady } from "../src/sidebar";
 
 describe("buildSidebarNavigation", () => {
+  test("returns false when extension is disabled", () => {
+    const mockDocument = {
+      getElementById: mock.fn((id: string) => {
+        if (id === "zen-hn-sidebar") {
+          return {} as Element;
+        }
+        return null;
+      }),
+      documentElement: {
+        dataset: { zenHnEnabled: "false" } as DOMStringMap,
+      },
+      querySelectorAll: mock.fn(() => []),
+      querySelector: mock.fn(() => null),
+      body: {
+        appendChild: mock.fn(),
+      },
+    };
+
+    Object.defineProperty(globalThis, "document", {
+      value: mockDocument,
+      configurable: true,
+    });
+
+    const result = buildSidebarNavigation();
+    assert.equal(result, false);
+  });
+
   test("returns true if sidebar already exists", () => {
     const mockDocument = {
       getElementById: mock.fn((id: string) => {
@@ -58,6 +85,41 @@ describe("buildSidebarNavigation", () => {
 });
 
 describe("runSidebarWhenReady", () => {
+  test("returns early when extension is disabled", () => {
+    const rafMock = mock.fn((_cb: FrameRequestCallback) => 0);
+    const mockDocument = {
+      getElementById: mock.fn((_id: string) => null),
+      documentElement: {
+        dataset: { zenHnEnabled: "false" } as DOMStringMap,
+      },
+      querySelectorAll: mock.fn(() => []),
+      querySelector: mock.fn(() => null),
+      body: {
+        appendChild: mock.fn(),
+      },
+      readyState: "complete",
+    };
+
+    Object.defineProperty(globalThis, "document", {
+      value: mockDocument,
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "location", {
+      value: { pathname: "/" },
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "requestAnimationFrame", {
+      value: rafMock,
+      configurable: true,
+    });
+
+    runSidebarWhenReady();
+    // requestAnimationFrame should not be called when disabled
+    assert.equal(rafMock.mock.callCount(), 0);
+  });
+
   test("does not throw when called", () => {
     const mockDocument = {
       getElementById: mock.fn((_id: string) => null),

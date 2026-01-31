@@ -39,17 +39,9 @@ chrome.action.onClicked.addListener(async (tab) => {
   await setEnabled(newEnabled);
   await updateIcon(newEnabled);
 
-  // Notify content script of the change
-  if (tab.id !== undefined) {
-    try {
-      await chrome.tabs.sendMessage(tab.id, {
-        type: "zenHnToggle",
-        enabled: newEnabled,
-      });
-    } catch {
-      // Tab might not have content script loaded, reload the page
-      chrome.tabs.reload(tab.id);
-    }
+  // Always reload HN tabs to apply the change cleanly
+  if (tab.id !== undefined && tab.url?.includes("news.ycombinator.com")) {
+    chrome.tabs.reload(tab.id);
   }
 });
 
