@@ -8,6 +8,119 @@ import { appendAppearanceControls, styleUserPageSelects } from "./colorMode";
 
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
 
+// =============================================================================
+// User Page Subnav
+// =============================================================================
+
+interface SubnavItem {
+  label: string;
+  href: string;
+  isActive: boolean;
+}
+
+/**
+ * Pages that should show the user subnav
+ */
+const USER_SUBNAV_PAGES = ["/user", "/favorites", "/upvoted", "/submitted", "/threads"];
+
+/**
+ * Check if the current page should show the user subnav
+ */
+function isUserSubnavPage(): boolean {
+  return USER_SUBNAV_PAGES.includes(window.location.pathname);
+}
+
+/**
+ * Get the username from the current URL's id parameter
+ */
+function getUsernameFromUrl(): string | null {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("id");
+}
+
+/**
+ * Get the current page type based on pathname
+ */
+function getCurrentPageType(): string {
+  const pathname = window.location.pathname;
+  if (pathname === "/submitted") return "submissions";
+  if (pathname === "/threads") return "comments";
+  if (pathname === "/favorites") return "favorites";
+  if (pathname === "/upvoted") return "upvoted";
+  if (pathname === "/user") return "profile";
+  return "profile";
+}
+
+/**
+ * Build the subnav items for user pages
+ */
+function buildSubnavItems(username: string): SubnavItem[] {
+  const currentPage = getCurrentPageType();
+
+  return [
+    {
+      label: "Profile",
+      href: `/user?id=${username}`,
+      isActive: currentPage === "profile",
+    },
+    {
+      label: "Favorites",
+      href: `/favorites?id=${username}`,
+      isActive: currentPage === "favorites",
+    },
+    {
+      label: "Upvoted",
+      href: `/upvoted?id=${username}`,
+      isActive: currentPage === "upvoted",
+    },
+    {
+      label: "Submissions",
+      href: `/submitted?id=${username}`,
+      isActive: currentPage === "submissions",
+    },
+    {
+      label: "Comments",
+      href: `/threads?id=${username}`,
+      isActive: currentPage === "comments",
+    },
+  ];
+}
+
+/**
+ * Create the subnav element for user pages
+ */
+function createUserSubnav(username: string): HTMLElement {
+  const nav = document.createElement("nav");
+  nav.className = "zen-hn-subnav";
+  nav.setAttribute("aria-label", "User navigation");
+
+  const list = document.createElement("ul");
+  list.className = "zen-hn-subnav-list";
+
+  const items = buildSubnavItems(username);
+
+  for (const item of items) {
+    const li = document.createElement("li");
+    li.className = "zen-hn-subnav-item";
+
+    const link = document.createElement("a");
+    link.className = "zen-hn-subnav-link";
+    link.href = item.href;
+    link.textContent = item.label;
+
+    if (item.isActive) {
+      link.classList.add("is-active");
+      link.setAttribute("aria-current", "page");
+    }
+
+    li.appendChild(link);
+    list.appendChild(li);
+  }
+
+  nav.appendChild(list);
+  return nav;
+}
+
 export function restyleChangePwPage(): boolean {
   if (window.location.pathname !== "/changepw") {
     return false;
@@ -80,6 +193,14 @@ export function restyleUserPage(): boolean {
   const wrapper = document.createElement("div");
   wrapper.className = "hn-form-page hn-user-page";
 
+  // Add subnav if we have a username
+  const username = getUsernameFromUrl();
+  if (username) {
+    const subnav = createUserSubnav(username);
+    document.body.appendChild(subnav);
+    document.documentElement.setAttribute("data-zen-hn-subnav", "true");
+  }
+
   if (form) {
     wrapper.appendChild(form);
 
@@ -110,8 +231,36 @@ export function restyleUserPage(): boolean {
   return true;
 }
 
+/**
+ * Add the subnav to user-related pages (favorites, upvoted, submissions, comments)
+ * This is called separately from restyleUserPage since these pages have different content
+ */
+export function addUserSubnav(): boolean {
+  // Skip if not a user subnav page or already has subnav
+  if (!isUserSubnavPage()) {
+    return false;
+  }
+
+  // Skip if subnav already exists
+  if (document.querySelector(".zen-hn-subnav")) {
+    return false;
+  }
+
+  const username = getUsernameFromUrl();
+  if (!username) {
+    return false;
+  }
+
+  const subnav = createUserSubnav(username);
+  document.body.appendChild(subnav);
+  document.documentElement.setAttribute("data-zen-hn-subnav", "true");
+
+  return true;
+}
+
 (globalThis as Record<string, unknown>).ZenHnPages = {
   restyleChangePwPage,
   restyleSubmitPage,
   restyleUserPage,
+  addUserSubnav,
 };

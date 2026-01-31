@@ -18,6 +18,11 @@
  * - g+s: Go to Ask
  * - g+t: Go to Submit
  * - g+r: Random story
+ * - g+p: My Profile (when logged in)
+ * - g+f: My Favorites (when logged in)
+ * - g+u: My Upvoted (when logged in)
+ * - g+m: My Submissions (when logged in)
+ * - g+c: My Comments (when logged in)
  * - /: Search (opens Algolia search palette)
  * - ?: Show help modal
  * - Escape: Clear focus / close modal
@@ -280,6 +285,14 @@ async function goToRandomStory(): Promise<void> {
 }
 
 /**
+ * Get the logged-in user's username
+ */
+function getLoggedInUsername(): string | null {
+  const meLink = document.querySelector<HTMLAnchorElement>("a#me");
+  return meLink?.textContent?.trim() || null;
+}
+
+/**
  * Execute a chord shortcut (g+X)
  */
 function executeChordShortcut(key: string): boolean {
@@ -298,6 +311,23 @@ function executeChordShortcut(key: string): boolean {
   if (lowerKey === "r") {
     goToRandomStory();
     return true;
+  }
+
+  // User page shortcuts (require logged-in user)
+  const username = getLoggedInUsername();
+  if (username) {
+    const userRoutes: Record<string, string> = {
+      p: `/user?id=${username}`,
+      f: `/favorites?id=${username}`,
+      u: `/upvoted?id=${username}`,
+      m: `/submitted?id=${username}`,
+      c: `/threads?id=${username}`,
+    };
+    const userRoute = userRoutes[lowerKey];
+    if (userRoute) {
+      window.location.href = userRoute;
+      return true;
+    }
   }
 
   const route = routes[lowerKey];
@@ -435,6 +465,11 @@ function showHelpModal(): void {
     { key: "g s", action: "Go to Ask" },
     { key: "g t", action: "Go to Submit" },
     { key: "g r", action: "Random story" },
+    { key: "g p", action: "My Profile" },
+    { key: "g f", action: "My Favorites" },
+    { key: "g u", action: "My Upvoted" },
+    { key: "g m", action: "My Submissions" },
+    { key: "g c", action: "My Comments" },
     { key: "/", action: "Search" },
     { key: "?", action: "Show this help" },
     { key: "Esc", action: "Back / clear focus / close" },

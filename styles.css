@@ -59,11 +59,11 @@ html[data-zen-hn-enabled="true"] button {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-html[data-zen-hn-sidebar="true"] body {
+html[data-zen-hn-enabled="true"][data-zen-hn-sidebar="true"] body {
   padding-left: var(--sidebar-width);
 }
 
-html[data-zen-hn-sidebar="loading"] body {
+html[data-zen-hn-enabled="true"][data-zen-hn-sidebar="loading"] body {
   padding-left: var(--sidebar-width);
 }
 
@@ -245,11 +245,11 @@ html[data-zen-hn-enabled="true"] td {
   color: initial;
 }
 
-html[data-zen-hn-restyled="loading"] table.comment-tree {
+html[data-zen-hn-enabled="true"][data-zen-hn-restyled="loading"] table.comment-tree {
   visibility: hidden;
 }
 
-html[data-zen-hn-restyled="true"] table.comment-tree {
+html[data-zen-hn-enabled="true"][data-zen-hn-restyled="true"] table.comment-tree {
   display: none;
 }
 
@@ -1476,9 +1476,9 @@ html[data-zen-hn-enabled="true"] .comhead {
   outline-offset: var(--space-25);
 }
 
-html[op="user"] select,
-html[data-zen-hn-user-page="true"] select,
-.hn-form-page select {
+html[data-zen-hn-enabled="true"][op="user"] select,
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] select,
+html[data-zen-hn-enabled="true"] .hn-form-page select {
   appearance: none;
   -webkit-appearance: none;
   padding: 8px 32px 8px 12px;
@@ -1496,33 +1496,33 @@ html[data-zen-hn-user-page="true"] select,
   transition: background-color 120ms ease, border-color 120ms ease;
 }
 
-html[op="user"] select:hover,
-html[data-zen-hn-user-page="true"] select:hover,
-.hn-form-page select:hover {
+html[data-zen-hn-enabled="true"][op="user"] select:hover,
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] select:hover,
+html[data-zen-hn-enabled="true"] .hn-form-page select:hover {
   background-color: var(--color-bg-subtle);
   border-color: var(--color-border);
 }
 
-html[op="user"] select:focus,
-html[data-zen-hn-user-page="true"] select:focus,
-.hn-form-page select:focus {
+html[data-zen-hn-enabled="true"][op="user"] select:focus,
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] select:focus,
+html[data-zen-hn-enabled="true"] .hn-form-page select:focus {
   outline: none;
   border-color: var(--color-border);
   box-shadow: 0 0 0 2px var(--color-focus-ring);
 }
 
-html[op="user"] input[type="submit"],
-html[op="user"] input[type="button"],
-html[op="user"] button[type="submit"],
-html[op="user"] button[type="button"]:not(.zen-hn-switch),
-html[data-zen-hn-user-page="true"] input[type="submit"],
-html[data-zen-hn-user-page="true"] input[type="button"],
-html[data-zen-hn-user-page="true"] button[type="submit"],
-html[data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch),
-.hn-form-page input[type="submit"],
-.hn-form-page input[type="button"],
-.hn-form-page button[type="submit"],
-.hn-form-page button[type="button"]:not(.zen-hn-switch) {
+html[data-zen-hn-enabled="true"][op="user"] input[type="submit"],
+html[data-zen-hn-enabled="true"][op="user"] input[type="button"],
+html[data-zen-hn-enabled="true"][op="user"] button[type="submit"],
+html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch),
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="submit"],
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="button"],
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="submit"],
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch),
+html[data-zen-hn-enabled="true"] .hn-form-page input[type="submit"],
+html[data-zen-hn-enabled="true"] .hn-form-page input[type="button"],
+html[data-zen-hn-enabled="true"] .hn-form-page button[type="submit"],
+html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch) {
   appearance: none;
   -webkit-appearance: none;
   padding: 8px 16px;
@@ -1538,80 +1538,83 @@ html[data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch),
     color 120ms ease, transform 80ms ease;
 }
 
-html[op="user"] input[type="submit"]:hover,
-html[op="user"] input[type="button"]:hover,
-html[op="user"] button[type="submit"]:hover,
-html[op="user"] button[type="button"]:not(.zen-hn-switch):hover,
-html[data-zen-hn-user-page="true"] input[type="submit"]:hover,
-html[data-zen-hn-user-page="true"] input[type="button"]:hover,
-html[data-zen-hn-user-page="true"] button[type="submit"]:hover,
-html[data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):hover,
-.hn-form-page input[type="submit"]:hover,
-.hn-form-page input[type="button"]:hover,
-.hn-form-page button[type="submit"]:hover,
-.hn-form-page button[type="button"]:not(.zen-hn-switch):hover {
+html[data-zen-hn-enabled="true"][op="user"] input[type="submit"]:hover,
+html[data-zen-hn-enabled="true"][op="user"] input[type="button"]:hover,
+html[data-zen-hn-enabled="true"][op="user"] button[type="submit"]:hover,
+html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):hover,
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="submit"]:hover,
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="button"]:hover,
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="submit"]:hover,
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):hover,
+html[data-zen-hn-enabled="true"] .hn-form-page input[type="submit"]:hover,
+html[data-zen-hn-enabled="true"] .hn-form-page input[type="button"]:hover,
+html[data-zen-hn-enabled="true"] .hn-form-page button[type="submit"]:hover,
+html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):hover {
   background-color: var(--color-bg-subtle);
   border-color: var(--color-border-strong);
   color: var(--color-text);
 }
 
-html[op="user"] input[type="submit"]:active,
-html[op="user"] input[type="button"]:active,
-html[op="user"] button[type="submit"]:active,
-html[op="user"] button[type="button"]:not(.zen-hn-switch):active,
-html[data-zen-hn-user-page="true"] input[type="submit"]:active,
-html[data-zen-hn-user-page="true"] input[type="button"]:active,
-html[data-zen-hn-user-page="true"] button[type="submit"]:active,
-html[data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):active,
-.hn-form-page input[type="submit"]:active,
-.hn-form-page input[type="button"]:active,
-.hn-form-page button[type="submit"]:active,
-.hn-form-page button[type="button"]:not(.zen-hn-switch):active {
+html[data-zen-hn-enabled="true"][op="user"] input[type="submit"]:active,
+html[data-zen-hn-enabled="true"][op="user"] input[type="button"]:active,
+html[data-zen-hn-enabled="true"][op="user"] button[type="submit"]:active,
+html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):active,
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="submit"]:active,
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="button"]:active,
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="submit"]:active,
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):active,
+html[data-zen-hn-enabled="true"] .hn-form-page input[type="submit"]:active,
+html[data-zen-hn-enabled="true"] .hn-form-page input[type="button"]:active,
+html[data-zen-hn-enabled="true"] .hn-form-page button[type="submit"]:active,
+html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):active {
   transform: translateY(1px) scale(0.98);
 }
 
-html[op="user"] input[type="submit"]:focus-visible,
-html[op="user"] input[type="button"]:focus-visible,
-html[op="user"] button[type="submit"]:focus-visible,
-html[op="user"] button[type="button"]:not(.zen-hn-switch):focus-visible,
-html[data-zen-hn-user-page="true"] input[type="submit"]:focus-visible,
-html[data-zen-hn-user-page="true"] input[type="button"]:focus-visible,
-html[data-zen-hn-user-page="true"] button[type="submit"]:focus-visible,
-html[data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):focus-visible,
-.hn-form-page input[type="submit"]:focus-visible,
-.hn-form-page input[type="button"]:focus-visible,
-.hn-form-page button[type="submit"]:focus-visible,
-.hn-form-page button[type="button"]:not(.zen-hn-switch):focus-visible {
+html[data-zen-hn-enabled="true"][op="user"] input[type="submit"]:focus-visible,
+html[data-zen-hn-enabled="true"][op="user"] input[type="button"]:focus-visible,
+html[data-zen-hn-enabled="true"][op="user"] button[type="submit"]:focus-visible,
+html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):focus-visible,
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="submit"]:focus-visible,
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="button"]:focus-visible,
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="submit"]:focus-visible,
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):focus-visible,
+html[data-zen-hn-enabled="true"] .hn-form-page input[type="submit"]:focus-visible,
+html[data-zen-hn-enabled="true"] .hn-form-page input[type="button"]:focus-visible,
+html[data-zen-hn-enabled="true"] .hn-form-page button[type="submit"]:focus-visible,
+html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):focus-visible {
   outline: 2px solid var(--color-border);
   outline-offset: 2px;
 }
 
 /* ============================================
-   Subnav (commented out for now)
+   User Page Subnav
    ============================================ */
 
-/*
-html[data-zen-hn-subnav="true"] body {
-  padding-top: 60px;
+html[data-zen-hn-enabled="true"][data-zen-hn-subnav="true"] body {
+  padding-top: var(--space-600);
 }
 
 .zen-hn-subnav {
+  display: none;
+}
+
+html[data-zen-hn-enabled="true"] .zen-hn-subnav {
   position: fixed;
   top: 0;
-  left: 60px;
+  left: var(--sidebar-width);
   right: 0;
-  height: 60px;
-  z-index: 100;
+  height: var(--space-600);
   display: flex;
   align-items: center;
-  padding: 0 24px;
+  padding: 0 var(--space-300);
+  z-index: 100;
   pointer-events: none;
 }
 
 .zen-hn-subnav-list {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-50);
   list-style: none;
   margin: 0;
   padding: 0;
@@ -1625,10 +1628,10 @@ html[data-zen-hn-subnav="true"] body {
 .zen-hn-subnav-link {
   display: inline-flex;
   align-items: center;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-weight: 400;
+  padding: var(--space-100) var(--space-150);
+  border-radius: var(--radius-100);
+  font-size: var(--font-size-base);
+  font-weight: 500;
   color: var(--color-text-muted);
   text-decoration: none;
   transition: background-color 120ms ease, color 120ms ease;
@@ -1646,10 +1649,9 @@ html[data-zen-hn-subnav="true"] body {
 }
 
 .zen-hn-subnav-link:focus-visible {
-  outline: 2px solid #c8c1b0;
-  outline-offset: 2px;
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: var(--space-25);
 }
-*/
 
 /* Muted text - only when enabled */
 html[data-zen-hn-enabled="true"] .sitestr,
@@ -1660,7 +1662,7 @@ html[data-zen-hn-enabled="true"] .hn-fatitem-site {
 }
 
 /* Faint text - only when enabled */
-html[data-zen-hn-enabled="true"] a:visited:not(.zen-hn-sidebar-icon-link),
+html[data-zen-hn-enabled="true"] a:visited:not(.zen-hn-sidebar-icon-link):not(.zen-hn-subnav-link),
 html[data-zen-hn-enabled="true"] .hnmore a:link,
 html[data-zen-hn-enabled="true"] .hnmore a:visited,
 html[data-zen-hn-enabled="true"] .age a:visited,
@@ -1687,27 +1689,45 @@ html[data-zen-hn-enabled="false"] body {
 }
 
 /* Show original HN elements (override inline styles set by JS) */
-html[data-zen-hn-enabled="false"] #hnmain,
-html[data-zen-hn-enabled="false"] center:has(#hnmain),
-html[data-zen-hn-enabled="false"] table.fatitem,
-html[data-zen-hn-enabled="false"] table.itemlist,
-html[data-zen-hn-enabled="false"] table.comment-tree,
-html[data-zen-hn-enabled="false"] .athing,
-html[data-zen-hn-enabled="false"] .spacer,
-html[data-zen-hn-enabled="false"] .morespace,
-html[data-zen-hn-enabled="false"] tr.athing,
-html[data-zen-hn-enabled="false"] .pagetop,
-html[data-zen-hn-enabled="false"] .hnname {
-  display: revert !important;
+html[data-zen-hn-enabled="false"] center {
+  display: block !important;
   visibility: visible !important;
 }
 
-/* Ensure table structure is visible */
-html[data-zen-hn-enabled="false"] table,
-html[data-zen-hn-enabled="false"] tbody,
+html[data-zen-hn-enabled="false"] #hnmain {
+  display: table !important;
+  visibility: visible !important;
+}
+
+html[data-zen-hn-enabled="false"] table.fatitem,
+html[data-zen-hn-enabled="false"] table.itemlist,
+html[data-zen-hn-enabled="false"] table.comment-tree {
+  display: table !important;
+  visibility: visible !important;
+}
+
+html[data-zen-hn-enabled="false"] tbody {
+  display: table-row-group !important;
+  visibility: visible !important;
+}
+
 html[data-zen-hn-enabled="false"] tr,
+html[data-zen-hn-enabled="false"] tr.athing,
+html[data-zen-hn-enabled="false"] .spacer,
+html[data-zen-hn-enabled="false"] .morespace {
+  display: table-row !important;
+  visibility: visible !important;
+}
+
 html[data-zen-hn-enabled="false"] td {
-  display: revert !important;
+  display: table-cell !important;
+  visibility: visible !important;
+}
+
+html[data-zen-hn-enabled="false"] .athing,
+html[data-zen-hn-enabled="false"] .pagetop,
+html[data-zen-hn-enabled="false"] .hnname {
+  display: inline !important;
   visibility: visible !important;
 }
 

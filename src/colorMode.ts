@@ -6,7 +6,7 @@ import { renderIcon } from "./icons";
 
 export type ColorModePreference = "light" | "dark" | "system";
 export type ThemePreference =
-  | "gray"
+  | "zen"
   | "mauve"
   | "slate"
   | "sage"
@@ -273,7 +273,7 @@ interface ThemeOption {
 }
 
 const THEME_OPTIONS: ThemeOption[] = [
-  { value: "gray", label: "Gray" },
+  { value: "zen", label: "Zen" },
   { value: "slate", label: "Slate" },
   { value: "sand", label: "Sand" },
   { value: "olive", label: "Olive" },
@@ -302,7 +302,7 @@ const THEME_OPTIONS: ThemeOption[] = [
  */
 // Radix gray-9 values for each theme (used for swatches)
 const THEME_COLORS: Record<ThemePreference, string> = {
-  gray: "#8d8d8d",
+  zen: "#8d8d8d",
   mauve: "#8e8c99",
   slate: "#8b8d98",
   sage: "#868e8b",
@@ -349,7 +349,7 @@ export async function saveTheme(theme: ThemePreference): Promise<void> {
  */
 export function applyTheme(theme: ThemePreference): void {
   const html = document.documentElement;
-  if (theme === "gray") {
+  if (theme === "zen") {
     html.removeAttribute("data-theme");
   } else {
     html.setAttribute("data-theme", theme);
@@ -446,7 +446,7 @@ export function buildThemeButtonsWithStorage(currentTheme: ThemePreference): HTM
  */
 export async function appendThemeButtons(container: HTMLElement): Promise<void> {
   const saved = await getSavedTheme();
-  const current = saved || "gray";
+  const current = saved || "zen";
   const control = buildThemeButtonsWithStorage(current);
   container.appendChild(control);
 }

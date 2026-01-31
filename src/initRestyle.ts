@@ -2,7 +2,7 @@ import { loadActionStore } from "./actionStore";
 import { buildSidebarNavigation } from "./sidebar";
 import { isUserProfilePage } from "./logic";
 import { restyleSubmissions } from "./restyleSubmissions";
-import { restyleSubmitPage, restyleUserPage, restyleChangePwPage } from "./pages";
+import { restyleSubmitPage, restyleUserPage, restyleChangePwPage, addUserSubnav } from "./pages";
 import { restyleFatItem } from "./restyleFatItem";
 import { runRestyleWhenReady } from "./restyleComments";
 
@@ -16,6 +16,7 @@ export async function initRestyle(): Promise<void> {
   restyleSubmitPage();
   restyleUserPage();
   restyleChangePwPage();
+  addUserSubnav();
   restyleFatItem();
   runRestyleWhenReady();
 
