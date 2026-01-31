@@ -108,6 +108,8 @@ export { buildSidebarNavigation, runSidebarWhenReady } from "./sidebar";
 
 export { getOrCreateZenHnMain } from "./getOrCreateZenHnMain";
 
+export { restyleSubmissions, getStoryRows } from "./restyleSubmissions";
+
 export {
   buildVoteHref,
   buildCommentHref,
@@ -251,7 +253,17 @@ import {
   getOrCreateZenHnMain,
 } from "./getOrCreateZenHnMain";
 
+import {
+  restyleSubmissions,
+  getStoryRows,
+} from "./restyleSubmissions";
+
 // Expose on globalThis for content.js to access
+(globalThis as Record<string, unknown>).ZenHnRestyleSubmissions = {
+  restyleSubmissions,
+  getStoryRows,
+};
+
 (globalThis as Record<string, unknown>).ZenHnIcons = {
   PHOSPHOR_SVGS,
   HN_HOME_SVG,

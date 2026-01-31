@@ -125,11 +125,13 @@ export async function copyTextToClipboard(text: string): Promise<boolean> {
 }
 
 // Expose on globalThis for content.js to access
-(globalThis as Record<string, unknown>).ZenHnUtils = {
-  toSentenceCase,
-  normalizeItemId,
-  getHrefParams,
-  isHomeSidebarLink,
-  stripParenTextNodes,
-  copyTextToClipboard,
-};
+if (!("ZenHnUtils" in globalThis)) {
+  (globalThis as Record<string, unknown>).ZenHnUtils = {
+    toSentenceCase,
+    normalizeItemId,
+    getHrefParams,
+    isHomeSidebarLink,
+    stripParenTextNodes,
+    copyTextToClipboard,
+  };
+}
