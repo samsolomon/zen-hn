@@ -104,6 +104,30 @@ export {
   type SubmitResult,
 } from "./replyForm";
 
+export {
+  buildVoteHref,
+  buildCommentHref,
+  buildItemHref,
+  resolveVoteItemId,
+  resolveSubmissionCopyHref,
+  toggleVoteState,
+  toggleFavoriteState,
+  willFavoriteFromHref,
+  buildMenuItem,
+  buildMenuItems,
+  getVoteState,
+  buildNextFavoriteHref,
+  isUserProfilePage,
+  getIndentLevelFromRow,
+  getIndentLevelFromItem,
+  getCommentId,
+  getReplyHref,
+  addSubmissionClickHandler,
+  addCommentClickHandler,
+  type VoteState,
+  type MenuItem,
+} from "./logic";
+
 // Import everything for globalThis exposure
 import {
   PHOSPHOR_SVGS,
@@ -173,7 +197,27 @@ import {
   handleRandomItemClick,
 } from "./random";
 
-import "./logic";
+import {
+  buildVoteHref,
+  buildCommentHref,
+  buildItemHref,
+  resolveVoteItemId,
+  resolveSubmissionCopyHref,
+  toggleVoteState,
+  toggleFavoriteState,
+  willFavoriteFromHref,
+  buildMenuItem,
+  buildMenuItems,
+  getVoteState,
+  buildNextFavoriteHref,
+  isUserProfilePage,
+  getIndentLevelFromRow,
+  getIndentLevelFromItem,
+  getCommentId,
+  getReplyHref,
+  addSubmissionClickHandler,
+  addCommentClickHandler,
+} from "./logic";
 
 import {
   setCollapseButtonState,
@@ -280,4 +324,26 @@ import {
   resolveReplyFormFromElement,
   submitReplyWithResolved,
   submitReply,
+};
+
+(globalThis as Record<string, unknown>).ZenHnLogic = {
+  buildVoteHref,
+  buildCommentHref,
+  buildItemHref,
+  resolveVoteItemId,
+  resolveSubmissionCopyHref,
+  toggleVoteState,
+  toggleFavoriteState,
+  willFavoriteFromHref,
+  buildMenuItem,
+  buildMenuItems,
+  getVoteState,
+  buildNextFavoriteHref,
+  isUserProfilePage,
+  getIndentLevelFromRow,
+  getIndentLevelFromItem,
+  getCommentId,
+  getReplyHref,
+  addSubmissionClickHandler,
+  addCommentClickHandler,
 };

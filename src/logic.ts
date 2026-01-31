@@ -1,7 +1,3 @@
-/**
- * Zen HN Logic utilities
- */
-
 export interface VoteState {
   isUpvoted: boolean;
   isDownvoted: boolean;
@@ -10,22 +6,28 @@ export interface VoteState {
 export interface MenuItem {
   label: string;
   href: string;
-  action?: () => void;
+  action?: string;
 }
 
-export interface MenuItemConfig {
-  href?: string;
-  text?: string;
+interface BuildMenuItemInput {
+  href?: string | null;
+  text?: string | null;
   fallback?: string;
-  action?: () => void;
+  action?: string;
 }
 
-export function buildVoteHref(href: string, how?: string, baseHref?: string): string {
+const DEFAULT_BASE_HREF = "https://news.ycombinator.com/";
+
+function getBaseHref(baseHref?: string | null): string {
+  return baseHref || globalThis.location?.href || DEFAULT_BASE_HREF;
+}
+
+export function buildVoteHref(href: string | null | undefined, how?: string | null, baseHref?: string | null): string {
   if (!href) {
     return "";
   }
   try {
-    const base = baseHref || globalThis.location?.href || "https://news.ycombinator.com/";
+    const base = getBaseHref(baseHref);
     const url = new URL(href, base);
     if (how) {
       url.searchParams.set("how", how);
@@ -36,31 +38,31 @@ export function buildVoteHref(href: string, how?: string, baseHref?: string): st
   }
 }
 
-export function buildCommentHref(commentId: string, baseHref?: string): string {
+export function buildCommentHref(commentId: string | null | undefined, baseHref?: string | null): string {
   if (!commentId) {
     return "";
   }
   try {
-    const base = baseHref || globalThis.location?.href || "https://news.ycombinator.com/";
+    const base = getBaseHref(baseHref);
     return new URL(`item?id=${commentId}`, base).toString();
   } catch {
     return `item?id=${commentId}`;
   }
 }
 
-export function buildItemHref(itemId: string, baseHref?: string): string {
+export function buildItemHref(itemId: string | null | undefined, baseHref?: string | null): string {
   if (!itemId) {
     return "";
   }
   return buildCommentHref(itemId, baseHref);
 }
 
-export function resolveVoteItemId(href: string, baseHref?: string): string {
+export function resolveVoteItemId(href: string | null | undefined, baseHref?: string | null): string {
   if (!href) {
     return "";
   }
   try {
-    const base = baseHref || globalThis.location?.href || "https://news.ycombinator.com/";
+    const base = getBaseHref(baseHref);
     const url = new URL(href, base);
     return url.searchParams.get("id") || "";
   } catch {
@@ -69,27 +71,20 @@ export function resolveVoteItemId(href: string, baseHref?: string): string {
   }
 }
 
-export function resolveSubmissionCopyHref(
-  commentsHref: string | undefined,
-  itemId: string | undefined,
-  baseHref?: string
-): string {
+export function resolveSubmissionCopyHref(commentsHref?: string | null, itemId?: string | null, baseHref?: string | null): string {
   const href = commentsHref || (itemId ? `item?id=${itemId}` : "");
   if (!href) {
     return "";
   }
   try {
-    const base = baseHref || globalThis.location?.href || "https://news.ycombinator.com/";
+    const base = getBaseHref(baseHref);
     return new URL(href, base).toString();
   } catch {
     return href;
   }
 }
 
-export function toggleVoteState(
-  current: Partial<VoteState> | undefined,
-  direction: "up" | "down"
-): VoteState {
+export function toggleVoteState(current: VoteState | null | undefined, direction: "up" | "down"): VoteState {
   const isUp = Boolean(current?.isUpvoted);
   const isDown = Boolean(current?.isDownvoted);
   if (direction === "up") {
@@ -107,89 +102,41 @@ export function toggleVoteState(
   return { isUpvoted: isUp, isDownvoted: isDown };
 }
 
-export function toggleFavoriteState(isFavorited: boolean): boolean {
+export function toggleFavoriteState(isFavorited: boolean | null | undefined): boolean {
   return !Boolean(isFavorited);
 }
 
-export function willFavoriteFromHref(href: string): boolean {
+export function willFavoriteFromHref(href: string | null | undefined): boolean {
   if (!href) {
     return false;
   }
   return !href.includes("un=t");
 }
 
-export function buildMenuItem(config: MenuItemConfig): MenuItem | null {
-  if (!config.href) {
+export function buildMenuItem(input: BuildMenuItemInput): MenuItem | null {
+  const { href, text, fallback, action } = input;
+  if (!href) {
     return null;
   }
-  const trimmed = (config.text || "").trim();
+  const trimmed = (text || "").trim();
   const label = trimmed
     ? `${trimmed.charAt(0).toUpperCase()}${trimmed.slice(1)}`
-    : config.fallback;
+    : fallback;
   return {
     label: label || "",
-    href: config.href,
-    action: config.action,
+    href,
+    action,
   };
 }
 
-export function buildMenuItems(items: MenuItemConfig[]): MenuItem[] {
+export function buildMenuItems(items: BuildMenuItemInput[] | null | undefined): MenuItem[] {
   if (!Array.isArray(items)) {
     return [];
   }
   return items.map((item) => buildMenuItem(item)).filter((item): item is MenuItem => item !== null);
 }
 
-/**
- * Check if an event target is an interactive element that should prevent
- * background click handling (navigation or collapse toggle)
- */
-export function isInteractiveElement(target: EventTarget | null): boolean {
-  if (!target || !(target instanceof Element)) {
-    return false;
-  }
-  return Boolean(
-    target.closest("a, button, input, textarea, select, [role='button']")
-  );
-}
-
-/**
- * Add a click handler to navigate to an item page when clicking the background
- */
-export function addSubmissionClickHandler(
-  element: HTMLElement,
-  itemId: string
-): void {
-  if (!itemId) return;
-  element.addEventListener("click", (event: MouseEvent) => {
-    if (isInteractiveElement(event.target)) {
-      return;
-    }
-    window.location.href = `/item?id=${itemId}`;
-  });
-}
-
-/**
- * Add a click handler to toggle comment collapse when clicking the background
- */
-export function addCommentClickHandler(
-  element: HTMLElement,
-  toggleFn: (el: HTMLElement) => void
-): void {
-  element.addEventListener("click", (event: MouseEvent) => {
-    if (isInteractiveElement(event.target)) {
-      return;
-    }
-    toggleFn(element);
-  });
-}
-
-/**
- * Extract vote state from a DOM element by checking for voted arrow classes
- * @param row - DOM element containing vote arrows
- * @returns Vote state with isUpvoted and isDownvoted flags
- */
-export function getVoteState(row: Element | null): VoteState {
+export function getVoteState(row: Element | null | undefined): VoteState {
   if (!row) {
     return { isUpvoted: false, isDownvoted: false };
   }
@@ -203,23 +150,12 @@ export function getVoteState(row: Element | null): VoteState {
   return { isUpvoted, isDownvoted };
 }
 
-/**
- * Build the next favorite href by toggling the favorite state in the URL
- * @param href - Current favorite href
- * @param willBeFavorited - Whether the item will be favorited (true) or unfavorited (false)
- * @param baseHref - Optional base URL for resolution
- * @returns Updated href with correct favorite state
- */
-export function buildNextFavoriteHref(
-  href: string,
-  willBeFavorited: boolean,
-  baseHref?: string
-): string {
+export function buildNextFavoriteHref(href: string | null | undefined, willBeFavorited: boolean, baseHref?: string | null): string {
   if (!href) {
     return "";
   }
   try {
-    const base = baseHref || globalThis.location?.href || "https://news.ycombinator.com/";
+    const base = getBaseHref(baseHref);
     const url = new URL(href, base);
     if (willBeFavorited) {
       url.searchParams.delete("un");
@@ -235,42 +171,27 @@ export function buildNextFavoriteHref(
   }
 }
 
-/**
- * Resolve an href to an absolute URL using a base URL
- * @param href - The href to resolve (may be relative)
- * @param baseHref - Optional base URL for resolution
- * @returns Absolute URL string, or the original href if resolution fails
- */
-export function resolveHrefWithBase(href: string, baseHref?: string): string {
+export function resolveHrefWithBase(href: string | null | undefined, baseHref?: string | null): string {
   if (!href) {
     return "";
   }
   try {
-    const base = baseHref || globalThis.location?.href || "https://news.ycombinator.com/";
+    const base = getBaseHref(baseHref);
     return new URL(href, base).toString();
   } catch {
     return href;
   }
 }
 
-/**
- * Check if the current page is a user profile page
- * @returns True if on a user profile page
- */
 export function isUserProfilePage(): boolean {
-  const op = document.documentElement.getAttribute("op") || "";
+  const op = document.documentElement?.getAttribute("op") || "";
   if (op.toLowerCase() === "user") {
     return true;
   }
   return globalThis.location?.pathname === "/user";
 }
 
-/**
- * Extract indent level from a comment row's indent image width
- * @param row - The table row element containing the comment
- * @returns Indent level (0 for root comments, higher for nested)
- */
-export function getIndentLevelFromRow(row: Element | null): number {
+export function getIndentLevelFromRow(row: Element | null | undefined): number {
   if (!row) {
     return 0;
   }
@@ -279,25 +200,14 @@ export function getIndentLevelFromRow(row: Element | null): number {
   return Math.round(indentWidth / 40) || 0;
 }
 
-/**
- * Get indent level from a comment item's dataset
- * @param item - The element with indentLevel in its dataset
- * @returns Indent level number
- */
-export function getIndentLevelFromItem(item: Element | null): number {
-  if (!item || !(item instanceof HTMLElement)) {
+export function getIndentLevelFromItem(item: HTMLElement | null | undefined): number {
+  if (!item) {
     return 0;
   }
-  return Number.parseInt(item.dataset.indentLevel || "0", 10) || 0;
+  return Number.parseInt(item.dataset?.indentLevel || "0", 10) || 0;
 }
 
-/**
- * Extract comment ID from a comment row or comhead element
- * @param row - The comment row element
- * @param comhead - Optional comhead element within the row
- * @returns Comment ID string, or empty string if not found
- */
-export function getCommentId(row: Element | null, comhead?: Element | null): string {
+export function getCommentId(row: Element | null | undefined, comhead: Element | null | undefined): string {
   if (!row) {
     return "";
   }
@@ -315,13 +225,7 @@ export function getCommentId(row: Element | null, comhead?: Element | null): str
   return params.get("id") || "";
 }
 
-/**
- * Get reply link href from a comment row or comhead element
- * @param row - The comment row element
- * @param comhead - Optional comhead element within the row
- * @returns Reply href string, or empty string if not found
- */
-export function getReplyHref(row: Element | null, comhead?: Element | null): string {
+export function getReplyHref(row: Element | null | undefined, comhead: Element | null | undefined): string {
   if (!row) {
     return "";
   }
@@ -336,31 +240,35 @@ export function getReplyHref(row: Element | null, comhead?: Element | null): str
   return link?.getAttribute("href") || "";
 }
 
-// Legacy global export for compatibility
-const ZenHnLogic = {
-  buildVoteHref,
-  buildCommentHref,
-  buildItemHref,
-  resolveVoteItemId,
-  resolveSubmissionCopyHref,
-  toggleVoteState,
-  toggleFavoriteState,
-  willFavoriteFromHref,
-  buildMenuItem,
-  buildMenuItems,
-  isInteractiveElement,
-  addSubmissionClickHandler,
-  addCommentClickHandler,
-  getVoteState,
-  buildNextFavoriteHref,
-  resolveHrefWithBase,
-  isUserProfilePage,
-  getIndentLevelFromRow,
-  getIndentLevelFromItem,
-  getCommentId,
-  getReplyHref,
-};
+function isInteractiveElement(element: EventTarget | null): boolean {
+  if (!element || !(element instanceof HTMLElement)) {
+    return false;
+  }
+  const tagName = element.tagName.toLowerCase();
+  if (tagName === "a" || tagName === "button" || tagName === "input" || tagName === "select" || tagName === "textarea") {
+    return true;
+  }
+  if (element.getAttribute("role") === "button") {
+    return true;
+  }
+  return false;
+}
 
-(globalThis as Record<string, unknown>).ZenHnLogic = ZenHnLogic;
+export function addSubmissionClickHandler(element: HTMLElement, itemId: string | null | undefined): void {
+  if (!itemId) return;
+  element.addEventListener("click", (event: MouseEvent) => {
+    if (isInteractiveElement(event.target)) {
+      return;
+    }
+    globalThis.location!.href = `/item?id=${itemId}`;
+  });
+}
 
-export default ZenHnLogic;
+export function addCommentClickHandler(element: HTMLElement, toggleFn: (el: HTMLElement) => void): void {
+  element.addEventListener("click", (event: MouseEvent) => {
+    if (isInteractiveElement(event.target)) {
+      return;
+    }
+    toggleFn(element);
+  });
+}
