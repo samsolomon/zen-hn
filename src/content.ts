@@ -104,6 +104,8 @@ export {
   type SubmitResult,
 } from "./replyForm";
 
+export { buildSidebarNavigation, runSidebarWhenReady } from "./sidebar";
+
 export {
   buildVoteHref,
   buildCommentHref,
@@ -238,6 +240,11 @@ import {
   submitReply,
 } from "./replyForm";
 
+import {
+  buildSidebarNavigation,
+  runSidebarWhenReady,
+} from "./sidebar";
+
 // Expose on globalThis for content.js to access
 (globalThis as Record<string, unknown>).ZenHnIcons = {
   PHOSPHOR_SVGS,
@@ -324,6 +331,11 @@ import {
   resolveReplyFormFromElement,
   submitReplyWithResolved,
   submitReply,
+};
+
+(globalThis as Record<string, unknown>).ZenHnSidebar = {
+  buildSidebarNavigation,
+  runSidebarWhenReady,
 };
 
 (globalThis as Record<string, unknown>).ZenHnLogic = {
