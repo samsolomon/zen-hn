@@ -3,25 +3,25 @@
  *
  * Shortcuts:
  * - j/k: Move focus down/up through items
- * - Enter/o: Open focused item
+ * - Enter: Open focused item
  * - O: Open in new tab
  * - u: Upvote
  * - f: Favorite/bookmark
  * - c: Create/submit
  * - Space: Expand/collapse comment
  * - l: Copy link
- * - r: Random story
  * - g+h: Go to Home
  * - g+n: Go to Newest
  * - g+a: Go to Active (now called "front" on HN)
  * - g+b: Go to Best
  * - g+s: Go to Ask
  * - g+t: Go to Submit
+ * - g+r: Random story
  * - ?: Show help modal
  * - Escape: Clear focus / close modal
  */
 
-import { handleRandomItemClick } from "./random";
+import { fetchNewestItemId, resolveRandomStoryHref } from "./random";
 import { toggleCommentCollapse } from "./commentCollapse";
 
 const FOCUS_CLASS = "is-keyboard-focused";
@@ -244,12 +244,15 @@ function copyLinkFocusedItem(): void {
  * Navigate to random story
  */
 async function goToRandomStory(): Promise<void> {
-  // Create a fake event for the random handler
-  const fakeEvent = {
-    preventDefault: () => {},
-    currentTarget: document.createElement("a"),
-  } as unknown as Event;
-  await handleRandomItemClick(fakeEvent);
+  const newestId = await fetchNewestItemId();
+  const randomHref = await resolveRandomStoryHref(newestId);
+  if (randomHref) {
+    window.location.href = randomHref;
+  } else if (newestId) {
+    window.location.href = `item?id=${newestId}`;
+  } else {
+    window.location.href = "/newest";
+  }
 }
 
 /**
@@ -265,7 +268,15 @@ function executeChordShortcut(key: string): boolean {
     t: "/submit",
   };
 
-  const route = routes[key.toLowerCase()];
+  const lowerKey = key.toLowerCase();
+
+  // Random story
+  if (lowerKey === "r") {
+    goToRandomStory();
+    return true;
+  }
+
+  const route = routes[lowerKey];
   if (route) {
     window.location.href = route;
     return true;
@@ -312,20 +323,20 @@ function showHelpModal(): void {
 
   const shortcuts = [
     { key: "j / k / ↓ / ↑", action: "Move focus down / up" },
-    { key: "Enter / o", action: "Open comments" },
+    { key: "Enter", action: "Open comments" },
     { key: "O", action: "Open comments in new tab" },
     { key: "u", action: "Upvote" },
     { key: "f", action: "Favorite / bookmark" },
     { key: "c", action: "Create / submit" },
     { key: "Space", action: "Expand / collapse comment" },
     { key: "l", action: "Copy link" },
-    { key: "r", action: "Random story" },
     { key: "g h", action: "Go to Home" },
     { key: "g n", action: "Go to Newest" },
     { key: "g a", action: "Go to Active" },
     { key: "g b", action: "Go to Best" },
     { key: "g s", action: "Go to Ask" },
     { key: "g t", action: "Go to Submit" },
+    { key: "g r", action: "Random story" },
     { key: "?", action: "Show this help" },
     { key: "Esc", action: "Back / clear focus / close" },
   ];
@@ -486,7 +497,7 @@ function handleKeyDown(event: KeyboardEvent): void {
   }
 
   // Open item
-  if (key === "Enter" || key === "o") {
+  if (key === "Enter") {
     if (focusedItem) {
       event.preventDefault();
       openFocusedItem(false);
@@ -543,12 +554,6 @@ function handleKeyDown(event: KeyboardEvent): void {
     return;
   }
 
-  // Random story
-  if (key === "r") {
-    event.preventDefault();
-    goToRandomStory();
-    return;
-  }
 }
 
 /**
