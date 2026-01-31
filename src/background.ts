@@ -111,12 +111,29 @@ async function revokeExternalSitePermissions(): Promise<boolean> {
 }
 
 /**
+ * Check if the external site script is already registered
+ */
+async function isExternalScriptRegistered(): Promise<boolean> {
+  try {
+    const scripts = await chrome.scripting.getRegisteredContentScripts({
+      ids: [EXTERNAL_SCRIPT_ID],
+    });
+    return scripts.length > 0;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Register the external site escape content script
  */
 async function registerExternalSiteScript(): Promise<void> {
   try {
-    // First try to unregister if it exists
-    await unregisterExternalSiteScript();
+    // Check if already registered to avoid duplicate ID error
+    const alreadyRegistered = await isExternalScriptRegistered();
+    if (alreadyRegistered) {
+      return;
+    }
 
     await chrome.scripting.registerContentScripts([
       {
@@ -131,7 +148,7 @@ async function registerExternalSiteScript(): Promise<void> {
       },
     ]);
   } catch (error) {
-    // Script may already be registered, ignore
+    // Log but don't throw - registration may have failed for various reasons
     console.error("Failed to register external site script:", error);
   }
 }
