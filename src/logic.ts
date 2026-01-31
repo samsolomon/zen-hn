@@ -272,3 +272,13 @@ export function addCommentClickHandler(element: HTMLElement, toggleFn: (el: HTML
     toggleFn(element);
   });
 }
+
+export function getCommentRows(table: Element | null): HTMLTableRowElement[] {
+  if (!table) {
+    return [];
+  }
+  const rows = Array.from(table.querySelectorAll<HTMLTableRowElement>("tr.athing"));
+  return rows.filter(
+    (row) => row.classList.contains("comtr") || row.querySelector(".comment .commtext")
+  );
+}

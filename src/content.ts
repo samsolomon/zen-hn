@@ -92,6 +92,8 @@ export {
   runCommentCollapseWhenReady,
 } from "./commentCollapse";
 
+export { buildCommentItem, type BuildCommentItemOptions } from "./buildCommentItem";
+
 export {
   resolveFavoriteLink,
   resolveStoryFavoriteLink,
@@ -135,6 +137,7 @@ export {
   getReplyHref,
   addSubmissionClickHandler,
   addCommentClickHandler,
+  getCommentRows,
   type VoteState,
   type MenuItem,
 } from "./logic";
@@ -228,6 +231,7 @@ import {
   getReplyHref,
   addSubmissionClickHandler,
   addCommentClickHandler,
+  getCommentRows,
 } from "./logic";
 
 import {
@@ -391,4 +395,5 @@ import {
   getReplyHref,
   addSubmissionClickHandler,
   addCommentClickHandler,
+  getCommentRows,
 };
