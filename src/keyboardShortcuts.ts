@@ -6,8 +6,9 @@
  * - Enter/o: Open focused item
  * - O: Open in new tab
  * - u: Upvote
- * - s: Save/bookmark
- * - c: Go to comments (list) / collapse (comment page)
+ * - f: Favorite/bookmark
+ * - c: Go to comments
+ * - Space: Expand/collapse comment
  * - l: Copy link
  * - r: Random story
  * - g+h: Go to Home
@@ -247,23 +248,17 @@ function copyLinkFocusedItem(): void {
 }
 
 /**
- * Go to comments or collapse comment
+ * Go to comments for the focused submission
  */
-function handleCommentsAction(): void {
-  // On comment pages, collapse the focused comment
-  if (focusedItem?.classList.contains("hn-comment")) {
-    toggleCommentCollapse(focusedItem);
+function goToComments(): void {
+  if (!focusedItem) {
     return;
   }
-
-  // On list pages, go to comments for the focused submission
-  if (focusedItem) {
-    const commentsLink = focusedItem.querySelector<HTMLAnchorElement>(
-      ".hn-submission-comments"
-    );
-    if (commentsLink) {
-      window.location.href = commentsLink.href;
-    }
+  const commentsLink = focusedItem.querySelector<HTMLAnchorElement>(
+    ".hn-submission-comments"
+  );
+  if (commentsLink) {
+    window.location.href = commentsLink.href;
   }
 }
 
@@ -342,8 +337,9 @@ function showHelpModal(): void {
     { key: "Enter / o", action: "Open comments" },
     { key: "O", action: "Open comments in new tab" },
     { key: "u", action: "Upvote" },
-    { key: "s", action: "Save / bookmark" },
-    { key: "c", action: "Comments / collapse" },
+    { key: "f", action: "Favorite / bookmark" },
+    { key: "c", action: "Go to comments" },
+    { key: "Space", action: "Expand / collapse comment" },
     { key: "l", action: "Copy link" },
     { key: "r", action: "Random story" },
     { key: "g h", action: "Go to Home" },
@@ -532,7 +528,7 @@ function handleKeyDown(event: KeyboardEvent): void {
     return;
   }
 
-  if (key === "s") {
+  if (key === "f") {
     if (focusedItem) {
       event.preventDefault();
       bookmarkFocusedItem();
@@ -543,7 +539,16 @@ function handleKeyDown(event: KeyboardEvent): void {
   if (key === "c") {
     if (focusedItem) {
       event.preventDefault();
-      handleCommentsAction();
+      goToComments();
+    }
+    return;
+  }
+
+  // Spacebar to expand/collapse comments
+  if (key === " ") {
+    if (focusedItem?.classList.contains("hn-comment")) {
+      event.preventDefault();
+      toggleCommentCollapse(focusedItem);
     }
     return;
   }
