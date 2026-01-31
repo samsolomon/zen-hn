@@ -1,19 +1,7 @@
-const ZEN_LOGIC = globalThis.ZenHnLogic;
-const ZEN_UTILS = globalThis.ZenHnUtils;
-const ZEN_PAGES = globalThis.ZenHnPages;
-const ZEN_ACTION_STORE = globalThis.ZenHnActionStore;
-const ZEN_SUBMISSION_MENU = globalThis.ZenHnSubmissionMenu;
-const ZEN_RANDOM = globalThis.ZenHnRandom;
-const ZEN_COMMENT_COLLAPSE = globalThis.ZenHnCommentCollapse;
-const ZEN_FAVORITES = globalThis.ZenHnFavorites;
-const ZEN_REPLY_FORM = globalThis.ZenHnReplyForm;
-const ZEN_SIDEBAR = globalThis.ZenHnSidebar;
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
-const ZEN_HN_SUBMISSIONS_KEY = "zenHnSubmissions";
-const ZEN_RESTYLE_SUBMISSIONS = globalThis.ZenHnRestyleSubmissions;
-const ZEN_BUILD_COMMENT = globalThis.ZenHnBuildCommentItem;
-const ZEN_RESTYLE_FATITEM = globalThis.ZenHnRestyleFatItem;
-const ZEN_RESTYLE_COMMENTS = globalThis.ZenHnRestyleComments;
+const ZEN_COLOR_MODE = globalThis.ZenHnColorMode;
+const ZEN_SIDEBAR = globalThis.ZenHnSidebar;
+const ZEN_COMMENT_COLLAPSE = globalThis.ZenHnCommentCollapse;
 const ZEN_INIT_RESTYLE = globalThis.ZenHnInitRestyle;
 
 document.documentElement.dataset.zenHnActive = "true";
@@ -26,23 +14,6 @@ if (window.location.pathname === "/item") {
   document.documentElement.dataset[ZEN_HN_RESTYLE_KEY] = "loading";
 }
 
-const SUBMISSION_MENU_CLASS = ZEN_SUBMISSION_MENU.SUBMISSION_MENU_CLASS;
-const SUBMISSION_MENU_OPEN_CLASS = ZEN_SUBMISSION_MENU.SUBMISSION_MENU_OPEN_CLASS;
-const setSubmissionMenuState = ZEN_SUBMISSION_MENU.setSubmissionMenuState;
-const closeAllSubmissionMenus = ZEN_SUBMISSION_MENU.closeAllSubmissionMenus;
-const registerSubmissionMenuListeners = ZEN_SUBMISSION_MENU.registerSubmissionMenuListeners;
-
-const setCollapseButtonState = ZEN_COMMENT_COLLAPSE.setCollapseButtonState;
-const hideDescendantComments = ZEN_COMMENT_COLLAPSE.hideDescendantComments;
-const restoreDescendantVisibility = ZEN_COMMENT_COLLAPSE.restoreDescendantVisibility;
-const toggleCommentCollapse = ZEN_COMMENT_COLLAPSE.toggleCommentCollapse;
-
-// Color mode control functions from TypeScript
-const ZEN_COLOR_MODE = globalThis.ZenHnColorMode;
-const ZEN_ICONS = globalThis.ZenHnIcons;
-
-const renderIcon = ZEN_ICONS.renderIcon;
-
 // Initialize color mode and theme from storage on startup
 ZEN_COLOR_MODE.initColorMode();
 ZEN_COLOR_MODE.initTheme();
@@ -50,153 +21,19 @@ ZEN_COLOR_MODE.initTheme();
 // Listen for system color scheme changes
 ZEN_COLOR_MODE.listenForSystemColorModeChanges();
 
-function getOrCreateZenHnMain() {
-  return globalThis.ZenHnMain.getOrCreateZenHnMain();
-}
-
-function buildSidebarNavigation() {
-  return ZEN_SIDEBAR.buildSidebarNavigation();
-}
-
-function registerCommentCollapseListeners() {
-  return ZEN_COMMENT_COLLAPSE.registerCommentCollapseListeners();
-}
-
-function initCommentCollapse() {
-  return ZEN_COMMENT_COLLAPSE.initCommentCollapse();
-}
-
-// function buildSubnav() {
-//   if (document.getElementById("zen-hn-subnav")) {
-//     return true;
-//   }
-//
-//   const subnavLinks = [
-//     { href: "/front", label: "Front" },
-//     { href: "/pool", label: "Pool" },
-//     { href: "/invited", label: "Invited" },
-//     { href: "/shownew", label: "Show New" },
-//     { href: "/asknew", label: "Ask New" },
-//     { href: "/best", label: "Best" },
-//     { href: "/active", label: "Active" },
-//     { href: "/classic", label: "Classic" },
-//     { href: "/launches", label: "Launches" },
-//   ];
-//
-//   const nav = document.createElement("nav");
-//   nav.id = "zen-hn-subnav";
-//   nav.className = "zen-hn-subnav";
-//   nav.setAttribute("aria-label", "Secondary navigation");
-//
-//   const list = document.createElement("ul");
-//   list.className = "zen-hn-subnav-list";
-//
-//   const currentPath = window.location.pathname;
-//
-//   subnavLinks.forEach((item) => {
-//     const li = document.createElement("li");
-//     li.className = "zen-hn-subnav-item";
-//
-//     const link = document.createElement("a");
-//     link.className = "zen-hn-subnav-link";
-//     link.href = item.href;
-//     link.textContent = item.label;
-//
-//     if (currentPath === item.href) {
-//       link.classList.add("is-active");
-//       link.setAttribute("aria-current", "page");
-//     }
-//
-//     li.appendChild(link);
-//     list.appendChild(li);
-//   });
-//
-//   nav.appendChild(list);
-//   document.body.appendChild(nav);
-//   document.documentElement.dataset.zenHnSubnav = "true";
-//
-//   return true;
-// }
-
-function runSidebarWhenReady() {
-  ZEN_SIDEBAR.runSidebarWhenReady();
-}
-
-function runCommentCollapseWhenReady() {
-  return ZEN_COMMENT_COLLAPSE.runCommentCollapseWhenReady();
-}
-
+// Run comment collapse early on item pages
 if (window.location.pathname === "/item") {
-  runCommentCollapseWhenReady();
+  ZEN_COMMENT_COLLAPSE.runCommentCollapseWhenReady();
 }
 
-function loadActionStore() {
-  return ZEN_ACTION_STORE.loadActionStore();
-}
+// Initialize sidebar
+ZEN_SIDEBAR.runSidebarWhenReady();
 
-function getStoredAction(kind, id) {
-  return ZEN_ACTION_STORE.getStoredAction(kind, id);
-}
-
-function updateStoredAction(kind, id, update) {
-  return ZEN_ACTION_STORE.updateStoredAction(kind, id, update);
-}
-
-const resolveFavoriteLink = ZEN_FAVORITES.resolveFavoriteLink;
-const resolveStoryFavoriteLink = ZEN_FAVORITES.resolveStoryFavoriteLink;
-
-const resolveReplyForm = ZEN_REPLY_FORM.resolveReplyForm;
-const resolveReplyFormFromElement = ZEN_REPLY_FORM.resolveReplyFormFromElement;
-const submitReplyWithResolved = ZEN_REPLY_FORM.submitReplyWithResolved;
-const submitReply = ZEN_REPLY_FORM.submitReply;
-
-function restyleSubmissions() {
-  return ZEN_RESTYLE_SUBMISSIONS.restyleSubmissions();
-}
-
-function restyleSubmitPage() {
-  return ZEN_PAGES.restyleSubmitPage();
-}
-
-function restyleUserPage() {
-  return ZEN_PAGES.restyleUserPage();
-}
-
-function restyleFatItem() {
-  return ZEN_RESTYLE_FATITEM.restyleFatItem();
-}
-
-function buildCommentItem(row, options = {}) {
-  return ZEN_BUILD_COMMENT.buildCommentItem(row, options);
-}
-
-function restyleComments(context) {
-  return ZEN_RESTYLE_COMMENTS.restyleComments(context);
-}
-
-function getCommentRows(table) {
-  return ZEN_LOGIC.getCommentRows(table);
-}
-
-function findCommentContext() {
-  return ZEN_RESTYLE_COMMENTS.findCommentContext();
-}
-
-function runRestyleWhenReady() {
-  return ZEN_RESTYLE_COMMENTS.runRestyleWhenReady();
-}
-
-function initRestyle() {
-  return ZEN_INIT_RESTYLE.initRestyle();
-}
-
-runSidebarWhenReady();
-
+// Initialize restyling when DOM is ready
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => {
-    initRestyle();
+    ZEN_INIT_RESTYLE.initRestyle();
   });
 } else {
-  initRestyle();
+  ZEN_INIT_RESTYLE.initRestyle();
 }
-
