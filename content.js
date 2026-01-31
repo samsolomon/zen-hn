@@ -94,6 +94,7 @@ const ZEN_SUBMISSION_MENU = globalThis.ZenHnSubmissionMenu;
 const ZEN_RANDOM = globalThis.ZenHnRandom;
 const ZEN_COMMENT_COLLAPSE = globalThis.ZenHnCommentCollapse;
 const ZEN_FAVORITES = globalThis.ZenHnFavorites;
+const ZEN_REPLY_FORM = globalThis.ZenHnReplyForm;
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
 const ZEN_HN_SUBMISSIONS_KEY = "zenHnSubmissions";
 
@@ -461,111 +462,13 @@ function updateStoredAction(kind, id, update) {
   return ZEN_ACTION_STORE.updateStoredAction(kind, id, update);
 }
 
-async function resolveReplyForm(replyHref) {
-  if (!replyHref) {
-    return null;
-  }
-  const response = await fetch(replyHref, {
-    credentials: "same-origin",
-    cache: "no-store",
-  });
-  if (!response.ok) {
-    return null;
-  }
-  const html = await response.text();
-  const doc = new DOMParser().parseFromString(html, "text/html");
-  const form = doc.querySelector("form");
-  if (!form) {
-    return null;
-  }
-  const action = form.getAttribute("action") || "";
-  const method = (form.getAttribute("method") || "post").toUpperCase();
-  const inputs = Array.from(form.querySelectorAll("input[name]"));
-  const fields = {};
-  inputs.forEach((input) => {
-    fields[input.name] = input.value || "";
-  });
-  const textName = form.querySelector("textarea[name]")?.getAttribute("name") || "text";
-  const actionUrl = new URL(action || response.url, response.url).toString();
-  return {
-    actionUrl,
-    method,
-    fields,
-    textName,
-  };
-}
-
-function resolveReplyFormFromElement(form) {
-  if (!form) {
-    return null;
-  }
-  const action = form.getAttribute("action") || "";
-  const method = (form.getAttribute("method") || "post").toUpperCase();
-  const inputs = Array.from(form.querySelectorAll("input[name]"));
-  const fields = {};
-  inputs.forEach((input) => {
-    fields[input.name] = input.value || "";
-  });
-  const textName = form.querySelector("textarea[name]")?.getAttribute("name") || "text";
-  const actionUrl = new URL(action || window.location.href, window.location.href).toString();
-  return {
-    actionUrl,
-    method,
-    fields,
-    textName,
-  };
-}
-
-async function submitReplyWithResolved(resolved, text) {
-  if (!resolved) {
-    return { ok: false };
-  }
-  const payload = new URLSearchParams({
-    ...resolved.fields,
-    [resolved.textName]: text,
-  });
-  let response = null;
-  if (resolved.method === "GET") {
-    const url = new URL(resolved.actionUrl);
-    payload.forEach((value, key) => {
-      url.searchParams.set(key, value);
-    });
-    response = await fetch(url.toString(), {
-      credentials: "same-origin",
-      cache: "no-store",
-    });
-  } else {
-    response = await fetch(resolved.actionUrl, {
-      method: resolved.method,
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: payload.toString(),
-      credentials: "same-origin",
-      cache: "no-store",
-    });
-  }
-  return {
-    ok: response?.ok,
-    status: response?.status,
-  };
-}
-
-async function submitReply(replyHref, text) {
-  try {
-    const resolved = await resolveReplyForm(replyHref);
-    if (!resolved) {
-      return { ok: false };
-    }
-    return await submitReplyWithResolved(resolved, text);
-  } catch (error) {
-    return { ok: false };
-  }
-}
-
-
 const resolveFavoriteLink = ZEN_FAVORITES.resolveFavoriteLink;
 const resolveStoryFavoriteLink = ZEN_FAVORITES.resolveStoryFavoriteLink;
+
+const resolveReplyForm = ZEN_REPLY_FORM.resolveReplyForm;
+const resolveReplyFormFromElement = ZEN_REPLY_FORM.resolveReplyFormFromElement;
+const submitReplyWithResolved = ZEN_REPLY_FORM.submitReplyWithResolved;
+const submitReply = ZEN_REPLY_FORM.submitReply;
 
 function restyleSubmissions() {
   if (ZEN_LOGIC.isUserProfilePage()) {

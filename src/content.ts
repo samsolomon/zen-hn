@@ -95,6 +95,15 @@ export {
   type FavoriteLinkResult,
 } from "./favorites";
 
+export {
+  resolveReplyForm,
+  resolveReplyFormFromElement,
+  submitReplyWithResolved,
+  submitReply,
+  type ResolvedReplyForm,
+  type SubmitResult,
+} from "./replyForm";
+
 // Import everything for globalThis exposure
 import {
   PHOSPHOR_SVGS,
@@ -178,6 +187,13 @@ import {
   resolveStoryFavoriteLink,
 } from "./favorites";
 
+import {
+  resolveReplyForm,
+  resolveReplyFormFromElement,
+  submitReplyWithResolved,
+  submitReply,
+} from "./replyForm";
+
 // Expose on globalThis for content.js to access
 (globalThis as Record<string, unknown>).ZenHnIcons = {
   PHOSPHOR_SVGS,
@@ -257,4 +273,11 @@ import {
 (globalThis as Record<string, unknown>).ZenHnFavorites = {
   resolveFavoriteLink,
   resolveStoryFavoriteLink,
+};
+
+(globalThis as Record<string, unknown>).ZenHnReplyForm = {
+  resolveReplyForm,
+  resolveReplyFormFromElement,
+  submitReplyWithResolved,
+  submitReply,
 };
