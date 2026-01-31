@@ -6,8 +6,8 @@ Purpose
 - This guide focuses on safe defaults and discovery steps for agentic work.
 
 Repository state
-- Root contains: `README.md`, `LICENSE`, `manifest.json`, `content.js`, `styles.css`, `logic.js`, `package.json`, `tests/`.
-- TypeScript source files are in `src/` (e.g., `content.ts`, `theme.ts`, `icons.ts`, `random.ts`).
+- Root contains: `README.md`, `LICENSE`, `manifest.json`, `styles.css`, `package.json`, `tests/`.
+- All source code is TypeScript in `src/`.
 - Built assets are output to `dist/` and loaded by the Chrome extension.
 - No `pyproject.toml`, `Cargo.toml`, `go.mod`, `Makefile`, or similar.
 - No Cursor rules in `.cursor/rules/` or `.cursorrules`.
@@ -44,14 +44,9 @@ General
 - Minimize global state and side effects.
 
 Language
-- Default language: TypeScript (.ts / .tsx).
-- All new code must be written in TypeScript. Do not write JavaScript.
-- When adding features that require changes to existing JavaScript files (e.g., `content.js`), refactor the affected code into TypeScript modules in `src/`.
-- TypeScript modules are bundled via esbuild and exposed on `globalThis` for `content.js` to consume.
-- Pattern for migrating JS to TS:
-  1. Write the new logic in a TypeScript file under `src/`.
-  2. Export functions from `src/content.ts` and expose them on `globalThis`.
-  3. Update `content.js` to use the TypeScript implementation via `globalThis`.
+- The codebase is 100% TypeScript. Do not write JavaScript.
+- TypeScript modules are bundled via esbuild.
+- Entry point is `src/main.ts` which imports and initializes all modules.
 - TypeScript must compile under `strict: true`.
 - Avoid `any`; prefer `unknown` and explicit narrowing.
 - Do not add types that don't reflect runtime behavior.
@@ -169,10 +164,23 @@ Future section placeholders
 
 Module layout
 - `src/` - TypeScript source files
-  - `content.ts` - Entry point that exports all modules and exposes them on `globalThis`
-  - `theme.ts` - Theme toggle utilities (light/dark/system)
+  - `main.ts` - Entry point that initializes the extension
+  - `content.ts` - Barrel file that exports all modules and exposes them on `globalThis`
+  - `logic.ts` - Core utility functions (vote handling, URL building, etc.)
   - `icons.ts` - Phosphor icon SVG definitions
+  - `colorMode.ts` - Theme and color mode utilities (light/dark/system)
+  - `sidebar.ts` - Sidebar navigation
+  - `commentCollapse.ts` - Comment collapse/expand functionality
+  - `buildCommentItem.ts` - Comment item rendering
+  - `restyleFatItem.ts` - Fat item (story detail) restyling
+  - `restyleComments.ts` - Comment list restyling
+  - `restyleSubmissions.ts` - Submission list restyling
+  - `initRestyle.ts` - Main restyling initialization
+  - `pages.ts` - Page-specific restyling (user, submit, etc.)
+  - `actionStore.ts` - Persistent storage for user actions
+  - `favorites.ts` - Favorite link resolution
+  - `replyForm.ts` - Reply form handling
   - `random.ts` - Random item utilities
+  - `utils.ts` - General utility functions
 - `tests/` - Test files (`.test.js` for JS, `.test.ts` for TS)
 - `dist/` - Built output (do not edit directly)
-- Root JS files (`content.js`, `logic.js`) - Legacy entry points that consume TypeScript via `globalThis`
