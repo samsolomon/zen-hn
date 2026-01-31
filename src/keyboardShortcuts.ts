@@ -168,16 +168,23 @@ function moveFocus(direction: "up" | "down"): void {
 
 /**
  * Open the focused item's story link (the actual article URL)
+ * Also works on item pages to open the fatitem title link
  */
 function openStoryLink(newTab: boolean): void {
-  if (!focusedItem) {
-    return;
+  let titleLink: HTMLAnchorElement | null = null;
+
+  // If there's a focused item, find its title link
+  if (focusedItem) {
+    titleLink = focusedItem.querySelector<HTMLAnchorElement>(
+      ".hn-submission-title"
+    );
   }
 
-  // For submissions, find the title link
-  const titleLink = focusedItem.querySelector<HTMLAnchorElement>(
-    ".hn-submission-title"
-  );
+  // If no focused item or no link found, try the fatitem title (item pages)
+  if (!titleLink) {
+    titleLink = document.querySelector<HTMLAnchorElement>(".hn-fatitem-title");
+  }
+
   if (titleLink) {
     if (newTab) {
       window.open(titleLink.href, "_blank");
@@ -451,8 +458,7 @@ function showHelpModal(): void {
   const shortcuts = [
     { key: "j / k / ↓ / ↑", action: "Move focus down / up" },
     { key: "Enter", action: "Open comments" },
-    { key: "Shift + Enter", action: "Open story link" },
-    { key: "O", action: "Open comments in new tab" },
+    { key: "o / Shift + Enter", action: "Open story link" },
     { key: "u", action: "Upvote" },
     { key: "f", action: "Favorite / bookmark" },
     { key: "c", action: "Create / submit" },
@@ -654,11 +660,10 @@ function handleKeyDown(event: KeyboardEvent): void {
     return;
   }
 
-  if (key === "O") {
-    if (focusedItem) {
-      event.preventDefault();
-      openFocusedItem(true);
-    }
+  // o to open story link (also works on item pages)
+  if (key === "o") {
+    event.preventDefault();
+    openStoryLink(false);
     return;
   }
 
