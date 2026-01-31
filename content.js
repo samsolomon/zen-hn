@@ -91,6 +91,7 @@ const ZEN_UTILS = globalThis.ZenHnUtils;
 const ZEN_PAGES = globalThis.ZenHnPages;
 const ZEN_ACTION_STORE = globalThis.ZenHnActionStore;
 const ZEN_SUBMISSION_MENU = globalThis.ZenHnSubmissionMenu;
+const ZEN_RANDOM = globalThis.ZenHnRandom;
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
 const ZEN_HN_SUBMISSIONS_KEY = "zenHnSubmissions";
 
@@ -124,112 +125,7 @@ const setSubmissionMenuState = ZEN_SUBMISSION_MENU.setSubmissionMenuState;
 const closeAllSubmissionMenus = ZEN_SUBMISSION_MENU.closeAllSubmissionMenus;
 const registerSubmissionMenuListeners = ZEN_SUBMISSION_MENU.registerSubmissionMenuListeners;
 
-const RANDOM_ITEM_MAX_ATTEMPTS = 6;
-
-function parseItemIdFromDocument(doc) {
-  if (!doc) {
-    return "";
-  }
-  const rowId = ZEN_UTILS.normalizeItemId(doc.querySelector("tr.athing[id]")?.getAttribute("id"));
-  if (rowId) {
-    return rowId;
-  }
-  const linkHref = doc.querySelector("a[href^='item?id=']")?.getAttribute("href") || "";
-  const params = ZEN_UTILS.getHrefParams(linkHref);
-  return ZEN_UTILS.normalizeItemId(params.get("id"));
-}
-
-async function fetchNewestItemId() {
-  try {
-    const response = await fetch("/newest", {
-      credentials: "same-origin",
-      cache: "no-store",
-    });
-    if (!response.ok) {
-      return "";
-    }
-    const html = await response.text();
-    const doc = new DOMParser().parseFromString(html, "text/html");
-    return parseItemIdFromDocument(doc);
-  } catch (error) {
-    return "";
-  }
-}
-
-async function resolveStoryHrefFromItem(itemId) {
-  if (!itemId) {
-    return "";
-  }
-  try {
-    const response = await fetch(`item?id=${itemId}`, {
-      credentials: "same-origin",
-      cache: "no-store",
-    });
-    if (!response.ok) {
-      return "";
-    }
-    const html = await response.text();
-    if (/No such item/i.test(html)) {
-      return "";
-    }
-    const doc = new DOMParser().parseFromString(html, "text/html");
-    const onStoryHref = doc.querySelector(".onstory a")?.getAttribute("href") || "";
-    if (onStoryHref) {
-      return ZEN_LOGIC.resolveHrefWithBase(onStoryHref, response.url);
-    }
-    const storyHref = ZEN_LOGIC.buildItemHref(itemId, response.url) || `item?id=${itemId}`;
-    return ZEN_LOGIC.resolveHrefWithBase(storyHref, response.url);
-  } catch (error) {
-    return "";
-  }
-}
-
-async function resolveRandomStoryHref(maxId) {
-  const max = Number.parseInt(maxId || "", 10);
-  if (!Number.isFinite(max) || max < 1) {
-    return "";
-  }
-  const maxString = String(max);
-  for (let attempt = 0; attempt < RANDOM_ITEM_MAX_ATTEMPTS; attempt += 1) {
-    const candidate = Math.floor(Math.random() * max) + 1;
-    const storyHref = await resolveStoryHrefFromItem(candidate);
-    if (storyHref) {
-      return storyHref;
-    }
-  }
-  return ZEN_LOGIC.buildItemHref(maxString, window.location.href)
-    || `item?id=${maxString}`;
-}
-
-async function handleRandomItemClick(event) {
-  event.preventDefault();
-  const link = event.currentTarget;
-  if (link?.dataset?.randomPending === "true") {
-    return;
-  }
-  if (link) {
-    link.dataset.randomPending = "true";
-    link.setAttribute("aria-busy", "true");
-  }
-  try {
-    const newestId = await fetchNewestItemId();
-    const randomHref = await resolveRandomStoryHref(newestId);
-    if (!randomHref && !newestId) {
-      window.location.href = "/newest";
-      return;
-    }
-    const fallbackHref = newestId
-      ? (ZEN_LOGIC.buildItemHref(newestId, window.location.href) || `item?id=${newestId}`)
-      : "/newest";
-    const targetHref = randomHref || fallbackHref;
-    window.location.href = targetHref;
-  } finally {
-    if (link) {
-      delete link.dataset.randomPending;
-      link.removeAttribute("aria-busy");
-    }
-  }
-}
+const handleRandomItemClick = ZEN_RANDOM.handleRandomItemClick;
 
 // Color mode control functions from TypeScript
 const ZEN_COLOR_MODE = globalThis.ZenHnColorMode;

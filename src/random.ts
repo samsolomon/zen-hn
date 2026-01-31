@@ -7,6 +7,9 @@ interface ZenLogic {
 declare const ZEN_LOGIC: ZenLogic;
 
 export function parseItemIdFromHref(href: string): string {
+  if (!href) {
+    return "";
+  }
   const match = href.match(/item\?id=(\d+)/);
   return match ? match[1] : "";
 }

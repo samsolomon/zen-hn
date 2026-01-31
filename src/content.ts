@@ -72,6 +72,16 @@ export {
   registerSubmissionMenuListeners,
 } from "./submissionMenu";
 
+export {
+  RANDOM_ITEM_MAX_ATTEMPTS,
+  parseItemIdFromHref,
+  parseMaxId,
+  fetchNewestItemId,
+  resolveHrefWithBase,
+  resolveRandomStoryHref,
+  handleRandomItemClick,
+} from "./random";
+
 // Import everything for globalThis exposure
 import {
   PHOSPHOR_SVGS,
@@ -130,6 +140,16 @@ import {
   closeAllSubmissionMenus,
   registerSubmissionMenuListeners,
 } from "./submissionMenu";
+
+import {
+  RANDOM_ITEM_MAX_ATTEMPTS,
+  parseItemIdFromHref,
+  parseMaxId,
+  fetchNewestItemId,
+  resolveHrefWithBase,
+  resolveRandomStoryHref,
+  handleRandomItemClick,
+} from "./random";
 
 // Import logic module (self-exposes on globalThis)
 import "./logic";
@@ -191,4 +211,14 @@ import "./logic";
   setSubmissionMenuState,
   closeAllSubmissionMenus,
   registerSubmissionMenuListeners,
+};
+
+(globalThis as Record<string, unknown>).ZenHnRandom = {
+  RANDOM_ITEM_MAX_ATTEMPTS,
+  parseItemIdFromHref,
+  parseMaxId,
+  fetchNewestItemId,
+  resolveHrefWithBase,
+  resolveRandomStoryHref,
+  handleRandomItemClick,
 };
