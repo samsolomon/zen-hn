@@ -7,6 +7,7 @@ import { initColorMode, initTheme, listenForSystemColorModeChanges } from "./col
 import { runSidebarWhenReady } from "./sidebar";
 import { runCommentCollapseWhenReady } from "./commentCollapse";
 import { initRestyle } from "./initRestyle";
+import { registerKeyboardShortcuts } from "./keyboardShortcuts";
 
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
 const ENABLED_STORAGE_KEY = "zenHnEnabled";
@@ -89,6 +90,9 @@ async function init(): Promise<void> {
   } else {
     initRestyle();
   }
+
+  // Register keyboard shortcuts
+  registerKeyboardShortcuts();
 }
 
 // Start initialization

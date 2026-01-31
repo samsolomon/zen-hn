@@ -1491,3 +1491,139 @@ html[data-zen-hn-enabled="false"] td {
   display: revert !important;
   visibility: visible !important;
 }
+
+/* ==========================================================================
+   Keyboard Navigation - Focus indicator and help modal
+   ========================================================================== */
+
+/* Focus indicator for keyboard navigation */
+html[data-zen-hn-enabled="true"] .hn-submission.is-keyboard-focused,
+html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused {
+  background-color: var(--color-bg-element);
+  outline: 2px solid var(--color-border);
+  outline-offset: -2px;
+}
+
+/* Show action buttons when item is keyboard-focused */
+html[data-zen-hn-enabled="true"] .hn-submission.is-keyboard-focused .hn-submission-actions,
+html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-comment-actions,
+html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-button {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Keyboard shortcuts help modal */
+.zen-hn-shortcuts-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zen-hn-shortcuts-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.zen-hn-shortcuts-content {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  max-height: 80vh;
+  margin: var(--space-200);
+  padding: var(--space-200);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-200);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15);
+  overflow-y: auto;
+}
+
+.zen-hn-shortcuts-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-200);
+}
+
+.zen-hn-shortcuts-title {
+  font-size: var(--font-size-xl);
+  font-weight: 500;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.zen-hn-shortcuts-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--radius-100);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.zen-hn-shortcuts-close:hover {
+  background-color: var(--color-overlay-hover);
+  color: var(--color-text);
+}
+
+.zen-hn-shortcuts-close:focus-visible {
+  outline: 2px solid var(--color-border);
+  outline-offset: 2px;
+}
+
+.zen-hn-shortcuts-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-75);
+}
+
+.zen-hn-shortcuts-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-150);
+  padding: var(--space-75) 0;
+}
+
+.zen-hn-shortcuts-key {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.zen-hn-shortcuts-key kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-75);
+  background-color: var(--color-bg-subtle);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.zen-hn-shortcuts-action {
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  text-align: right;
+}
