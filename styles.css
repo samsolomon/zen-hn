@@ -777,19 +777,19 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 .hn-reply-textarea {
   width: 100%;
   min-height: 140px;
-  padding: 12px 14px;
+  padding: var(--space-150) var(--space-200);
   border-radius: var(--radius-150);
   border: 1px solid var(--color-border-subtle);
-  background-color: #f7f5ef;
+  background-color: var(--color-bg-subtle);
   color: var(--color-text);
-  font-size: 14px;
+  font-size: var(--font-size-md);
   line-height: 1.5;
   resize: vertical;
 }
 
 .hn-reply-textarea:focus {
   outline: none;
-  border-color: #c8c1b0;
+  border-color: var(--color-border);
   box-shadow: 0 0 0 2px var(--color-focus-ring);
 }
 
