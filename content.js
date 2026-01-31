@@ -92,6 +92,7 @@ const ZEN_PAGES = globalThis.ZenHnPages;
 const ZEN_ACTION_STORE = globalThis.ZenHnActionStore;
 const ZEN_SUBMISSION_MENU = globalThis.ZenHnSubmissionMenu;
 const ZEN_RANDOM = globalThis.ZenHnRandom;
+const ZEN_COMMENT_COLLAPSE = globalThis.ZenHnCommentCollapse;
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
 const ZEN_HN_SUBMISSIONS_KEY = "zenHnSubmissions";
 
@@ -126,6 +127,11 @@ const closeAllSubmissionMenus = ZEN_SUBMISSION_MENU.closeAllSubmissionMenus;
 const registerSubmissionMenuListeners = ZEN_SUBMISSION_MENU.registerSubmissionMenuListeners;
 
 const handleRandomItemClick = ZEN_RANDOM.handleRandomItemClick;
+
+const setCollapseButtonState = ZEN_COMMENT_COLLAPSE.setCollapseButtonState;
+const hideDescendantComments = ZEN_COMMENT_COLLAPSE.hideDescendantComments;
+const restoreDescendantVisibility = ZEN_COMMENT_COLLAPSE.restoreDescendantVisibility;
+const toggleCommentCollapse = ZEN_COMMENT_COLLAPSE.toggleCommentCollapse;
 
 // Color mode control functions from TypeScript
 const ZEN_COLOR_MODE = globalThis.ZenHnColorMode;
@@ -311,6 +317,41 @@ function buildSidebarNavigation() {
   return true;
 }
 
+function registerCommentCollapseListeners() {
+  const commentTree = document.querySelector(".comment-tree");
+  if (!commentTree) {
+    return;
+  }
+  commentTree.addEventListener("click", (event) => {
+    const target = event.target;
+    const collapseButton = target.closest(".hn-collapse-button");
+    if (!collapseButton) {
+      return;
+    }
+    const item = collapseButton.closest(".hn-comment");
+    if (!item) {
+      return;
+    }
+    event.preventDefault();
+    toggleCommentCollapse(item);
+  });
+}
+
+function initCommentCollapse() {
+  const items = document.querySelectorAll(".hn-comment");
+  items.forEach((item) => {
+    const hasChildren = item.dataset.hasChildren === "true";
+    if (!hasChildren) {
+      return;
+    }
+    const existingButton = item.querySelector(".hn-collapse-button");
+    if (existingButton) {
+      const isCollapsed = item.dataset.collapsed === "true";
+      setCollapseButtonState(existingButton, isCollapsed, hasChildren);
+    }
+  });
+}
+
 // function buildSubnav() {
 //   if (document.getElementById("zen-hn-subnav")) {
 //     return true;
@@ -382,6 +423,29 @@ function runSidebarWhenReady() {
     window.requestAnimationFrame(attempt);
   };
   attempt();
+}
+
+function runCommentCollapseWhenReady() {
+  let attempts = 0;
+  const maxAttempts = 60;
+  const attempt = () => {
+    const commentTree = document.querySelector(".comment-tree");
+    if (commentTree) {
+      initCommentCollapse();
+      registerCommentCollapseListeners();
+      return;
+    }
+    attempts += 1;
+    if (attempts >= maxAttempts && document.readyState !== "loading") {
+      return;
+    }
+    window.requestAnimationFrame(attempt);
+  };
+  attempt();
+}
+
+if (window.location.pathname === "/item") {
+  runCommentCollapseWhenReady();
 }
 
 function setCollapseButtonState(button, isCollapsed, hasChildren) {

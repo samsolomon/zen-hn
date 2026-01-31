@@ -82,6 +82,13 @@ export {
   handleRandomItemClick,
 } from "./random";
 
+export {
+  setCollapseButtonState,
+  hideDescendantComments,
+  restoreDescendantVisibility,
+  toggleCommentCollapse,
+} from "./commentCollapse";
+
 // Import everything for globalThis exposure
 import {
   PHOSPHOR_SVGS,
@@ -150,6 +157,13 @@ import {
   resolveRandomStoryHref,
   handleRandomItemClick,
 } from "./random";
+
+import {
+  setCollapseButtonState,
+  hideDescendantComments,
+  restoreDescendantVisibility,
+  toggleCommentCollapse,
+} from "./commentCollapse";
 
 // Import logic module (self-exposes on globalThis)
 import "./logic";
@@ -221,4 +235,11 @@ import "./logic";
   resolveHrefWithBase,
   resolveRandomStoryHref,
   handleRandomItemClick,
+};
+
+(globalThis as Record<string, unknown>).ZenHnCommentCollapse = {
+  setCollapseButtonState,
+  hideDescendantComments,
+  restoreDescendantVisibility,
+  toggleCommentCollapse,
 };
