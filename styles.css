@@ -319,7 +319,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 
 .hn-fatitem-meta .hnuser,
 .hn-fatitem-meta .hn-fatitem-user {
-  font-weight: 600;
+  font-weight: 500;
   color: var(--color-text);
 }
 
@@ -471,7 +471,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 
 .hn-submission-meta .hnuser,
 .hn-submission-meta .hn-submission-user {
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .hn-submission-meta .hnuser:link,
@@ -597,7 +597,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   background-color: var(--color-bg-surface);
   color: var(--color-text);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   text-decoration: none;
   transition: background-color 120ms ease, border-color 120ms ease,
     color 120ms ease, transform 80ms ease;
@@ -635,7 +635,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   background-color: var(--color-bg-surface);
   color: var(--color-text);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   text-decoration: none;
   transition: background-color 120ms ease, border-color 120ms ease,
     color 120ms ease, transform 80ms ease;
@@ -694,7 +694,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 
 .hn-comment-meta.has-comhead .hn-comment-user .hnuser {
   font-size: var(--font-size-base);
-  font-weight: 600;
+  font-weight: 500;
   color: var(--color-text);
   text-decoration: none;
 }
@@ -800,7 +800,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   background-color: var(--color-bg-subtle);
   color: var(--color-text);
   font-size: var(--font-size-base);
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 120ms ease, border-color 120ms ease,
     color 120ms ease, transform 80ms ease;
@@ -827,7 +827,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   background-color: transparent;
   color: var(--color-text-muted);
   font-size: var(--font-size-base);
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 120ms ease, border-color 120ms ease,
     color 120ms ease, transform 80ms ease;
@@ -1062,7 +1062,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 
 .zen-hn-settings-title {
   font-size: var(--font-size-lg);
-  font-weight: 600;
+  font-weight: 500;
   color: var(--color-text);
   margin: 0 0 16px 0;
 }
@@ -1244,7 +1244,7 @@ html[data-zen-hn-user-page="true"] button[type="button"],
   background-color: transparent;
   color: var(--color-text);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   font-family: inherit;
   cursor: pointer;
   transition: background-color 120ms ease, border-color 120ms ease,
