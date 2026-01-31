@@ -37,15 +37,16 @@ html[data-font-size="larger"] {
   --font-size-scale: 1.15;
 }
 
-html,
-body,
-td {
+/* Base typography - only apply when extension is enabled */
+html[data-zen-hn-enabled="true"],
+html[data-zen-hn-enabled="true"] body,
+html[data-zen-hn-enabled="true"] td {
   background-color: var(--color-bg-app);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   font-size: var(--font-size-base) !important;
 }
 
-body {
+html[data-zen-hn-enabled="true"] body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
@@ -230,7 +231,7 @@ html[data-zen-hn-sidebar="loading"] body {
   padding: 0 var(--space-300);
 }
 
-td {
+html[data-zen-hn-enabled="true"] td {
   font-family: inherit !important;
   font-size: initial;
   color: initial;
@@ -683,7 +684,7 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   align-items: center;
 }
 
-.comhead {
+html[data-zen-hn-enabled="true"] .comhead {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
 }
 
@@ -1431,45 +1432,39 @@ html[data-zen-hn-subnav="true"] body {
 }
 */
 
-/* Muted text */
-.sitestr,
-.sitebit,
-.age,
-.hn-fatitem-site {
+/* Muted text - only when enabled */
+html[data-zen-hn-enabled="true"] .sitestr,
+html[data-zen-hn-enabled="true"] .sitebit,
+html[data-zen-hn-enabled="true"] .age,
+html[data-zen-hn-enabled="true"] .hn-fatitem-site {
   color: var(--color-text-muted);
 }
 
-/* Faint text */
-a:visited:not(.zen-hn-sidebar-icon-link),
-.hnmore a:link,
-.hnmore a:visited,
-.age a:visited,
-.hn-fatitem-comments:visited {
+/* Faint text - only when enabled */
+html[data-zen-hn-enabled="true"] a:visited:not(.zen-hn-sidebar-icon-link),
+html[data-zen-hn-enabled="true"] .hnmore a:link,
+html[data-zen-hn-enabled="true"] .hnmore a:visited,
+html[data-zen-hn-enabled="true"] .age a:visited,
+html[data-zen-hn-enabled="true"] .hn-fatitem-comments:visited {
   color: var(--color-text-faint) !important;
 }
 
 /* ==========================================================================
-   Disabled state - revert to original HN
+   Disabled state - hide extension UI and show original HN
+
+   Since all extension styles are now scoped to html[data-zen-hn-enabled="true"],
+   we only need to hide extension UI and show the original HN elements.
    ========================================================================== */
-
-html[data-zen-hn-enabled="false"],
-html[data-zen-hn-enabled="false"] body,
-html[data-zen-hn-enabled="false"] td {
-  background-color: revert !important;
-  font-family: revert !important;
-  font-size: revert !important;
-}
-
-html[data-zen-hn-enabled="false"] body {
-  padding-left: 0 !important;
-  text-rendering: revert !important;
-  -webkit-font-smoothing: revert !important;
-}
 
 /* Hide zen-hn elements */
 html[data-zen-hn-enabled="false"] #zen-hn-sidebar,
 html[data-zen-hn-enabled="false"] #zen-hn-main {
   display: none !important;
+}
+
+/* Remove sidebar body padding */
+html[data-zen-hn-enabled="false"] body {
+  padding-left: 0 !important;
 }
 
 /* Show original HN elements (override inline styles set by JS) */
@@ -1488,31 +1483,7 @@ html[data-zen-hn-enabled="false"] .hnname {
   visibility: visible !important;
 }
 
-/* Reset link colors */
-html[data-zen-hn-enabled="false"] a,
-html[data-zen-hn-enabled="false"] a:link,
-html[data-zen-hn-enabled="false"] a:visited {
-  color: revert !important;
-}
-
-/* Reset text styles */
-html[data-zen-hn-enabled="false"] .title,
-html[data-zen-hn-enabled="false"] .titleline,
-html[data-zen-hn-enabled="false"] .titleline a,
-html[data-zen-hn-enabled="false"] .storylink {
-  font-size: revert !important;
-  font-weight: revert !important;
-  line-height: revert !important;
-}
-
-html[data-zen-hn-enabled="false"] .subtext,
-html[data-zen-hn-enabled="false"] .comhead,
-html[data-zen-hn-enabled="false"] .comment {
-  font-size: revert !important;
-  color: revert !important;
-}
-
-/* Reset table structure */
+/* Ensure table structure is visible */
 html[data-zen-hn-enabled="false"] table,
 html[data-zen-hn-enabled="false"] tbody,
 html[data-zen-hn-enabled="false"] tr,
