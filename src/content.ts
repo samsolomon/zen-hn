@@ -106,6 +106,8 @@ export {
 
 export { buildSidebarNavigation, runSidebarWhenReady } from "./sidebar";
 
+export { getOrCreateZenHnMain } from "./getOrCreateZenHnMain";
+
 export {
   buildVoteHref,
   buildCommentHref,
@@ -245,6 +247,10 @@ import {
   runSidebarWhenReady,
 } from "./sidebar";
 
+import {
+  getOrCreateZenHnMain,
+} from "./getOrCreateZenHnMain";
+
 // Expose on globalThis for content.js to access
 (globalThis as Record<string, unknown>).ZenHnIcons = {
   PHOSPHOR_SVGS,
@@ -336,6 +342,10 @@ import {
 (globalThis as Record<string, unknown>).ZenHnSidebar = {
   buildSidebarNavigation,
   runSidebarWhenReady,
+};
+
+(globalThis as Record<string, unknown>).ZenHnMain = {
+  getOrCreateZenHnMain,
 };
 
 (globalThis as Record<string, unknown>).ZenHnLogic = {

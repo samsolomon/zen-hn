@@ -46,23 +46,7 @@ ZEN_COLOR_MODE.initTheme();
 ZEN_COLOR_MODE.listenForSystemColorModeChanges();
 
 function getOrCreateZenHnMain() {
-  let main = document.getElementById("zen-hn-main");
-  if (main) return main;
-
-  main = document.createElement("main");
-  main.id = "zen-hn-main";
-
-  // HN wraps #hnmain in a <center> element - insert before that
-  const hnmain = document.getElementById("hnmain");
-  const centerWrapper = hnmain?.closest("center");
-  if (centerWrapper) {
-    centerWrapper.insertAdjacentElement("beforebegin", main);
-  } else if (hnmain) {
-    hnmain.insertAdjacentElement("beforebegin", main);
-  } else {
-    document.body.appendChild(main);
-  }
-  return main;
+  return globalThis.ZenHnMain.getOrCreateZenHnMain();
 }
 
 function buildSidebarNavigation() {
