@@ -9,76 +9,100 @@
  * haven't engaged with the external content yet.
  */
 
-// Track whether user has interacted with the page
-let hasInteracted = false;
-
-/**
- * Mark the page as interacted - disables Escape-to-return
- */
-function markAsInteracted(): void {
-  hasInteracted = true;
-}
-
-// Listen for user interactions that indicate engagement with the page
-// Using { once: true } since we only need to detect the first interaction
-document.addEventListener("click", markAsInteracted, { once: true });
-document.addEventListener("focusin", markAsInteracted, { once: true });
-document.addEventListener(
-  "keydown",
-  (e) => {
-    // Any key except Escape counts as interaction
-    if (e.key !== "Escape") {
-      markAsInteracted();
-    }
-  },
-  { once: true }
-);
-
 /**
  * Check if focus is in an input element where we shouldn't intercept keys
  */
-function isTypingInInput(): boolean {
-  const active = document.activeElement;
-  if (!active) {
+export function isTypingInInput(activeElement: Element | null): boolean {
+  if (!activeElement) {
     return false;
   }
-  const tagName = active.tagName.toLowerCase();
+  const tagName = activeElement.tagName.toLowerCase();
   if (tagName === "textarea" || tagName === "input" || tagName === "select") {
     return true;
   }
-  if ((active as HTMLElement).isContentEditable) {
+  if ((activeElement as HTMLElement).isContentEditable) {
     return true;
   }
   return false;
 }
 
 /**
- * Handle keydown events for Escape key
+ * Determine if the Escape key should trigger navigation back to HN
  */
-function handleKeyDown(event: KeyboardEvent): void {
+export function shouldNavigateBack(
+  event: Pick<KeyboardEvent, "key" | "metaKey" | "ctrlKey" | "altKey">,
+  hasInteracted: boolean,
+  activeElement: Element | null
+): boolean {
   // Only handle Escape key
   if (event.key !== "Escape") {
-    return;
+    return false;
   }
 
   // Skip if user has already interacted with the page
   if (hasInteracted) {
-    return;
+    return false;
   }
 
   // Skip if typing in an input
-  if (isTypingInInput()) {
-    return;
+  if (isTypingInInput(activeElement)) {
+    return false;
   }
 
   // Skip if modifier keys are pressed
   if (event.metaKey || event.ctrlKey || event.altKey) {
-    return;
+    return false;
   }
 
-  // Send message to background script to navigate back
-  chrome.runtime.sendMessage({ type: "escapeToHN" });
+  return true;
 }
 
-// Register the event listener
-document.addEventListener("keydown", handleKeyDown);
+/**
+ * Determine if a keydown event should mark the page as interacted
+ */
+export function shouldMarkAsInteracted(key: string): boolean {
+  return key !== "Escape";
+}
+
+// =============================================================================
+// Runtime initialization (only runs when injected as content script)
+// =============================================================================
+
+// Guard against running in non-browser environments (e.g., Node.js tests)
+if (typeof document !== "undefined" && typeof chrome !== "undefined") {
+  // Track whether user has interacted with the page
+  let hasInteracted = false;
+
+  /**
+   * Mark the page as interacted - disables Escape-to-return
+   */
+  function markAsInteracted(): void {
+    hasInteracted = true;
+  }
+
+  // Listen for user interactions that indicate engagement with the page
+  // Using { once: true } since we only need to detect the first interaction
+  document.addEventListener("click", markAsInteracted, { once: true });
+  document.addEventListener("focusin", markAsInteracted, { once: true });
+  document.addEventListener(
+    "keydown",
+    (e) => {
+      if (shouldMarkAsInteracted(e.key)) {
+        markAsInteracted();
+      }
+    },
+    { once: true }
+  );
+
+  /**
+   * Handle keydown events for Escape key
+   */
+  function handleKeyDown(event: KeyboardEvent): void {
+    if (shouldNavigateBack(event, hasInteracted, document.activeElement)) {
+      chrome.runtime.sendMessage({ type: "escapeToHN" });
+    }
+  }
+
+  // Register the event listener
+  document.addEventListener("keydown", handleKeyDown);
+}

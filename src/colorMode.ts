@@ -516,7 +516,7 @@ function buildExternalEscapeToggle(
 
   const description = document.createElement("span");
   description.className = "zen-hn-external-escape-description";
-  description.textContent = "Press Escape on external sites to return to HN";
+  description.textContent = "Press Esc to come back here after opening external links. Requires additional Chrome permissions.";
 
   labelContainer.appendChild(label);
   labelContainer.appendChild(description);
