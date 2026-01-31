@@ -449,68 +449,6 @@ if (window.location.pathname === "/item") {
   runCommentCollapseWhenReady();
 }
 
-function setCollapseButtonState(button, isCollapsed, hasChildren) {
-  if (!button) {
-    return;
-  }
-  const targetLabel = hasChildren ? "thread" : "comment";
-  button.classList.toggle("is-collapsed", isCollapsed);
-  button.setAttribute("aria-expanded", isCollapsed ? "false" : "true");
-  button.setAttribute(
-    "aria-label",
-    isCollapsed ? `Expand ${targetLabel}` : `Collapse ${targetLabel}`,
-  );
-}
-
-function hideDescendantComments(item) {
-  const baseLevel = ZEN_LOGIC.getIndentLevelFromItem(item);
-  let sibling = item.nextElementSibling;
-  while (sibling && sibling.classList.contains("hn-comment")) {
-    const level = ZEN_LOGIC.getIndentLevelFromItem(sibling);
-    if (level <= baseLevel) {
-      break;
-    }
-    sibling.hidden = true;
-    sibling = sibling.nextElementSibling;
-  }
-}
-
-function restoreDescendantVisibility(item) {
-  const baseLevel = ZEN_LOGIC.getIndentLevelFromItem(item);
-  let sibling = item.nextElementSibling;
-  const collapsedStack = [];
-  while (sibling && sibling.classList.contains("hn-comment")) {
-    const level = ZEN_LOGIC.getIndentLevelFromItem(sibling);
-    if (level <= baseLevel) {
-      break;
-    }
-    while (collapsedStack.length && level <= collapsedStack[collapsedStack.length - 1]) {
-      collapsedStack.pop();
-    }
-    const isHiddenByAncestor = collapsedStack.length > 0;
-    sibling.hidden = isHiddenByAncestor;
-    const isCollapsed = sibling.dataset.collapsed === "true";
-    if (!isHiddenByAncestor && isCollapsed) {
-      collapsedStack.push(level);
-    }
-    sibling = sibling.nextElementSibling;
-  }
-}
-
-function toggleCommentCollapse(item) {
-  const isCollapsed = item.dataset.collapsed === "true";
-  const nextCollapsed = !isCollapsed;
-  item.dataset.collapsed = nextCollapsed ? "true" : "false";
-  const hasChildren = item.dataset.hasChildren === "true";
-  const collapseButton = item.querySelector(".hn-collapse-button");
-  setCollapseButtonState(collapseButton, nextCollapsed, hasChildren);
-  if (nextCollapsed) {
-    hideDescendantComments(item);
-  } else {
-    restoreDescendantVisibility(item);
-  }
-}
-
 function loadActionStore() {
   return ZEN_ACTION_STORE.loadActionStore();
 }
