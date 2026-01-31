@@ -87,6 +87,9 @@ export {
   hideDescendantComments,
   restoreDescendantVisibility,
   toggleCommentCollapse,
+  registerCommentCollapseListeners,
+  initCommentCollapse,
+  runCommentCollapseWhenReady,
 } from "./commentCollapse";
 
 export {
@@ -230,6 +233,9 @@ import {
   hideDescendantComments,
   restoreDescendantVisibility,
   toggleCommentCollapse,
+  registerCommentCollapseListeners,
+  initCommentCollapse,
+  runCommentCollapseWhenReady,
 } from "./commentCollapse";
 
 import {
@@ -337,6 +343,9 @@ import {
   hideDescendantComments,
   restoreDescendantVisibility,
   toggleCommentCollapse,
+  registerCommentCollapseListeners,
+  initCommentCollapse,
+  runCommentCollapseWhenReady,
 };
 
 (globalThis as Record<string, unknown>).ZenHnFavorites = {

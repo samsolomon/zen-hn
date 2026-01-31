@@ -66,3 +66,62 @@ export function toggleCommentCollapse(item: HTMLElement): void {
     restoreDescendantVisibility(item);
   }
 }
+
+export function registerCommentCollapseListeners(): void {
+  const commentTree = document.querySelector<HTMLElement>(".comment-tree");
+  if (!commentTree) {
+    return;
+  }
+  commentTree.addEventListener("click", (event: MouseEvent) => {
+    const target = event.target as HTMLElement | null;
+    if (!target) {
+      return;
+    }
+    const collapseButton = target.closest<HTMLElement>(".hn-collapse-button");
+    if (!collapseButton) {
+      return;
+    }
+    const item = collapseButton.closest<HTMLElement>(".hn-comment");
+    if (!item) {
+      return;
+    }
+    event.preventDefault();
+    toggleCommentCollapse(item);
+  });
+}
+
+export function initCommentCollapse(): void {
+  const items = document.querySelectorAll<HTMLElement>(".hn-comment");
+  items.forEach((item) => {
+    const hasChildren = item.dataset.hasChildren === "true";
+    if (!hasChildren) {
+      return;
+    }
+    const existingButton = item.querySelector<HTMLElement>(".hn-collapse-button");
+    if (existingButton) {
+      const isCollapsed = item.dataset.collapsed === "true";
+      setCollapseButtonState(existingButton, isCollapsed, hasChildren);
+    }
+  });
+}
+
+export function runCommentCollapseWhenReady(): void {
+  let attempts = 0;
+  const maxAttempts = 60;
+
+  const attempt = (): void => {
+    const commentTree = document.querySelector(".comment-tree");
+    if (commentTree) {
+      initCommentCollapse();
+      registerCommentCollapseListeners();
+      return;
+    }
+    attempts += 1;
+    if (attempts >= maxAttempts && document.readyState !== "loading") {
+      return;
+    }
+    globalThis.requestAnimationFrame(attempt);
+  };
+
+  attempt();
+}

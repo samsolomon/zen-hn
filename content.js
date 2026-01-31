@@ -55,38 +55,11 @@ function buildSidebarNavigation() {
 }
 
 function registerCommentCollapseListeners() {
-  const commentTree = document.querySelector(".comment-tree");
-  if (!commentTree) {
-    return;
-  }
-  commentTree.addEventListener("click", (event) => {
-    const target = event.target;
-    const collapseButton = target.closest(".hn-collapse-button");
-    if (!collapseButton) {
-      return;
-    }
-    const item = collapseButton.closest(".hn-comment");
-    if (!item) {
-      return;
-    }
-    event.preventDefault();
-    toggleCommentCollapse(item);
-  });
+  return ZEN_COMMENT_COLLAPSE.registerCommentCollapseListeners();
 }
 
 function initCommentCollapse() {
-  const items = document.querySelectorAll(".hn-comment");
-  items.forEach((item) => {
-    const hasChildren = item.dataset.hasChildren === "true";
-    if (!hasChildren) {
-      return;
-    }
-    const existingButton = item.querySelector(".hn-collapse-button");
-    if (existingButton) {
-      const isCollapsed = item.dataset.collapsed === "true";
-      setCollapseButtonState(existingButton, isCollapsed, hasChildren);
-    }
-  });
+  return ZEN_COMMENT_COLLAPSE.initCommentCollapse();
 }
 
 // function buildSubnav() {
@@ -146,22 +119,7 @@ function runSidebarWhenReady() {
 }
 
 function runCommentCollapseWhenReady() {
-  let attempts = 0;
-  const maxAttempts = 60;
-  const attempt = () => {
-    const commentTree = document.querySelector(".comment-tree");
-    if (commentTree) {
-      initCommentCollapse();
-      registerCommentCollapseListeners();
-      return;
-    }
-    attempts += 1;
-    if (attempts >= maxAttempts && document.readyState !== "loading") {
-      return;
-    }
-    window.requestAnimationFrame(attempt);
-  };
-  attempt();
+  return ZEN_COMMENT_COLLAPSE.runCommentCollapseWhenReady();
 }
 
 if (window.location.pathname === "/item") {
