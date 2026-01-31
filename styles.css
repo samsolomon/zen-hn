@@ -15,6 +15,7 @@
   --sidebar-border: var(--color-border-subtle);
   --sidebar-link-color: var(--gray-9);
   --sidebar-link-hover: var(--color-text);
+  --bottom-nav-height: 56px;
 }
 
 html[data-font-size="smaller"] {
@@ -991,10 +992,86 @@ html[data-zen-hn-enabled="true"] .comhead {
   transform: translateY(1px) scaleX(-1) scale(0.98);
 }
 
-@media (max-width: 720px) {
+/* ==========================================================================
+   Responsive Design - Tablet (≤1024px)
+   ========================================================================== */
+@media (max-width: 1024px) {
+  #zen-hn-main {
+    padding: 0 var(--space-200);
+  }
+
   .hn-submission {
-    grid-template-columns: minmax(20px, auto) minmax(28px, auto) 1fr;
-    padding: 10px 12px;
+    padding: var(--space-100) var(--space-100);
+  }
+
+  .hn-comment {
+    margin-left: clamp(0px, calc(var(--indent-level, 0) * 0.9rem), 5rem);
+  }
+}
+
+/* ==========================================================================
+   Responsive Design - Mobile (≤720px) + Bottom Navigation
+   ========================================================================== */
+@media (max-width: 720px) {
+  /* Transform sidebar to bottom navigation */
+  html[data-zen-hn-sidebar="true"] body,
+  html[data-zen-hn-sidebar="loading"] body {
+    padding-left: 0;
+    padding-bottom: var(--bottom-nav-height);
+  }
+
+  #zen-hn-sidebar {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: var(--bottom-nav-height);
+    border-right: none;
+    border-top: 1px solid var(--sidebar-border);
+    background-color: var(--color-bg-app);
+  }
+
+  #zen-hn-sidebar .zen-hn-sidebar-nav {
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    height: 100%;
+    padding: 0 var(--space-100);
+    gap: 0;
+  }
+
+  #zen-hn-sidebar .zen-hn-sidebar-list {
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    gap: 0;
+  }
+
+  #zen-hn-sidebar .zen-hn-sidebar-bottom {
+    display: none;
+  }
+
+  #zen-hn-sidebar .zen-hn-sidebar-icon-link {
+    width: 44px;
+    height: 44px;
+  }
+
+  #zen-hn-sidebar .zen-hn-sidebar-link.is-home-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Main content padding */
+  #zen-hn-main {
+    padding: 0 var(--space-150);
+  }
+
+  /* Submission list adjustments */
+  .hn-submission {
+    grid-template-columns: minmax(20px, auto) 1fr;
+    padding: var(--space-100) var(--space-100);
   }
 
   .hn-submission-title {
@@ -1002,11 +1079,121 @@ html[data-zen-hn-enabled="true"] .comhead {
   }
 
   .hn-submissions-more {
-    padding-left: 64px;
+    padding-left: 40px;
   }
 
+  /* Always show action buttons on mobile (no hover) */
+  .hn-submission-actions,
+  .hn-comment-actions,
+  .hn-collapse-button {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Comment indentation */
   .hn-comment {
-    margin-left: clamp(0px, calc(var(--indent-level, 0) * 0.85rem), 4rem);
+    margin-left: clamp(0px, calc(var(--indent-level, 0) * 0.75rem), 3.5rem);
+  }
+
+  /* Fat item adjustments */
+  .hn-fatitem-title {
+    font-size: 24px;
+  }
+}
+
+/* ==========================================================================
+   Responsive Design - Small Mobile (≤480px)
+   ========================================================================== */
+@media (max-width: 480px) {
+  #zen-hn-main {
+    padding: 0 var(--space-100);
+  }
+
+  /* Hide rank numbers on small screens */
+  .hn-submission {
+    grid-template-columns: 1fr;
+  }
+
+  .hn-submission-rank {
+    display: none;
+  }
+
+  .hn-submissions-more {
+    padding-left: var(--space-100);
+  }
+
+  /* Stack meta info */
+  .hn-submission-sub {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-75);
+  }
+
+  .hn-submission-actions {
+    margin-left: 0;
+  }
+
+  /* Smaller comment indentation */
+  .hn-comment {
+    margin-left: clamp(0px, calc(var(--indent-level, 0) * 0.5rem), 2rem);
+    padding: var(--space-75) var(--space-100);
+  }
+
+  .hn-comment-text {
+    margin-left: 36px;
+  }
+
+  /* Fat item title */
+  .hn-fatitem-title {
+    font-size: 20px;
+  }
+
+  .hn-fatitem {
+    padding: var(--space-150);
+  }
+
+  /* Comment list spacing */
+  #hn-comment-list {
+    margin: var(--space-200) 0;
+  }
+}
+
+/* ==========================================================================
+   Touch Device Optimizations
+   ========================================================================== */
+@media (hover: none) and (pointer: coarse) {
+  /* Ensure 44px minimum touch targets */
+  .icon-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  #zen-hn-sidebar .zen-hn-sidebar-icon-link {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  #zen-hn-sidebar .zen-hn-sidebar-link.is-home-icon {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Always show action buttons (no hover required) */
+  .hn-submission-actions,
+  .hn-comment-actions,
+  .hn-collapse-button {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Larger tap targets for submissions */
+  .hn-submission {
+    min-height: 44px;
+  }
+
+  /* Larger tap targets for comments */
+  .hn-comment {
+    min-height: 44px;
   }
 }
 

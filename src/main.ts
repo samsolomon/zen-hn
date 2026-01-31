@@ -90,10 +90,10 @@ async function init(): Promise<void> {
   } else {
     initRestyle();
   }
-
-  // Register keyboard shortcuts
-  registerKeyboardShortcuts();
 }
+
+// Register keyboard shortcuts immediately (no need to wait for async init)
+registerKeyboardShortcuts();
 
 // Start initialization
 init();

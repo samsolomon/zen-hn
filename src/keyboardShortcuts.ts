@@ -7,7 +7,7 @@
  * - O: Open in new tab
  * - u: Upvote
  * - f: Favorite/bookmark
- * - c: Go to comments
+ * - c: Create/submit
  * - Space: Expand/collapse comment
  * - l: Copy link
  * - r: Random story
@@ -42,13 +42,6 @@ let chordTimer: ReturnType<typeof setTimeout> | null = null;
 function isListPage(): boolean {
   const path = window.location.pathname;
   return LIST_PAGE_PATHS.includes(path);
-}
-
-/**
- * Check if current page is an item/comment page
- */
-function isItemPage(): boolean {
-  return window.location.pathname === "/item";
 }
 
 /**
@@ -248,21 +241,6 @@ function copyLinkFocusedItem(): void {
 }
 
 /**
- * Go to comments for the focused submission
- */
-function goToComments(): void {
-  if (!focusedItem) {
-    return;
-  }
-  const commentsLink = focusedItem.querySelector<HTMLAnchorElement>(
-    ".hn-submission-comments"
-  );
-  if (commentsLink) {
-    window.location.href = commentsLink.href;
-  }
-}
-
-/**
  * Navigate to random story
  */
 async function goToRandomStory(): Promise<void> {
@@ -338,7 +316,7 @@ function showHelpModal(): void {
     { key: "O", action: "Open comments in new tab" },
     { key: "u", action: "Upvote" },
     { key: "f", action: "Favorite / bookmark" },
-    { key: "c", action: "Go to comments" },
+    { key: "c", action: "Create / submit" },
     { key: "Space", action: "Expand / collapse comment" },
     { key: "l", action: "Copy link" },
     { key: "r", action: "Random story" },
@@ -438,6 +416,11 @@ function handleKeyDown(event: KeyboardEvent): void {
     return;
   }
 
+  // Skip if modifier keys are pressed (allow browser shortcuts like Cmd+R)
+  if (event.metaKey || event.ctrlKey || event.altKey) {
+    return;
+  }
+
   const key = event.key;
 
   // Handle escape key
@@ -451,8 +434,8 @@ function handleKeyDown(event: KeyboardEvent): void {
       clearFocus();
       return;
     }
-    // Navigate back to list page if on an item page
-    if (isItemPage()) {
+    // Navigate back to list page if not already on a list page
+    if (!isListPage()) {
       goBackToList();
       return;
     }
@@ -536,11 +519,10 @@ function handleKeyDown(event: KeyboardEvent): void {
     return;
   }
 
+  // c to go to submit page
   if (key === "c") {
-    if (focusedItem) {
-      event.preventDefault();
-      goToComments();
-    }
+    event.preventDefault();
+    window.location.href = "/submit";
     return;
   }
 
