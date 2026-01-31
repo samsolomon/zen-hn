@@ -64,6 +64,14 @@ export {
   styleUserPageSelects,
 } from "./colorMode";
 
+export {
+  SUBMISSION_MENU_CLASS,
+  SUBMISSION_MENU_OPEN_CLASS,
+  setSubmissionMenuState,
+  closeAllSubmissionMenus,
+  registerSubmissionMenuListeners,
+} from "./submissionMenu";
+
 // Import everything for globalThis exposure
 import {
   PHOSPHOR_SVGS,
@@ -114,6 +122,14 @@ import {
   styleNativeSelect,
   styleUserPageSelects,
 } from "./colorMode";
+
+import {
+  SUBMISSION_MENU_CLASS,
+  SUBMISSION_MENU_OPEN_CLASS,
+  setSubmissionMenuState,
+  closeAllSubmissionMenus,
+  registerSubmissionMenuListeners,
+} from "./submissionMenu";
 
 // Import logic module (self-exposes on globalThis)
 import "./logic";
@@ -167,4 +183,12 @@ import "./logic";
   updateStoredAction,
   isActionStoreLoaded,
   getActionStore,
+};
+
+(globalThis as Record<string, unknown>).ZenHnSubmissionMenu = {
+  SUBMISSION_MENU_CLASS,
+  SUBMISSION_MENU_OPEN_CLASS,
+  setSubmissionMenuState,
+  closeAllSubmissionMenus,
+  registerSubmissionMenuListeners,
 };

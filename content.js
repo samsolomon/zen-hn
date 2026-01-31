@@ -90,6 +90,7 @@ const ZEN_LOGIC = globalThis.ZenHnLogic;
 const ZEN_UTILS = globalThis.ZenHnUtils;
 const ZEN_PAGES = globalThis.ZenHnPages;
 const ZEN_ACTION_STORE = globalThis.ZenHnActionStore;
+const ZEN_SUBMISSION_MENU = globalThis.ZenHnSubmissionMenu;
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
 const ZEN_HN_SUBMISSIONS_KEY = "zenHnSubmissions";
 
@@ -117,59 +118,11 @@ function renderIcon(name) {
   return PHOSPHOR_SVGS[name] || "";
 }
 
-const SUBMISSION_MENU_CLASS = "hn-submission-menu";
-const SUBMISSION_MENU_OPEN_CLASS = "is-open";
-let submissionMenuHandlersRegistered = false;
-
-function setSubmissionMenuState(menu, isOpen) {
-  if (!menu) {
-    return;
-  }
-  menu.classList.toggle(SUBMISSION_MENU_OPEN_CLASS, isOpen);
-  const button = menu.querySelector(".hn-menu-button");
-  if (button) {
-    button.setAttribute("aria-expanded", isOpen ? "true" : "false");
-  }
-}
-
-function closeAllSubmissionMenus(exceptMenu) {
-  const openMenus = document.querySelectorAll(
-    `.${SUBMISSION_MENU_CLASS}.${SUBMISSION_MENU_OPEN_CLASS}`,
-  );
-  openMenus.forEach((menu) => {
-    if (menu === exceptMenu) {
-      return;
-    }
-    setSubmissionMenuState(menu, false);
-  });
-}
-
-function registerSubmissionMenuListeners() {
-  if (submissionMenuHandlersRegistered) {
-    return;
-  }
-  submissionMenuHandlersRegistered = true;
-  document.addEventListener("click", (event) => {
-    const openMenus = document.querySelectorAll(
-      `.${SUBMISSION_MENU_CLASS}.${SUBMISSION_MENU_OPEN_CLASS}`,
-    );
-    if (!openMenus.length) {
-      return;
-    }
-    openMenus.forEach((menu) => {
-      if (menu.contains(event.target)) {
-        return;
-      }
-      setSubmissionMenuState(menu, false);
-    });
-  });
-  document.addEventListener("keydown", (event) => {
-    if (event.key !== "Escape") {
-      return;
-    }
-    closeAllSubmissionMenus();
-  });
-}
+const SUBMISSION_MENU_CLASS = ZEN_SUBMISSION_MENU.SUBMISSION_MENU_CLASS;
+const SUBMISSION_MENU_OPEN_CLASS = ZEN_SUBMISSION_MENU.SUBMISSION_MENU_OPEN_CLASS;
+const setSubmissionMenuState = ZEN_SUBMISSION_MENU.setSubmissionMenuState;
+const closeAllSubmissionMenus = ZEN_SUBMISSION_MENU.closeAllSubmissionMenus;
+const registerSubmissionMenuListeners = ZEN_SUBMISSION_MENU.registerSubmissionMenuListeners;
 
 const RANDOM_ITEM_MAX_ATTEMPTS = 6;
 
