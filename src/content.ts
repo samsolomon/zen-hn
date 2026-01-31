@@ -276,17 +276,8 @@ import {
   getOrCreateZenHnMain,
 } from "./getOrCreateZenHnMain";
 
-import {
-  restyleFatItem,
-} from "./restyleFatItem";
-
-import {
-  restyleComments,
-  findCommentContext,
-  runRestyleWhenReady,
-} from "./restyleComments";
-
-import { initRestyle } from "./initRestyle";
+// Note: restyleFatItem, restyleComments, and initRestyle are imported
+// by their own modules which self-expose on globalThis
 
 import {
   restyleSubmissions,
@@ -398,19 +389,8 @@ import {
   getOrCreateZenHnMain,
 };
 
-(globalThis as Record<string, unknown>).ZenHnRestyleFatItem = {
-  restyleFatItem,
-};
-
-(globalThis as Record<string, unknown>).ZenHnRestyleComments = {
-  restyleComments,
-  findCommentContext,
-  runRestyleWhenReady,
-};
-
-(globalThis as Record<string, unknown>).ZenHnInitRestyle = {
-  initRestyle,
-};
+// Note: ZenHnRestyleFatItem, ZenHnRestyleComments, and ZenHnInitRestyle
+// are self-exposed by their respective modules
 
 (globalThis as Record<string, unknown>).ZenHnLogic = {
   buildVoteHref,
