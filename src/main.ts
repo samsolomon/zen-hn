@@ -6,6 +6,7 @@
 import { initColorMode, initTheme, listenForSystemColorModeChanges } from "./colorMode";
 import { runSidebarWhenReady } from "./sidebar";
 import { runCommentCollapseWhenReady } from "./commentCollapse";
+import { runUserSubnavWhenReady } from "./pages";
 import { initRestyle } from "./initRestyle";
 import { registerKeyboardShortcuts } from "./keyboardShortcuts";
 
@@ -21,13 +22,22 @@ async function getEnabled(): Promise<boolean> {
 }
 
 function enableExtension(): void {
-  // CSS handles showing/hiding based on this attribute
+  console.log('[zen-hn] enableExtension called');
   document.documentElement.dataset.zenHnEnabled = "true";
+  console.log('[zen-hn] data-zen-hn-enabled:', document.documentElement.dataset.zenHnEnabled);
 }
 
 function disableExtension(): void {
-  // CSS handles showing/hiding based on this attribute
+  console.log('[zen-hn] disableExtension called');
   document.documentElement.dataset.zenHnEnabled = "false";
+  console.log('[zen-hn] data-zen-hn-enabled:', document.documentElement.dataset.zenHnEnabled);
+
+  // Debug: log what elements exist and their styles
+  const hnmain = document.getElementById('hnmain');
+  const centerWrapper = hnmain?.closest('center');
+  console.log('[zen-hn] hnmain:', hnmain, 'display:', hnmain?.style.display);
+  console.log('[zen-hn] centerWrapper:', centerWrapper, 'display:', (centerWrapper as HTMLElement)?.style.display);
+  console.log('[zen-hn] computed display:', hnmain ? getComputedStyle(hnmain).display : 'n/a');
 }
 
 function listenForToggle(): void {
@@ -79,8 +89,9 @@ async function init(): Promise<void> {
     runCommentCollapseWhenReady();
   }
 
-  // Initialize sidebar
+  // Initialize sidebar and user subnav early to prevent flash
   runSidebarWhenReady();
+  runUserSubnavWhenReady();
 
   // Initialize restyling when DOM is ready
   if (document.readyState === "loading") {

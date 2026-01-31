@@ -1671,11 +1671,22 @@ html[data-zen-hn-enabled="true"] .hn-fatitem-comments:visited {
 }
 
 /* ==========================================================================
-   Disabled state - hide extension UI and show original HN
-
-   Since all extension styles are now scoped to html[data-zen-hn-enabled="true"],
-   we only need to hide extension UI and show the original HN elements.
+   Disabled state - revert to original HN
    ========================================================================== */
+
+html[data-zen-hn-enabled="false"],
+html[data-zen-hn-enabled="false"] body,
+html[data-zen-hn-enabled="false"] td {
+  background-color: revert !important;
+  font-family: revert !important;
+  font-size: revert !important;
+}
+
+html[data-zen-hn-enabled="false"] body {
+  padding-left: 0 !important;
+  text-rendering: revert !important;
+  -webkit-font-smoothing: revert !important;
+}
 
 /* Hide zen-hn elements */
 html[data-zen-hn-enabled="false"] #zen-hn-sidebar,
@@ -1683,51 +1694,52 @@ html[data-zen-hn-enabled="false"] #zen-hn-main {
   display: none !important;
 }
 
-/* Remove sidebar body padding */
-html[data-zen-hn-enabled="false"] body {
-  padding-left: 0 !important;
-}
-
 /* Show original HN elements (override inline styles set by JS) */
-html[data-zen-hn-enabled="false"] center {
-  display: block !important;
-  visibility: visible !important;
-}
-
-html[data-zen-hn-enabled="false"] #hnmain {
-  display: table !important;
-  visibility: visible !important;
-}
-
+html[data-zen-hn-enabled="false"] #hnmain,
+html[data-zen-hn-enabled="false"] center:has(#hnmain),
 html[data-zen-hn-enabled="false"] table.fatitem,
 html[data-zen-hn-enabled="false"] table.itemlist,
-html[data-zen-hn-enabled="false"] table.comment-tree {
-  display: table !important;
-  visibility: visible !important;
-}
-
-html[data-zen-hn-enabled="false"] tbody {
-  display: table-row-group !important;
-  visibility: visible !important;
-}
-
-html[data-zen-hn-enabled="false"] tr,
-html[data-zen-hn-enabled="false"] tr.athing,
-html[data-zen-hn-enabled="false"] .spacer,
-html[data-zen-hn-enabled="false"] .morespace {
-  display: table-row !important;
-  visibility: visible !important;
-}
-
-html[data-zen-hn-enabled="false"] td {
-  display: table-cell !important;
-  visibility: visible !important;
-}
-
+html[data-zen-hn-enabled="false"] table.comment-tree,
 html[data-zen-hn-enabled="false"] .athing,
+html[data-zen-hn-enabled="false"] .spacer,
+html[data-zen-hn-enabled="false"] .morespace,
+html[data-zen-hn-enabled="false"] tr.athing,
 html[data-zen-hn-enabled="false"] .pagetop,
 html[data-zen-hn-enabled="false"] .hnname {
-  display: inline !important;
+  display: revert !important;
+  visibility: visible !important;
+}
+
+/* Reset link colors */
+html[data-zen-hn-enabled="false"] a,
+html[data-zen-hn-enabled="false"] a:link,
+html[data-zen-hn-enabled="false"] a:visited {
+  color: revert !important;
+}
+
+/* Reset text styles */
+html[data-zen-hn-enabled="false"] .title,
+html[data-zen-hn-enabled="false"] .titleline,
+html[data-zen-hn-enabled="false"] .titleline a,
+html[data-zen-hn-enabled="false"] .storylink {
+  font-size: revert !important;
+  font-weight: revert !important;
+  line-height: revert !important;
+}
+
+html[data-zen-hn-enabled="false"] .subtext,
+html[data-zen-hn-enabled="false"] .comhead,
+html[data-zen-hn-enabled="false"] .comment {
+  font-size: revert !important;
+  color: revert !important;
+}
+
+/* Reset table structure */
+html[data-zen-hn-enabled="false"] table,
+html[data-zen-hn-enabled="false"] tbody,
+html[data-zen-hn-enabled="false"] tr,
+html[data-zen-hn-enabled="false"] td {
+  display: revert !important;
   visibility: visible !important;
 }
 

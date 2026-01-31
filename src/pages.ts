@@ -258,9 +258,40 @@ export function addUserSubnav(): boolean {
   return true;
 }
 
+/**
+ * Run addUserSubnav early to prevent flash
+ */
+export function runUserSubnavWhenReady(): void {
+  // Set loading state early
+  if (isUserSubnavPage()) {
+    document.documentElement.setAttribute("data-zen-hn-subnav", "loading");
+  }
+
+  let attempts = 0;
+  const maxAttempts = 60;
+
+  const attempt = (): void => {
+    const built = addUserSubnav();
+    if (built) {
+      return;
+    }
+    attempts += 1;
+    if (attempts >= maxAttempts && document.readyState !== "loading") {
+      if (document.documentElement.dataset.zenHnSubnav === "loading") {
+        delete document.documentElement.dataset.zenHnSubnav;
+      }
+      return;
+    }
+    globalThis.requestAnimationFrame(attempt);
+  };
+
+  attempt();
+}
+
 (globalThis as Record<string, unknown>).ZenHnPages = {
   restyleChangePwPage,
   restyleSubmitPage,
   restyleUserPage,
   addUserSubnav,
+  runUserSubnavWhenReady,
 };
