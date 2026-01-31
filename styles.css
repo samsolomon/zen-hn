@@ -1112,9 +1112,9 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
 }
 
 .zen-hn-color-mode-option.is-active {
-  background-color: var(--color-bg-element);
-  border-color: var(--color-border);
-  color: var(--color-text);
+  background-color: var(--color-bg-element) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text) !important;
 }
 
 .zen-hn-color-mode-option:focus-visible {
@@ -1233,10 +1233,10 @@ html[data-zen-hn-restyled="true"] table.comment-tree {
   transform: translateY(1px) scale(0.98);
 }
 
-.zen-hn-theme-button.is-selected {
-  background-color: var(--color-bg-element);
-  border-color: var(--color-border-strong);
-  border-width: 2px;
+.zen-hn-theme-button.is-active {
+  background-color: var(--color-bg-element) !important;
+  border-color: var(--color-border-strong) !important;
+  border-width: 2px !important;
 }
 
 .zen-hn-theme-swatch {

@@ -404,7 +404,7 @@ export function buildThemeButtons(
     button.appendChild(buttonLabel);
 
     if (currentTheme === option.value) {
-      button.classList.add("is-selected");
+      button.classList.add("is-active");
       button.setAttribute("aria-pressed", "true");
     } else {
       button.setAttribute("aria-pressed", "false");
@@ -416,10 +416,10 @@ export function buildThemeButtons(
       onChange?.(selectedValue);
 
       buttonsWrapper.querySelectorAll(".zen-hn-theme-button").forEach((btn) => {
-        btn.classList.remove("is-selected");
+        btn.classList.remove("is-active");
         btn.setAttribute("aria-pressed", "false");
       });
-      button.classList.add("is-selected");
+      button.classList.add("is-active");
       button.setAttribute("aria-pressed", "true");
     });
 
