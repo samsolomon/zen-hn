@@ -232,6 +232,59 @@ export function restyleUserPage(): boolean {
 }
 
 /**
+ * Pages that are user list pages (not the profile page itself)
+ */
+const USER_LIST_PAGES = ["/favorites", "/upvoted", "/submitted", "/threads"];
+
+/**
+ * Check if the current page is a user list page
+ */
+function isUserListPage(): boolean {
+  return USER_LIST_PAGES.includes(window.location.pathname);
+}
+
+/**
+ * Restyle user list pages (favorites, upvoted, submitted, threads)
+ * These pages show lists of items and need proper restyling
+ */
+export function restyleUserListPage(): boolean {
+  if (!isUserListPage()) {
+    return false;
+  }
+
+  const hnmain = document.getElementById("hnmain") as HTMLElement | null;
+  if (!hnmain || hnmain.dataset[ZEN_HN_RESTYLE_KEY] === "true") {
+    return false;
+  }
+
+  // Find the main content table
+  const itemList = hnmain.querySelector("table.itemlist");
+  const commentTree = hnmain.querySelector("table.comment-tree");
+  const contentTable = itemList || commentTree;
+
+  if (!contentTable) {
+    return false;
+  }
+
+  // Create wrapper for the content
+  const wrapper = document.createElement("div");
+  wrapper.className = "hn-user-list-page";
+
+  // Clone the content table to preserve it
+  const contentClone = contentTable.cloneNode(true) as HTMLElement;
+  wrapper.appendChild(contentClone);
+
+  // Mark as restyled and add to zen-hn-main
+  hnmain.dataset[ZEN_HN_RESTYLE_KEY] = "true";
+  getOrCreateZenHnMain().appendChild(wrapper);
+
+  // Hide the original content
+  (contentTable as HTMLElement).style.display = "none";
+
+  return true;
+}
+
+/**
  * Add the subnav to user-related pages (favorites, upvoted, submissions, comments)
  * This is called separately from restyleUserPage since these pages have different content
  */
@@ -256,8 +309,18 @@ export function addUserSubnav(): boolean {
     return false;
   }
 
+  // Create the subnav
   const subnav = createUserSubnav(username);
-  document.body.appendChild(subnav);
+
+  // Append to zen-hn-main if it exists, otherwise to body
+  const zenHnMain = document.getElementById("zen-hn-main");
+  if (zenHnMain) {
+    // Insert at the beginning of zen-hn-main
+    zenHnMain.insertBefore(subnav, zenHnMain.firstChild);
+  } else {
+    document.body.appendChild(subnav);
+  }
+
   document.documentElement.setAttribute("data-zen-hn-subnav", "true");
 
   return true;
@@ -302,6 +365,7 @@ export function runUserSubnavWhenReady(): void {
   restyleChangePwPage,
   restyleSubmitPage,
   restyleUserPage,
+  restyleUserListPage,
   addUserSubnav,
   runUserSubnavWhenReady,
 };
