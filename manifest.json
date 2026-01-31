@@ -15,7 +15,7 @@
         "http://news.ycombinator.com/*"
       ],
       "css": ["dist/colors.css", "dist/styles.css"],
-      "js": ["dist/logic.js", "dist/icons.js", "dist/utils.js", "dist/pages.js", "dist/submissionMenu.js", "dist/random.js", "dist/commentCollapse.js", "dist/favorites.js", "dist/replyForm.js", "dist/sidebar.js", "dist/getOrCreateZenHnMain.js", "dist/restyleSubmissions.js", "dist/buildCommentItem.js", "dist/restyleFatItem.js", "dist/restyleComments.js", "dist/initRestyle.js", "dist/content.js"],
+      "js": ["dist/logic.js", "dist/icons.js", "dist/utils.js", "dist/pages.js", "dist/submissionMenu.js", "dist/random.js", "dist/commentCollapse.js", "dist/favorites.js", "dist/replyForm.js", "dist/sidebar.js", "dist/getOrCreateZenHnMain.js", "dist/restyleSubmissions.js", "dist/buildCommentItem.js", "dist/restyleFatItem.js", "dist/restyleComments.js", "dist/initRestyle.js", "dist/main.js"],
       "run_at": "document_start"
     }
   ]
