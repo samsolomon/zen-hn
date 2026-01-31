@@ -268,29 +268,57 @@ interface ThemeOption {
 }
 
 const THEME_OPTIONS: ThemeOption[] = [
-  { value: "blue", label: "Blue" },
-  { value: "bronze", label: "Bronze" },
-  { value: "crimson", label: "Crimson" },
-  { value: "cyan", label: "Cyan" },
-  { value: "gold", label: "Gold" },
-  { value: "grass", label: "Grass" },
   { value: "gray", label: "Gray" },
-  { value: "indigo", label: "Indigo" },
-  { value: "iris", label: "Iris" },
-  { value: "jade", label: "Jade" },
   { value: "mauve", label: "Mauve" },
+  { value: "slate", label: "Slate" },
+  { value: "sage", label: "Sage" },
   { value: "olive", label: "Olive" },
-  { value: "orange", label: "Orange" },
+  { value: "sand", label: "Sand" },
+  { value: "tomato", label: "Tomato" },
+  { value: "ruby", label: "Ruby" },
+  { value: "crimson", label: "Crimson" },
   { value: "pink", label: "Pink" },
   { value: "plum", label: "Plum" },
-  { value: "ruby", label: "Ruby" },
-  { value: "sage", label: "Sage" },
-  { value: "sand", label: "Sand" },
-  { value: "slate", label: "Slate" },
-  { value: "teal", label: "Teal" },
-  { value: "tomato", label: "Tomato" },
   { value: "violet", label: "Violet" },
+  { value: "iris", label: "Iris" },
+  { value: "indigo", label: "Indigo" },
+  { value: "blue", label: "Blue" },
+  { value: "cyan", label: "Cyan" },
+  { value: "teal", label: "Teal" },
+  { value: "jade", label: "Jade" },
+  { value: "grass", label: "Grass" },
+  { value: "bronze", label: "Bronze" },
+  { value: "gold", label: "Gold" },
+  { value: "orange", label: "Orange" },
 ];
+
+/**
+ * Theme color mappings for button swatches
+ */
+const THEME_COLORS: Record<ThemePreference, string> = {
+  gray: "#978365",
+  mauve: "#8b5cf6",
+  slate: "#64748b",
+  sage: "#84a98c",
+  olive: "#808000",
+  sand: "#d4b896",
+  tomato: "#ff6347",
+  ruby: "#e11d48",
+  crimson: "#dc143c",
+  pink: "#db2777",
+  plum: "#7c3aed",
+  violet: "#7c3aed",
+  iris: "#6366f1",
+  indigo: "#4f46e5",
+  blue: "#2563eb",
+  cyan: "#06b6d4",
+  teal: "#0d9488",
+  jade: "#10b981",
+  grass: "#22c55e",
+  bronze: "#b45309",
+  gold: "#ca8a04",
+  orange: "#ea580c",
+};
 
 /**
  * Get the saved theme preference from storage
@@ -333,68 +361,87 @@ export async function initTheme(): Promise<void> {
 }
 
 /**
- * Build a theme select control
+ * Build a theme button group control
  * @param currentTheme - The currently selected theme
  * @param onChange - Callback when theme selection changes
  */
-export function buildThemeSelect(
+export function buildThemeButtons(
   currentTheme: ThemePreference,
   onChange?: (theme: ThemePreference) => void
 ): HTMLElement {
   const container = document.createElement("div");
-  container.className = "zen-hn-theme-select-control";
+  container.className = "zen-hn-theme-buttons-control";
 
-  const label = document.createElement("label");
-  label.className = "zen-hn-theme-select-label";
+  const label = document.createElement("div");
+  label.className = "zen-hn-theme-buttons-label";
   label.textContent = "Theme";
 
-  const wrapper = document.createElement("div");
-  wrapper.className = "zen-hn-theme-select-wrapper";
-
-  const select = document.createElement("select");
-  select.className = "zen-hn-theme-select";
+  const buttonsWrapper = document.createElement("div");
+  buttonsWrapper.className = "zen-hn-theme-buttons";
 
   THEME_OPTIONS.forEach((option) => {
-    const optionEl = document.createElement("option");
-    optionEl.value = option.value;
-    optionEl.textContent = option.label;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "zen-hn-theme-button";
+    button.setAttribute("data-theme", option.value);
+    button.setAttribute("aria-label", `Select ${option.label} theme`);
+    button.title = option.label;
+
+    const swatch = document.createElement("span");
+    swatch.className = "zen-hn-theme-swatch";
+    swatch.style.setProperty("--theme-color", THEME_COLORS[option.value] || "#978365");
+
+    const buttonLabel = document.createElement("span");
+    buttonLabel.className = "zen-hn-theme-button-label";
+    buttonLabel.textContent = option.label;
+
+    button.appendChild(swatch);
+    button.appendChild(buttonLabel);
+
     if (currentTheme === option.value) {
-      optionEl.selected = true;
+      button.classList.add("is-selected");
+      button.setAttribute("aria-pressed", "true");
+    } else {
+      button.setAttribute("aria-pressed", "false");
     }
-    select.appendChild(optionEl);
+
+    button.addEventListener("click", () => {
+      const selectedValue = option.value as ThemePreference;
+      applyTheme(selectedValue);
+      onChange?.(selectedValue);
+
+      buttonsWrapper.querySelectorAll(".zen-hn-theme-button").forEach((btn) => {
+        btn.classList.remove("is-selected");
+        btn.setAttribute("aria-pressed", "false");
+      });
+      button.classList.add("is-selected");
+      button.setAttribute("aria-pressed", "true");
+    });
+
+    buttonsWrapper.appendChild(button);
   });
 
-  select.addEventListener("change", () => {
-    const value = select.value as ThemePreference;
-    applyTheme(value);
-    onChange?.(value);
-  });
-
-  label.setAttribute("for", "zen-hn-theme-select");
-  select.id = "zen-hn-theme-select";
-
-  wrapper.appendChild(select);
   container.appendChild(label);
-  container.appendChild(wrapper);
+  container.appendChild(buttonsWrapper);
   return container;
 }
 
 /**
- * Build a theme select with automatic storage persistence
+ * Build a theme button group with automatic storage persistence
  */
-export function buildThemeSelectWithStorage(currentTheme: ThemePreference): HTMLElement {
-  return buildThemeSelect(currentTheme, (theme) => {
+export function buildThemeButtonsWithStorage(currentTheme: ThemePreference): HTMLElement {
+  return buildThemeButtons(currentTheme, (theme) => {
     saveTheme(theme);
   });
 }
 
 /**
- * Build and append a theme select to a container, loading the current preference from storage
+ * Build and append a theme button group to a container, loading the current preference from storage
  */
-export async function appendThemeSelect(container: HTMLElement): Promise<void> {
+export async function appendThemeButtons(container: HTMLElement): Promise<void> {
   const saved = await getSavedTheme();
   const current = saved || "gray";
-  const control = buildThemeSelectWithStorage(current);
+  const control = buildThemeButtonsWithStorage(current);
   container.appendChild(control);
 }
 
@@ -403,7 +450,7 @@ export async function appendThemeSelect(container: HTMLElement): Promise<void> {
  */
 export async function appendAppearanceControls(container: HTMLElement): Promise<void> {
   await appendColorModeControl(container);
-  await appendThemeSelect(container);
+  await appendThemeButtons(container);
 }
 
 /**
