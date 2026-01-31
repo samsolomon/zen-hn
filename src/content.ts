@@ -71,6 +71,7 @@ export {
   appendAppearanceControls,
   styleNativeSelect,
   styleUserPageSelects,
+  replaceHnSettingsWithToggles,
 } from "./colorMode";
 
 export {
@@ -219,6 +220,7 @@ import {
   appendAppearanceControls,
   styleNativeSelect,
   styleUserPageSelects,
+  replaceHnSettingsWithToggles,
 } from "./colorMode";
 
 import {
@@ -351,6 +353,7 @@ import {
   appendAppearanceControls,
   styleNativeSelect,
   styleUserPageSelects,
+  replaceHnSettingsWithToggles,
 };
 
 (globalThis as Record<string, unknown>).ZenHnActionStore = {

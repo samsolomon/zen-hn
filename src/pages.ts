@@ -4,7 +4,7 @@
 
 import { getOrCreateZenHnMain } from "./getOrCreateZenHnMain";
 import { isUserProfilePage } from "./logic";
-import { appendAppearanceControls, styleUserPageSelects } from "./colorMode";
+import { appendAppearanceControls, replaceHnSettingsWithToggles } from "./colorMode";
 
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
 
@@ -225,7 +225,7 @@ export function restyleUserPage(): boolean {
   getOrCreateZenHnMain().appendChild(wrapper);
 
   if (form) {
-    styleUserPageSelects();
+    replaceHnSettingsWithToggles();
   }
 
   return true;

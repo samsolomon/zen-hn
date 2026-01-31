@@ -753,3 +753,156 @@ export function styleUserPageSelects(): void {
   );
   selects.forEach(styleNativeSelect);
 }
+
+// =============================================================================
+// HN Native Settings Toggles (showdead, noprocrast)
+// =============================================================================
+
+interface HnSettingConfig {
+  selectName: string;
+  label: string;
+  description: string;
+}
+
+const HN_SETTING_CONFIGS: HnSettingConfig[] = [
+  {
+    selectName: "showd",
+    label: "Show dead",
+    description: "Show posts that have been killed by moderators or software.",
+  },
+  {
+    selectName: "nopro",
+    label: "Noprocrast",
+    description: "Turn on procrastination prevention to limit your time on HN.",
+  },
+];
+
+/**
+ * Check if a select element's current value represents "enabled"
+ */
+function isSelectEnabled(select: HTMLSelectElement): boolean {
+  return select.value === "yes";
+}
+
+/**
+ * Build a toggle switch that syncs with a native select element
+ */
+function buildSelectToggle(
+  select: HTMLSelectElement,
+  config: HnSettingConfig
+): HTMLElement {
+  const container = document.createElement("div");
+  container.className = "zen-hn-setting-toggle-control";
+
+  const labelContainer = document.createElement("div");
+  labelContainer.className = "zen-hn-setting-toggle-label-container";
+
+  const label = document.createElement("span");
+  label.className = "zen-hn-setting-toggle-label";
+  label.textContent = config.label;
+
+  const description = document.createElement("span");
+  description.className = "zen-hn-setting-toggle-description";
+  description.textContent = config.description;
+
+  labelContainer.appendChild(label);
+  labelContainer.appendChild(description);
+
+  const isEnabled = isSelectEnabled(select);
+
+  const switchEl = document.createElement("button");
+  switchEl.type = "button";
+  switchEl.className = "zen-hn-switch";
+  switchEl.setAttribute("role", "switch");
+  switchEl.setAttribute("aria-checked", isEnabled ? "true" : "false");
+  switchEl.setAttribute("aria-label", config.label);
+  if (isEnabled) {
+    switchEl.classList.add("is-active");
+  }
+
+  const switchTrack = document.createElement("span");
+  switchTrack.className = "zen-hn-switch-track";
+
+  const switchThumb = document.createElement("span");
+  switchThumb.className = "zen-hn-switch-thumb";
+
+  switchTrack.appendChild(switchThumb);
+  switchEl.appendChild(switchTrack);
+
+  switchEl.addEventListener("click", () => {
+    const newEnabled = !switchEl.classList.contains("is-active");
+
+    // Update the hidden select value
+    select.value = newEnabled ? "yes" : "no";
+
+    // Update toggle UI
+    if (newEnabled) {
+      switchEl.classList.add("is-active");
+      switchEl.setAttribute("aria-checked", "true");
+    } else {
+      switchEl.classList.remove("is-active");
+      switchEl.setAttribute("aria-checked", "false");
+    }
+  });
+
+  container.appendChild(labelContainer);
+  container.appendChild(switchEl);
+
+  return container;
+}
+
+/**
+ * Replace HN native select elements with toggle switches
+ * The original selects are hidden but remain in the DOM for form submission
+ */
+export function replaceHnSettingsWithToggles(): void {
+  for (const config of HN_SETTING_CONFIGS) {
+    const select = document.querySelector<HTMLSelectElement>(
+      `select[name="${config.selectName}"]`
+    );
+
+    if (!select) continue;
+
+    // Skip if already processed
+    if (select.dataset.zenHnToggled === "true") continue;
+
+    // Find the parent row (usually a <tr> containing the select)
+    const parentRow = select.closest("tr");
+    if (!parentRow) continue;
+
+    // Hide the original row
+    parentRow.style.display = "none";
+
+    // Mark as processed
+    select.dataset.zenHnToggled = "true";
+
+    // Create the toggle and insert it after the hidden row
+    const toggle = buildSelectToggle(select, config);
+
+    // Find the form to append the toggles section
+    const form = select.closest("form");
+    if (form) {
+      // Look for existing HN settings section or create one
+      let hnSettingsSection = form.querySelector(".zen-hn-hn-settings-section");
+      if (!hnSettingsSection) {
+        hnSettingsSection = document.createElement("div");
+        hnSettingsSection.className = "zen-hn-hn-settings-section";
+
+        const sectionTitle = document.createElement("h3");
+        sectionTitle.className = "zen-hn-settings-title";
+        sectionTitle.textContent = "HN Settings";
+        hnSettingsSection.appendChild(sectionTitle);
+
+        // Insert before the Zen HN settings section if it exists, otherwise at end of form
+        const zenHnSection = form.querySelector(".zen-hn-settings-section");
+        if (zenHnSection) {
+          form.insertBefore(hnSettingsSection, zenHnSection);
+        } else {
+          form.appendChild(hnSettingsSection);
+        }
+      }
+
+      hnSettingsSection.appendChild(toggle);
+    }
+  }
+}

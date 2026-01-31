@@ -1826,7 +1826,7 @@ html[data-zen-hn-enabled="true"] .zen-hn-subnav {
   padding: var(--space-100) var(--space-150);
   border-radius: var(--radius-100);
   font-size: var(--font-size-base);
-  font-weight: 500;
+  font-weight: 400;
   color: var(--color-text-muted);
   text-decoration: none;
   transition: background-color 120ms ease, color 120ms ease;
