@@ -3,7 +3,11 @@
   "name": "Zen HN",
   "version": "0.1.0",
   "description": "Restyles Hacker News with custom CSS.",
-  "permissions": ["storage"],
+  "permissions": ["storage", "scripting"],
+  "optional_host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
   "action": {
     "default_title": "Toggle Zen HN"
   },
