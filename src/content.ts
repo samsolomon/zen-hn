@@ -103,6 +103,8 @@ export {
   type CommentContext,
 } from "./restyleComments";
 
+export { initRestyle } from "./initRestyle";
+
 export {
   resolveFavoriteLink,
   resolveStoryFavoriteLink,
@@ -284,6 +286,8 @@ import {
   runRestyleWhenReady,
 } from "./restyleComments";
 
+import { initRestyle } from "./initRestyle";
+
 import {
   restyleSubmissions,
   getStoryRows,
@@ -402,6 +406,10 @@ import {
   restyleComments,
   findCommentContext,
   runRestyleWhenReady,
+};
+
+(globalThis as Record<string, unknown>).ZenHnInitRestyle = {
+  initRestyle,
 };
 
 (globalThis as Record<string, unknown>).ZenHnLogic = {

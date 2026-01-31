@@ -14,6 +14,7 @@ const ZEN_RESTYLE_SUBMISSIONS = globalThis.ZenHnRestyleSubmissions;
 const ZEN_BUILD_COMMENT = globalThis.ZenHnBuildCommentItem;
 const ZEN_RESTYLE_FATITEM = globalThis.ZenHnRestyleFatItem;
 const ZEN_RESTYLE_COMMENTS = globalThis.ZenHnRestyleComments;
+const ZEN_INIT_RESTYLE = globalThis.ZenHnInitRestyle;
 
 document.documentElement.dataset.zenHnActive = "true";
 
@@ -185,31 +186,8 @@ function runRestyleWhenReady() {
   return ZEN_RESTYLE_COMMENTS.runRestyleWhenReady();
 }
 
-async function initRestyle() {
-  await loadActionStore();
-  buildSidebarNavigation();
-  // buildSubnav();
-  if (ZEN_LOGIC.isUserProfilePage()) {
-    document.documentElement.dataset.zenHnUserPage = "true";
-  }
-  restyleSubmissions();
-  restyleSubmitPage();
-  restyleUserPage();
-  ZEN_PAGES.restyleChangePwPage();
-  restyleFatItem();
-  runRestyleWhenReady();
-
-  // Hide original HN content only if we created restyled content
-  const zenHnMain = document.getElementById("zen-hn-main");
-  if (zenHnMain && zenHnMain.children.length > 0) {
-    const hnmain = document.getElementById("hnmain");
-    const centerWrapper = hnmain?.closest("center");
-    if (centerWrapper) {
-      centerWrapper.style.display = "none";
-    } else if (hnmain) {
-      hnmain.style.display = "none";
-    }
-  }
+function initRestyle() {
+  return ZEN_INIT_RESTYLE.initRestyle();
 }
 
 runSidebarWhenReady();
