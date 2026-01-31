@@ -398,7 +398,7 @@ function buildSidebarNavigation() {
   userIconLink.href = userHref;
   userIconLink.setAttribute("aria-label", userLabel);
   userIconLink.setAttribute("title", userLabel);
-  const isUserActive = currentPath === "/user" || currentPath.startsWith("/user?") || currentPath.startsWith("/user?id=");
+  const isUserActive = currentPath === "/user" || currentPath.startsWith("/user?") || currentPath.startsWith("/user?id=") || currentPath.includes("/user?id=");
   if (isUserActive) {
     userIconLink.innerHTML = renderIcon("user-fill");
     userIconLink.classList.add("is-active");
