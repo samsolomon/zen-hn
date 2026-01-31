@@ -30,6 +30,7 @@
 
 import { fetchNewestItemId, resolveRandomStoryHref } from "./random";
 import { toggleCommentCollapse } from "./commentCollapse";
+import { renderIcon } from "./icons";
 
 const FOCUS_CLASS = "is-keyboard-focused";
 const MODAL_ID = "zen-hn-shortcuts-modal";
@@ -505,7 +506,7 @@ function showHelpModal(): void {
   closeButton.className = "zen-hn-shortcuts-close";
   closeButton.type = "button";
   closeButton.setAttribute("aria-label", "Close");
-  closeButton.innerHTML = "×";
+  closeButton.innerHTML = renderIcon("x");
   closeButton.addEventListener("click", closeHelpModal);
 
   header.appendChild(title);
@@ -528,15 +529,20 @@ function showHelpModal(): void {
       if (i > 0) {
         keyEl.appendChild(document.createTextNode(" / "));
       }
-      // Handle chord shortcuts (e.g., "g h")
+      // Handle chord shortcuts (e.g., "g h") and modifier combos (e.g., "Shift + Enter")
       const parts = k.trim().split(" ");
       parts.forEach((part, j) => {
         if (j > 0) {
           keyEl.appendChild(document.createTextNode(" "));
         }
-        const kbd = document.createElement("kbd");
-        kbd.textContent = part;
-        keyEl.appendChild(kbd);
+        // Don't wrap "+" in kbd
+        if (part === "+") {
+          keyEl.appendChild(document.createTextNode("+"));
+        } else {
+          const kbd = document.createElement("kbd");
+          kbd.textContent = part;
+          keyEl.appendChild(kbd);
+        }
       });
     });
 

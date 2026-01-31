@@ -357,7 +357,7 @@ describe("random", () => {
       };
 
       globalThis.window = { location: { href: "https://news.ycombinator.com/" } } as unknown as Window & typeof globalThis;
-      (globalThis as unknown as { ZEN_LOGIC: typeof mockZenLogic }).ZEN_LOGIC = mockZenLogic;
+      (globalThis as unknown as { ZenHnLogic: typeof mockZenLogic }).ZenHnLogic = mockZenLogic;
 
       const result = await resolveRandomStoryHref("500");
 
@@ -381,7 +381,7 @@ describe("random", () => {
       };
 
       globalThis.window = { location: { href: "https://news.ycombinator.com/" } } as unknown as Window & typeof globalThis;
-      (globalThis as unknown as { ZEN_LOGIC: typeof mockZenLogic }).ZEN_LOGIC = mockZenLogic;
+      (globalThis as unknown as { ZenHnLogic: typeof mockZenLogic }).ZenHnLogic = mockZenLogic;
 
       const result = await resolveRandomStoryHref("123");
 
@@ -407,7 +407,7 @@ describe("random", () => {
         value: document.createElement("div"),
       });
 
-      (globalThis as unknown as { ZEN_LOGIC: typeof mockZenLogic }).ZEN_LOGIC = mockZenLogic;
+      (globalThis as unknown as { ZenHnLogic: typeof mockZenLogic }).ZenHnLogic = mockZenLogic;
 
       await handleRandomItemClick(event);
 
@@ -444,7 +444,7 @@ describe("random", () => {
       globalThis.window = { location: { href: "https://news.ycombinator.com/" } } as unknown as Window & typeof globalThis;
       globalThis.document = { createElement: () => ({ style: {} }) } as unknown as Document;
 
-      (globalThis as unknown as { ZEN_LOGIC: typeof mockZenLogic }).ZEN_LOGIC = mockZenLogic;
+      (globalThis as unknown as { ZenHnLogic: typeof mockZenLogic }).ZenHnLogic = mockZenLogic;
 
       const event = new Event("click");
       Object.defineProperty(event, "currentTarget", {
@@ -476,7 +476,7 @@ describe("random", () => {
       globalThis.window = { location: { href: "https://news.ycombinator.com/" } } as unknown as Window & typeof globalThis;
       globalThis.document = { createElement: () => ({ style: {} }) } as unknown as Document;
 
-      (globalThis as unknown as { ZEN_LOGIC: typeof mockZenLogic }).ZEN_LOGIC = mockZenLogic;
+      (globalThis as unknown as { ZenHnLogic: typeof mockZenLogic }).ZenHnLogic = mockZenLogic;
 
       const event = new Event("click");
       Object.defineProperty(event, "currentTarget", {
@@ -525,7 +525,7 @@ describe("random", () => {
         value: link,
       });
 
-      (globalThis as unknown as { ZEN_LOGIC: typeof mockZenLogic }).ZEN_LOGIC = mockZenLogic;
+      (globalThis as unknown as { ZenHnLogic: typeof mockZenLogic }).ZenHnLogic = mockZenLogic;
 
       await handleRandomItemClick(event);
 

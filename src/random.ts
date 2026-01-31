@@ -4,7 +4,7 @@ interface ZenLogic {
   buildItemHref(itemId: string, baseHref: string): string;
 }
 
-declare const ZEN_LOGIC: ZenLogic;
+declare const ZenHnLogic: ZenLogic;
 
 export function parseItemIdFromHref(href: string): string {
   if (!href) {
@@ -84,7 +84,7 @@ async function resolveStoryHrefFromItem(itemId: number): Promise<string> {
       return resolveHrefWithBase(onStoryHref, response.url);
     }
     const storyHref =
-      ZEN_LOGIC.buildItemHref(String(itemId), response.url) ??
+      ZenHnLogic.buildItemHref(String(itemId), response.url) ??
       `item?id=${itemId}`;
     return resolveHrefWithBase(storyHref, response.url);
   } catch {
@@ -105,7 +105,7 @@ export async function resolveRandomStoryHref(maxId: string): Promise<string> {
       return storyHref;
     }
   }
-  return ZEN_LOGIC.buildItemHref(maxString, window.location.href) ||
+  return ZenHnLogic.buildItemHref(maxString, window.location.href) ||
     `item?id=${maxString}`;
 }
 
@@ -128,7 +128,7 @@ export async function handleRandomItemClick(event: Event): Promise<void> {
       return;
     }
     const fallbackHref = newestId
-      ? ZEN_LOGIC.buildItemHref(newestId, window.location.href) ||
+      ? ZenHnLogic.buildItemHref(newestId, window.location.href) ||
         `item?id=${newestId}`
       : "/newest";
     const targetHref = randomHref || fallbackHref;
