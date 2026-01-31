@@ -29,5 +29,11 @@
       "js": ["dist/logic.js", "dist/icons.js", "dist/utils.js", "dist/pages.js", "dist/submissionMenu.js", "dist/random.js", "dist/commentCollapse.js", "dist/favorites.js", "dist/replyForm.js", "dist/sidebar.js", "dist/getOrCreateZenHnMain.js", "dist/restyleSubmissions.js", "dist/buildCommentItem.js", "dist/restyleFatItem.js", "dist/restyleComments.js", "dist/initRestyle.js", "dist/main.js"],
       "run_at": "document_start"
     }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["dist/fonts/*.woff2"],
+      "matches": ["*://news.ycombinator.com/*"]
+    }
   ]
 }

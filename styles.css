@@ -1,3 +1,24 @@
+@font-face {
+  font-family: 'Inter';
+  src: url('fonts/Inter-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  src: url('fonts/IBMPlexSans-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  src: url('fonts/IBMPlexSans-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+
 :root {
   --font-size-base: 16px;
   --font-size-scale: 1;
@@ -45,6 +66,8 @@ html[data-font-size="larger"] {
   --font-stack-classical: Optima, Candara, "Noto Sans", source-sans-pro, sans-serif;
   --font-stack-serif: Charter, "Bitstream Charter", "Sitka Text", Cambria, serif;
   --font-stack-mono: "SF Mono", ui-monospace, Menlo, Monaco, "Cascadia Mono", monospace;
+  --font-stack-inter: 'Inter', system-ui, sans-serif;
+  --font-stack-ibm-plex: 'IBM Plex Sans', system-ui, sans-serif;
   --font-stack: var(--font-stack-system);
 }
 
@@ -66,6 +89,14 @@ html[data-font-family="serif"] {
 
 html[data-font-family="mono"] {
   --font-stack: var(--font-stack-mono);
+}
+
+html[data-font-family="inter"] {
+  --font-stack: var(--font-stack-inter);
+}
+
+html[data-font-family="ibm-plex"] {
+  --font-stack: var(--font-stack-ibm-plex);
 }
 
 /* Base typography - only apply when extension is enabled */
@@ -1185,6 +1216,15 @@ html[data-zen-hn-enabled="true"] .comhead {
   }
 }
 
+/* User list pages (favorites, upvoted, submitted, threads) */
+.hn-user-list-page {
+  padding: var(--space-200) var(--space-300);
+}
+
+.hn-user-list-page table {
+  width: 100%;
+}
+
 .hn-form-page {
   padding: 1rem;
   max-width: 800px;
@@ -1487,6 +1527,39 @@ html[data-zen-hn-enabled="true"] .comhead {
   outline-offset: 2px;
 }
 
+/* Font family button previews */
+.zen-hn-font-family-button[data-font-family="system"] {
+  font-family: var(--font-stack-system);
+}
+
+.zen-hn-font-family-button[data-font-family="humanist"] {
+  font-family: var(--font-stack-humanist);
+}
+
+.zen-hn-font-family-button[data-font-family="geometric"] {
+  font-family: var(--font-stack-geometric);
+}
+
+.zen-hn-font-family-button[data-font-family="classical"] {
+  font-family: var(--font-stack-classical);
+}
+
+.zen-hn-font-family-button[data-font-family="serif"] {
+  font-family: var(--font-stack-serif);
+}
+
+.zen-hn-font-family-button[data-font-family="mono"] {
+  font-family: var(--font-stack-mono);
+}
+
+.zen-hn-font-family-button[data-font-family="inter"] {
+  font-family: var(--font-stack-inter);
+}
+
+.zen-hn-font-family-button[data-font-family="ibm-plex"] {
+  font-family: var(--font-stack-ibm-plex);
+}
+
 /* External escape toggle control */
 .zen-hn-external-escape-control {
   display: flex;
@@ -1600,15 +1673,15 @@ html[data-zen-hn-enabled="true"] .hn-form-page select:focus {
 html[data-zen-hn-enabled="true"][op="user"] input[type="submit"],
 html[data-zen-hn-enabled="true"][op="user"] input[type="button"],
 html[data-zen-hn-enabled="true"][op="user"] button[type="submit"],
-html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch),
+html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button),
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="submit"],
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="button"],
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="submit"],
-html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch),
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button),
 html[data-zen-hn-enabled="true"] .hn-form-page input[type="submit"],
 html[data-zen-hn-enabled="true"] .hn-form-page input[type="button"],
 html[data-zen-hn-enabled="true"] .hn-form-page button[type="submit"],
-html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch) {
+html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button) {
   appearance: none;
   -webkit-appearance: none;
   padding: 8px 16px;
@@ -1627,15 +1700,15 @@ html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn
 html[data-zen-hn-enabled="true"][op="user"] input[type="submit"]:hover,
 html[data-zen-hn-enabled="true"][op="user"] input[type="button"]:hover,
 html[data-zen-hn-enabled="true"][op="user"] button[type="submit"]:hover,
-html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):hover,
+html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):hover,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="submit"]:hover,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="button"]:hover,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="submit"]:hover,
-html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):hover,
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):hover,
 html[data-zen-hn-enabled="true"] .hn-form-page input[type="submit"]:hover,
 html[data-zen-hn-enabled="true"] .hn-form-page input[type="button"]:hover,
 html[data-zen-hn-enabled="true"] .hn-form-page button[type="submit"]:hover,
-html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):hover {
+html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):hover {
   background-color: var(--color-bg-subtle);
   border-color: var(--color-border-strong);
   color: var(--color-text);
@@ -1644,30 +1717,30 @@ html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn
 html[data-zen-hn-enabled="true"][op="user"] input[type="submit"]:active,
 html[data-zen-hn-enabled="true"][op="user"] input[type="button"]:active,
 html[data-zen-hn-enabled="true"][op="user"] button[type="submit"]:active,
-html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):active,
+html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):active,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="submit"]:active,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="button"]:active,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="submit"]:active,
-html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):active,
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):active,
 html[data-zen-hn-enabled="true"] .hn-form-page input[type="submit"]:active,
 html[data-zen-hn-enabled="true"] .hn-form-page input[type="button"]:active,
 html[data-zen-hn-enabled="true"] .hn-form-page button[type="submit"]:active,
-html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):active {
+html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):active {
   transform: translateY(1px) scale(0.98);
 }
 
 html[data-zen-hn-enabled="true"][op="user"] input[type="submit"]:focus-visible,
 html[data-zen-hn-enabled="true"][op="user"] input[type="button"]:focus-visible,
 html[data-zen-hn-enabled="true"][op="user"] button[type="submit"]:focus-visible,
-html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):focus-visible,
+html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):focus-visible,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="submit"]:focus-visible,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="button"]:focus-visible,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="submit"]:focus-visible,
-html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):focus-visible,
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):focus-visible,
 html[data-zen-hn-enabled="true"] .hn-form-page input[type="submit"]:focus-visible,
 html[data-zen-hn-enabled="true"] .hn-form-page input[type="button"]:focus-visible,
 html[data-zen-hn-enabled="true"] .hn-form-page button[type="submit"]:focus-visible,
-html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):focus-visible {
+html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):focus-visible {
   outline: 2px solid var(--color-border);
   outline-offset: 2px;
 }

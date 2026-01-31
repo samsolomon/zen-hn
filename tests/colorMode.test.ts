@@ -5,6 +5,7 @@ import {
   COLOR_MODE_CLASS,
   COLOR_MODE_STORAGE_KEY,
   THEME_STORAGE_KEY,
+  FONT_FAMILY_STORAGE_KEY,
   toggleColorMode,
   getColorModeIcon,
   getColorModeLabel,
@@ -12,6 +13,7 @@ import {
   getColorModeStorageValue,
   isValidColorModePreference,
   type ThemePreference,
+  type FontFamilyPreference,
 } from "../src/colorMode.ts";
 
 test("COLOR_MODE_CLASS is dark-theme", () => {
@@ -123,4 +125,24 @@ test("ThemePreference includes all 22 Radix color scales", () => {
     "orange",
   ];
   assert.equal(allThemes.length, 22);
+});
+
+// Font family storage key test
+test("FONT_FAMILY_STORAGE_KEY is fontFamily", () => {
+  assert.equal(FONT_FAMILY_STORAGE_KEY, "fontFamily");
+});
+
+// FontFamilyPreference type tests (compile-time validation via type assertions)
+test("FontFamilyPreference includes all 8 font options", () => {
+  const allFonts: FontFamilyPreference[] = [
+    "system",
+    "humanist",
+    "geometric",
+    "classical",
+    "serif",
+    "mono",
+    "inter",
+    "ibm-plex",
+  ];
+  assert.equal(allFonts.length, 8);
 });

@@ -5,6 +5,15 @@
 import { renderIcon } from "./icons";
 
 export type ColorModePreference = "light" | "dark" | "system";
+export type FontFamilyPreference =
+  | "system"
+  | "humanist"
+  | "geometric"
+  | "classical"
+  | "serif"
+  | "mono"
+  | "inter"
+  | "ibm-plex";
 export type ThemePreference =
   | "zen"
   | "mauve"
@@ -32,6 +41,7 @@ export type ThemePreference =
 export const COLOR_MODE_CLASS = "dark-theme";
 export const COLOR_MODE_STORAGE_KEY = "colorMode";
 export const THEME_STORAGE_KEY = "theme";
+export const FONT_FAMILY_STORAGE_KEY = "fontFamily";
 
 /**
  * Check if Chrome storage API is available
@@ -452,12 +462,149 @@ export async function appendThemeButtons(container: HTMLElement): Promise<void> 
 }
 
 /**
- * Append all appearance controls (color mode + theme) to a container
+ * Append all appearance controls (color mode + theme + font) to a container
  */
 export async function appendAppearanceControls(container: HTMLElement): Promise<void> {
   await appendColorModeControl(container);
   await appendThemeButtons(container);
+  await appendFontFamilyButtons(container);
   await appendExternalEscapeToggle(container);
+}
+
+// =============================================================================
+// Font Family controls
+// =============================================================================
+
+interface FontFamilyOption {
+  value: FontFamilyPreference;
+  label: string;
+}
+
+const FONT_FAMILY_OPTIONS: FontFamilyOption[] = [
+  { value: "system", label: "System" },
+  { value: "humanist", label: "Humanist" },
+  { value: "geometric", label: "Geometric" },
+  { value: "classical", label: "Classical" },
+  { value: "serif", label: "Serif" },
+  { value: "mono", label: "Mono" },
+  { value: "inter", label: "Inter" },
+  { value: "ibm-plex", label: "IBM Plex" },
+];
+
+/**
+ * Get the saved font family preference from storage
+ */
+export async function getSavedFontFamily(): Promise<FontFamilyPreference | undefined> {
+  if (!hasChromeStorage()) return undefined;
+  const result = await chrome.storage.local.get(FONT_FAMILY_STORAGE_KEY);
+  return result[FONT_FAMILY_STORAGE_KEY] as FontFamilyPreference | undefined;
+}
+
+/**
+ * Save font family preference to storage
+ */
+export async function saveFontFamily(fontFamily: FontFamilyPreference): Promise<void> {
+  if (!hasChromeStorage()) return;
+  await chrome.storage.local.set({ [FONT_FAMILY_STORAGE_KEY]: fontFamily });
+}
+
+/**
+ * Apply a font family to the document
+ * @param fontFamily - The font family to apply
+ */
+export function applyFontFamily(fontFamily: FontFamilyPreference): void {
+  const html = document.documentElement;
+  if (fontFamily === "system") {
+    html.removeAttribute("data-font-family");
+  } else {
+    html.setAttribute("data-font-family", fontFamily);
+  }
+}
+
+/**
+ * Initialize font family from saved preference
+ */
+export async function initFontFamily(): Promise<void> {
+  const saved = await getSavedFontFamily();
+  if (saved) {
+    applyFontFamily(saved);
+  }
+}
+
+/**
+ * Build a font family button group control
+ * @param currentFontFamily - The currently selected font family
+ * @param onChange - Callback when font family selection changes
+ */
+export function buildFontFamilyButtons(
+  currentFontFamily: FontFamilyPreference,
+  onChange?: (fontFamily: FontFamilyPreference) => void
+): HTMLElement {
+  const container = document.createElement("div");
+  container.className = "zen-hn-font-family-control";
+
+  const label = document.createElement("div");
+  label.className = "zen-hn-font-family-label";
+  label.textContent = "Font";
+
+  const buttonsWrapper = document.createElement("div");
+  buttonsWrapper.className = "zen-hn-font-family-buttons";
+
+  FONT_FAMILY_OPTIONS.forEach((option) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "zen-hn-font-family-button";
+    button.setAttribute("data-font-family", option.value);
+    button.setAttribute("aria-label", `Select ${option.label} font`);
+    button.textContent = option.label;
+
+    if (currentFontFamily === option.value) {
+      button.classList.add("is-active");
+      button.setAttribute("aria-pressed", "true");
+    } else {
+      button.setAttribute("aria-pressed", "false");
+    }
+
+    button.addEventListener("click", () => {
+      const selectedValue = option.value as FontFamilyPreference;
+      applyFontFamily(selectedValue);
+      onChange?.(selectedValue);
+
+      buttonsWrapper.querySelectorAll(".zen-hn-font-family-button").forEach((btn) => {
+        btn.classList.remove("is-active");
+        btn.setAttribute("aria-pressed", "false");
+      });
+      button.classList.add("is-active");
+      button.setAttribute("aria-pressed", "true");
+    });
+
+    buttonsWrapper.appendChild(button);
+  });
+
+  container.appendChild(label);
+  container.appendChild(buttonsWrapper);
+  return container;
+}
+
+/**
+ * Build a font family button group with automatic storage persistence
+ */
+export function buildFontFamilyButtonsWithStorage(
+  currentFontFamily: FontFamilyPreference
+): HTMLElement {
+  return buildFontFamilyButtons(currentFontFamily, (fontFamily) => {
+    saveFontFamily(fontFamily);
+  });
+}
+
+/**
+ * Build and append font family buttons to a container, loading the current preference from storage
+ */
+export async function appendFontFamilyButtons(container: HTMLElement): Promise<void> {
+  const saved = await getSavedFontFamily();
+  const current = saved || "system";
+  const control = buildFontFamilyButtonsWithStorage(current);
+  container.appendChild(control);
 }
 
 // =============================================================================
