@@ -100,7 +100,7 @@ export const PHOSPHOR_SVGS: Record<string, string> = {
 
 /** Custom HN home icon */
 export const HN_HOME_SVG =
-  '<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" fill="#F26522"/><path d="M7.72159 32V14.5455H10.8835V21.9347H18.9716V14.5455H22.142V32H18.9716V24.5852H10.8835V32H7.72159ZM39.9247 14.5455V32H37.1122L28.8878 20.1108H28.7429V32H25.581V14.5455H28.4105L36.6264 26.4432H36.7798V14.5455H39.9247Z" fill="white"/></svg>';
+  '<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" fill="currentColor"/><path d="M7.72159 32V14.5455H10.8835V21.9347H18.9716V14.5455H22.142V32H18.9716V24.5852H10.8835V32H7.72159ZM39.9247 14.5455V32H37.1122L28.8878 20.1108H28.7429V32H25.581V14.5455H28.4105L36.6264 26.4432H36.7798V14.5455H39.9247Z" fill="white"/></svg>';
 
 /** Union type of all available icon names */
 export type IconName = keyof typeof PHOSPHOR_SVGS | "hn-home";
