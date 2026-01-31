@@ -753,6 +753,7 @@ html.dark-theme[data-theme="orange"] {
   --color-text-faint: var(--gray-9);
   --color-text-muted: var(--gray-11);
   --color-text: var(--gray-12);
+  --color-accent: var(--gray-12);
   --color-overlay-hover: var(--black-a1);
   --color-overlay-active: var(--black-a2);
   --color-overlay-pressed: var(--black-a3);

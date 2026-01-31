@@ -456,6 +456,124 @@ export async function appendThemeButtons(container: HTMLElement): Promise<void> 
 export async function appendAppearanceControls(container: HTMLElement): Promise<void> {
   await appendColorModeControl(container);
   await appendThemeButtons(container);
+  await appendExternalEscapeToggle(container);
+}
+
+// =============================================================================
+// External Site Escape Toggle
+// =============================================================================
+
+/**
+ * Get the current external escape status from the background script
+ */
+async function getExternalEscapeStatus(): Promise<boolean> {
+  if (!hasChromeStorage()) return false;
+  try {
+    const response = await chrome.runtime.sendMessage({
+      type: "getExternalEscapeStatus",
+    });
+    return response?.enabled ?? false;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Toggle external escape feature via the background script
+ */
+async function toggleExternalEscape(
+  enable: boolean
+): Promise<{ success: boolean; enabled: boolean }> {
+  if (!hasChromeStorage()) return { success: false, enabled: false };
+  try {
+    const response = await chrome.runtime.sendMessage({
+      type: "toggleExternalEscape",
+      enable,
+    });
+    return response ?? { success: false, enabled: false };
+  } catch {
+    return { success: false, enabled: false };
+  }
+}
+
+/**
+ * Build the external escape toggle control
+ */
+function buildExternalEscapeToggle(
+  isEnabled: boolean,
+  onChange?: (enabled: boolean) => void
+): HTMLElement {
+  const container = document.createElement("div");
+  container.className = "zen-hn-external-escape-control";
+
+  const labelContainer = document.createElement("div");
+  labelContainer.className = "zen-hn-external-escape-label-container";
+
+  const label = document.createElement("span");
+  label.className = "zen-hn-external-escape-label";
+  label.textContent = "Escape to return";
+
+  const description = document.createElement("span");
+  description.className = "zen-hn-external-escape-description";
+  description.textContent = "Press Escape on external sites to return to HN";
+
+  labelContainer.appendChild(label);
+  labelContainer.appendChild(description);
+
+  const switchEl = document.createElement("button");
+  switchEl.type = "button";
+  switchEl.className = "zen-hn-switch";
+  switchEl.setAttribute("role", "switch");
+  switchEl.setAttribute("aria-checked", isEnabled ? "true" : "false");
+  if (isEnabled) {
+    switchEl.classList.add("is-active");
+  }
+
+  const switchTrack = document.createElement("span");
+  switchTrack.className = "zen-hn-switch-track";
+
+  const switchThumb = document.createElement("span");
+  switchThumb.className = "zen-hn-switch-thumb";
+
+  switchTrack.appendChild(switchThumb);
+  switchEl.appendChild(switchTrack);
+
+  switchEl.addEventListener("click", async () => {
+    const newEnabled = !switchEl.classList.contains("is-active");
+
+    // Disable button while processing
+    switchEl.disabled = true;
+
+    const result = await toggleExternalEscape(newEnabled);
+
+    switchEl.disabled = false;
+
+    if (result.success) {
+      if (result.enabled) {
+        switchEl.classList.add("is-active");
+        switchEl.setAttribute("aria-checked", "true");
+      } else {
+        switchEl.classList.remove("is-active");
+        switchEl.setAttribute("aria-checked", "false");
+      }
+      onChange?.(result.enabled);
+    }
+    // If not successful (user denied permission), switch stays in current state
+  });
+
+  container.appendChild(labelContainer);
+  container.appendChild(switchEl);
+
+  return container;
+}
+
+/**
+ * Append the external escape toggle to a container
+ */
+async function appendExternalEscapeToggle(container: HTMLElement): Promise<void> {
+  const isEnabled = await getExternalEscapeStatus();
+  const control = buildExternalEscapeToggle(isEnabled);
+  container.appendChild(control);
 }
 
 /**

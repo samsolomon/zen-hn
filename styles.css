@@ -1428,62 +1428,52 @@ html[data-zen-hn-enabled="true"] .comhead {
   color: var(--color-text-muted);
 }
 
-/* Toggle switch */
-.zen-hn-toggle {
-  appearance: none;
-  -webkit-appearance: none;
-  border: none;
-  background: transparent;
-  padding: 0;
+/* Switch - shadcn style */
+.zen-hn-switch {
+  all: unset;
   cursor: pointer;
   flex-shrink: 0;
 }
 
-.zen-hn-toggle:disabled {
+.zen-hn-switch:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.zen-hn-toggle-track {
-  display: block;
-  width: 44px;
-  height: 24px;
-  border-radius: 12px;
-  background-color: var(--color-bg-element);
-  border: 1px solid var(--color-border-subtle);
+.zen-hn-switch-track {
+  display: flex;
+  align-items: center;
+  width: 36px;
+  height: var(--space-250);
+  border-radius: var(--radius-full);
+  background-color: var(--color-bg-hover);
   position: relative;
-  transition: background-color 150ms ease, border-color 150ms ease;
+  transition: background-color 150ms ease;
 }
 
-.zen-hn-toggle:hover .zen-hn-toggle-track {
-  border-color: var(--color-border);
-}
-
-.zen-hn-toggle.is-active .zen-hn-toggle-track {
+.zen-hn-switch.is-active .zen-hn-switch-track {
   background-color: var(--color-accent);
-  border-color: var(--color-accent);
 }
 
-.zen-hn-toggle-thumb {
+.zen-hn-switch-thumb {
   display: block;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background-color: white;
+  width: var(--space-200);
+  height: var(--space-200);
+  border-radius: var(--radius-full);
+  background-color: var(--color-bg-surface);
   position: absolute;
-  top: 2px;
-  left: 2px;
+  left: var(--space-25);
   transition: transform 150ms ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 2px var(--black-a2);
 }
 
-.zen-hn-toggle.is-active .zen-hn-toggle-thumb {
-  transform: translateX(20px);
+.zen-hn-switch.is-active .zen-hn-switch-thumb {
+  transform: translateX(var(--space-200));
 }
 
-.zen-hn-toggle:focus-visible .zen-hn-toggle-track {
-  outline: 2px solid var(--color-border);
-  outline-offset: 2px;
+.zen-hn-switch:focus-visible .zen-hn-switch-track {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: var(--space-25);
 }
 
 html[op="user"] select,
@@ -1524,15 +1514,15 @@ html[data-zen-hn-user-page="true"] select:focus,
 html[op="user"] input[type="submit"],
 html[op="user"] input[type="button"],
 html[op="user"] button[type="submit"],
-html[op="user"] button[type="button"],
+html[op="user"] button[type="button"]:not(.zen-hn-switch),
 html[data-zen-hn-user-page="true"] input[type="submit"],
 html[data-zen-hn-user-page="true"] input[type="button"],
 html[data-zen-hn-user-page="true"] button[type="submit"],
-html[data-zen-hn-user-page="true"] button[type="button"],
+html[data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch),
 .hn-form-page input[type="submit"],
 .hn-form-page input[type="button"],
 .hn-form-page button[type="submit"],
-.hn-form-page button[type="button"] {
+.hn-form-page button[type="button"]:not(.zen-hn-switch) {
   appearance: none;
   -webkit-appearance: none;
   padding: 8px 16px;
@@ -1551,15 +1541,15 @@ html[data-zen-hn-user-page="true"] button[type="button"],
 html[op="user"] input[type="submit"]:hover,
 html[op="user"] input[type="button"]:hover,
 html[op="user"] button[type="submit"]:hover,
-html[op="user"] button[type="button"]:hover,
+html[op="user"] button[type="button"]:not(.zen-hn-switch):hover,
 html[data-zen-hn-user-page="true"] input[type="submit"]:hover,
 html[data-zen-hn-user-page="true"] input[type="button"]:hover,
 html[data-zen-hn-user-page="true"] button[type="submit"]:hover,
-html[data-zen-hn-user-page="true"] button[type="button"]:hover,
+html[data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):hover,
 .hn-form-page input[type="submit"]:hover,
 .hn-form-page input[type="button"]:hover,
 .hn-form-page button[type="submit"]:hover,
-.hn-form-page button[type="button"]:hover {
+.hn-form-page button[type="button"]:not(.zen-hn-switch):hover {
   background-color: var(--color-bg-subtle);
   border-color: var(--color-border-strong);
   color: var(--color-text);
@@ -1568,30 +1558,30 @@ html[data-zen-hn-user-page="true"] button[type="button"]:hover,
 html[op="user"] input[type="submit"]:active,
 html[op="user"] input[type="button"]:active,
 html[op="user"] button[type="submit"]:active,
-html[op="user"] button[type="button"]:active,
+html[op="user"] button[type="button"]:not(.zen-hn-switch):active,
 html[data-zen-hn-user-page="true"] input[type="submit"]:active,
 html[data-zen-hn-user-page="true"] input[type="button"]:active,
 html[data-zen-hn-user-page="true"] button[type="submit"]:active,
-html[data-zen-hn-user-page="true"] button[type="button"]:active,
+html[data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):active,
 .hn-form-page input[type="submit"]:active,
 .hn-form-page input[type="button"]:active,
 .hn-form-page button[type="submit"]:active,
-.hn-form-page button[type="button"]:active {
+.hn-form-page button[type="button"]:not(.zen-hn-switch):active {
   transform: translateY(1px) scale(0.98);
 }
 
 html[op="user"] input[type="submit"]:focus-visible,
 html[op="user"] input[type="button"]:focus-visible,
 html[op="user"] button[type="submit"]:focus-visible,
-html[op="user"] button[type="button"]:focus-visible,
+html[op="user"] button[type="button"]:not(.zen-hn-switch):focus-visible,
 html[data-zen-hn-user-page="true"] input[type="submit"]:focus-visible,
 html[data-zen-hn-user-page="true"] input[type="button"]:focus-visible,
 html[data-zen-hn-user-page="true"] button[type="submit"]:focus-visible,
-html[data-zen-hn-user-page="true"] button[type="button"]:focus-visible,
+html[data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):focus-visible,
 .hn-form-page input[type="submit"]:focus-visible,
 .hn-form-page input[type="button"]:focus-visible,
 .hn-form-page button[type="submit"]:focus-visible,
-.hn-form-page button[type="button"]:focus-visible {
+.hn-form-page button[type="button"]:not(.zen-hn-switch):focus-visible {
   outline: 2px solid var(--color-border);
   outline-offset: 2px;
 }
