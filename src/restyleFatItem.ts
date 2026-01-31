@@ -260,7 +260,7 @@ export function restyleFatItem(): void {
   linkIconSwap.className = "icon-swap";
   linkIconSwap.innerHTML = `
     <span class="icon-default">${renderIcon("link-simple")}</span>
-    <span class="icon-success">${renderIcon("check-circle")}</span>
+    <span class="icon-success">${renderIcon("check-circle-fill")}</span>
   `;
   linkButton.appendChild(linkIconSwap);
   let copyResetTimer: ReturnType<typeof setTimeout> | null = null;
