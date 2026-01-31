@@ -94,6 +94,8 @@ export {
 
 export { buildCommentItem, type BuildCommentItemOptions } from "./buildCommentItem";
 
+export { restyleFatItem } from "./restyleFatItem";
+
 export {
   resolveFavoriteLink,
   resolveStoryFavoriteLink,
@@ -266,6 +268,10 @@ import {
 } from "./getOrCreateZenHnMain";
 
 import {
+  restyleFatItem,
+} from "./restyleFatItem";
+
+import {
   restyleSubmissions,
   getStoryRows,
 } from "./restyleSubmissions";
@@ -373,6 +379,10 @@ import {
 
 (globalThis as Record<string, unknown>).ZenHnMain = {
   getOrCreateZenHnMain,
+};
+
+(globalThis as Record<string, unknown>).ZenHnRestyleFatItem = {
+  restyleFatItem,
 };
 
 (globalThis as Record<string, unknown>).ZenHnLogic = {
