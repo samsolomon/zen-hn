@@ -188,7 +188,13 @@ export function buildSidebarNavigation(): boolean {
   sidebar.setAttribute("aria-label", "Hacker News navigation");
   sidebar.appendChild(nav);
 
-  document.body.appendChild(sidebar);
+  // Insert at beginning of body for correct tab order (after skip link if present)
+  const skipLink = document.querySelector(".zen-hn-skip-link");
+  if (skipLink) {
+    skipLink.insertAdjacentElement("afterend", sidebar);
+  } else {
+    document.body.insertBefore(sidebar, document.body.firstChild);
+  }
   document.documentElement.dataset.zenHnSidebar = "true";
 
   hideHeaderElements();

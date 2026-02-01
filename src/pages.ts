@@ -767,7 +767,13 @@ export function restyleUserPage(): boolean {
   const username = getUsernameFromUrl();
   if (username) {
     const subnav = createUserSubnav(username);
-    document.body.appendChild(subnav);
+    // Insert after sidebar for correct tab order
+    const sidebar = document.getElementById("zen-hn-sidebar");
+    if (sidebar) {
+      sidebar.insertAdjacentElement("afterend", subnav);
+    } else {
+      document.body.insertBefore(subnav, document.body.firstChild);
+    }
     document.documentElement.setAttribute("data-zen-hn-subnav", "true");
   }
 
@@ -995,13 +1001,12 @@ export function addUserSubnav(): boolean {
   // Create the subnav
   const subnav = createUserSubnav(username);
 
-  // Append to zen-hn-main if it exists, otherwise to body
-  const zenHnMain = document.getElementById("zen-hn-main");
-  if (zenHnMain) {
-    // Insert at the beginning of zen-hn-main
-    zenHnMain.insertBefore(subnav, zenHnMain.firstChild);
+  // Insert after sidebar for correct tab order (sidebar -> subnav -> main content)
+  const sidebar = document.getElementById("zen-hn-sidebar");
+  if (sidebar) {
+    sidebar.insertAdjacentElement("afterend", subnav);
   } else {
-    document.body.appendChild(subnav);
+    document.body.insertBefore(subnav, document.body.firstChild);
   }
 
   document.documentElement.setAttribute("data-zen-hn-subnav", "true");
@@ -1175,7 +1180,13 @@ export function restyleAboutPage(): boolean {
   if (!document.querySelector(".zen-hn-subnav") && document.body) {
     const loggedInUser = getLoggedInUsername();
     const subnav = createUserSubnav(loggedInUser);
-    document.body.appendChild(subnav);
+    // Insert after sidebar for correct tab order
+    const sidebar = document.getElementById("zen-hn-sidebar");
+    if (sidebar) {
+      sidebar.insertAdjacentElement("afterend", subnav);
+    } else {
+      document.body.insertBefore(subnav, document.body.firstChild);
+    }
     document.documentElement.setAttribute("data-zen-hn-subnav", "true");
   }
 
