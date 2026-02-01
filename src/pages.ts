@@ -1277,9 +1277,9 @@ export function restyleListsPage(): boolean {
     return false;
   }
 
-  // Find the definition list containing the list items
-  const dl = hnmain.querySelector("dl");
-  if (!dl) {
+  // Find the bigbox which contains the lists table
+  const bigbox = hnmain.querySelector("#bigbox table");
+  if (!bigbox) {
     return false;
   }
 
@@ -1301,11 +1301,15 @@ export function restyleListsPage(): boolean {
   const listContainer = document.createElement("ul");
   listContainer.className = "zen-hn-lists-container";
 
-  // Extract dt/dd pairs and create styled items
-  const dts = dl.querySelectorAll("dt");
-  for (const dt of dts) {
-    const link = dt.querySelector("a");
-    const dd = dt.nextElementSibling as HTMLElement | null;
+  // Extract rows from the table - each row has link in first td, description in second
+  const rows = bigbox.querySelectorAll("tr");
+  for (const row of rows) {
+    const cells = row.querySelectorAll("td");
+    if (cells.length < 2) continue;
+
+    const linkCell = cells[0];
+    const descCell = cells[1];
+    const link = linkCell.querySelector("a");
 
     if (!link) continue;
 
@@ -1318,12 +1322,11 @@ export function restyleListsPage(): boolean {
     itemLink.textContent = link.textContent;
     item.appendChild(itemLink);
 
-    if (dd && dd.tagName === "DD") {
-      const description = document.createElement("p");
-      description.className = "zen-hn-lists-description";
-      description.textContent = dd.textContent;
-      item.appendChild(description);
-    }
+    // Description may contain links, so preserve HTML
+    const description = document.createElement("p");
+    description.className = "zen-hn-lists-description";
+    description.innerHTML = descCell.innerHTML;
+    item.appendChild(description);
 
     listContainer.appendChild(item);
   }

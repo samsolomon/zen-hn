@@ -1415,7 +1415,7 @@ html[data-zen-hn-enabled="true"] .comhead {
 }
 
 .hn-form-page {
-  padding: 1rem;
+  padding: var(--space-200);
   max-width: 800px;
 }
 
@@ -1424,7 +1424,7 @@ html[data-zen-hn-enabled="true"] .comhead {
 }
 
 .hn-form-page td {
-  padding: 4px 8px 4px 0;
+  padding: var(--space-50) var(--space-100) var(--space-50) 0;
   vertical-align: top;
 }
 
@@ -1432,8 +1432,8 @@ html[data-zen-hn-enabled="true"] .comhead {
 .hn-form-page input[type="url"],
 .hn-form-page input[type="password"],
 .hn-form-page textarea {
-  padding: 8px 12px;
-  border-radius: 8px;
+  padding: var(--space-100) var(--space-150);
+  border-radius: var(--radius-100);
   border: 1px solid var(--color-border-subtle);
   background-color: var(--color-bg-surface);
   color: var(--color-text);
@@ -2015,8 +2015,8 @@ html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] select,
 html[data-zen-hn-enabled="true"] .hn-form-page select {
   appearance: none;
   -webkit-appearance: none;
-  padding: 8px 32px 8px 12px;
-  border-radius: 8px;
+  padding: var(--space-100) var(--space-400) var(--space-100) var(--space-150);
+  border-radius: var(--radius-100);
   border: 1px solid var(--color-border-subtle);
   background-color: var(--color-bg-surface);
   color: var(--color-text);
@@ -2056,12 +2056,12 @@ html[data-zen-hn-enabled="true"] .hn-form-page button[type="submit"],
 html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-button-ghost):not(.zen-hn-button-outline):not(.zen-hn-button-icon-ghost):not(.zen-dropdown-button) {
   appearance: none;
   -webkit-appearance: none;
-  padding: 8px 16px;
+  padding: var(--space-100) var(--space-200);
   border-radius: var(--radius-150);
   border: 1px solid var(--color-border);
   background-color: transparent;
   color: var(--color-text);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
