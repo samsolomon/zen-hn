@@ -1031,6 +1031,8 @@ function handleKeyDown(event: KeyboardEvent): void {
   // o to open story link (also works on item pages)
   if (key === "o") {
     event.preventDefault();
+    storeChordForDisplay("o");
+    showChordIndicator("o");
     openStoryLink(false);
     return;
   }
@@ -1039,6 +1041,7 @@ function handleKeyDown(event: KeyboardEvent): void {
   if (key === "u") {
     if (focusedItem) {
       event.preventDefault();
+      showChordIndicatorThenHide("u");
       upvoteFocusedItem();
     }
     return;
@@ -1047,6 +1050,7 @@ function handleKeyDown(event: KeyboardEvent): void {
   if (key === "f") {
     if (focusedItem) {
       event.preventDefault();
+      showChordIndicatorThenHide("f");
       bookmarkFocusedItem();
     }
     return;
@@ -1055,6 +1059,8 @@ function handleKeyDown(event: KeyboardEvent): void {
   // c to go to submit page
   if (key === "c") {
     event.preventDefault();
+    storeChordForDisplay("c");
+    showChordIndicator("c");
     window.location.href = "/submit";
     return;
   }
@@ -1071,6 +1077,7 @@ function handleKeyDown(event: KeyboardEvent): void {
   if (key === "l") {
     if (focusedItem) {
       event.preventDefault();
+      showChordIndicatorThenHide("l");
       copyLinkFocusedItem();
     }
     return;
