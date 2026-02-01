@@ -441,6 +441,7 @@ function showSearchPalette(): void {
   content.appendChild(input);
   palette.appendChild(backdrop);
   palette.appendChild(content);
+  if (!document.body) return;
   document.body.appendChild(palette);
 
   // Focus the input
@@ -590,6 +591,7 @@ function showHelpModal(): void {
   content.appendChild(list);
   modal.appendChild(backdrop);
   modal.appendChild(content);
+  if (!document.body) return;
   document.body.appendChild(modal);
 
   // Focus the search input for immediate filtering (use rAF to ensure DOM is ready)
