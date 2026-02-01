@@ -592,8 +592,10 @@ function showHelpModal(): void {
   modal.appendChild(content);
   document.body.appendChild(modal);
 
-  // Focus the search input for immediate filtering
-  searchInput.focus();
+  // Focus the search input for immediate filtering (use rAF to ensure DOM is ready)
+  requestAnimationFrame(() => {
+    searchInput.focus();
+  });
 }
 
 /**
