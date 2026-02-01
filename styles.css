@@ -1286,7 +1286,8 @@ html[data-zen-hn-enabled="true"] .comhead {
     padding: var(--space-100) var(--space-100);
   }
 
-  .hn-submission-title {
+  .hn-submission-title,
+  .zen-hn-lists-link {
     font-size: 18px;
   }
 
@@ -3106,7 +3107,6 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
    ========================================================================== */
 
 .zen-hn-lists-page {
-  max-width: 600px;
   padding: var(--space-300) var(--space-200);
 }
 
@@ -3132,20 +3132,27 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
 }
 
 .zen-hn-lists-item {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-050);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
   padding: var(--space-100);
   margin: calc(-1 * var(--space-100));
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-100);
 }
 
 .zen-hn-lists-link {
-  font-size: var(--font-size-lg);
-  font-weight: 500;
-  color: var(--color-accent);
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.4;
   text-decoration: none;
-  transition: color 120ms ease;
+}
+
+.zen-hn-lists-link:link {
+  color: var(--color-text);
+}
+
+.zen-hn-lists-link:visited {
+  color: var(--color-text-muted);
 }
 
 .zen-hn-lists-link:hover {
@@ -3158,10 +3165,19 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
 }
 
 .zen-hn-lists-description {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-sm);
   color: var(--color-text-muted);
   margin: 0;
   line-height: 1.5;
+}
+
+.zen-hn-lists-description a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.zen-hn-lists-description a:hover {
+  text-decoration: underline;
 }
 
 /* ==========================================================================
