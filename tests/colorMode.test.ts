@@ -331,7 +331,7 @@ describe("replaceHnSettingsWithToggles", () => {
     // Should create title
     const title = createdElements.find((el) => el.className === "zen-hn-settings-title");
     assert.ok(title, "Should create settings title");
-    assert.equal(title?.textContent, "HN Settings");
+    assert.equal(title?.textContent, "Settings");
   });
 
   test("creates noprocrast inputs container when nopro select is found", () => {

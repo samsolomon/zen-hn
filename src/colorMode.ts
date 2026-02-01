@@ -1185,7 +1185,7 @@ export function replaceHnSettingsWithToggles(): void {
 
         const sectionTitle = document.createElement("h3");
         sectionTitle.className = "zen-hn-settings-title";
-        sectionTitle.textContent = "HN Settings";
+        sectionTitle.textContent = "Settings";
         hnSettingsSection.appendChild(sectionTitle);
 
         // Insert before the Zen HN settings section if it exists, otherwise at end of form
