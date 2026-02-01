@@ -3,14 +3,12 @@
  */
 
 import { renderIcon, HN_HOME_SVG, type IconName } from "./icons";
-import { handleRandomItemClick } from "./random";
 
 interface IconLinkConfig {
-  href?: string;
+  href: string;
   icon: IconName;
   iconFill?: IconName;
   label: string;
-  action?: "random";
 }
 
 function getCurrentPath(): string {
@@ -37,12 +35,11 @@ function findUserLink(): { href: string; label: string } {
 function createIconLink(item: IconLinkConfig): HTMLAnchorElement {
   const link = document.createElement("a");
   link.className = "zen-hn-sidebar-icon-link";
-  link.href = item.href || "#";
+  link.href = item.href;
   link.setAttribute("aria-label", item.label);
   link.setAttribute("title", item.label);
 
-  const currentPath = getCurrentPath();
-  const isActive = item.action !== "random" && item.href && isActiveRoute(item.href);
+  const isActive = isActiveRoute(item.href);
 
   if (isActive && item.iconFill) {
     link.innerHTML = renderIcon(item.iconFill);
@@ -50,10 +47,6 @@ function createIconLink(item: IconLinkConfig): HTMLAnchorElement {
     link.setAttribute("aria-current", "page");
   } else {
     link.innerHTML = renderIcon(item.icon);
-  }
-
-  if (item.action === "random") {
-    link.addEventListener("click", handleRandomItemClick);
   }
 
   return link;
@@ -79,7 +72,7 @@ function createIconGroup(): HTMLLIElement {
     { href: "/active", icon: "lightning", iconFill: "lightning-fill", label: "Active" },
     { href: "/best", icon: "crown-simple", iconFill: "crown-simple-fill", label: "Best" },
     { href: "/ask", icon: "chat-circle", iconFill: "chat-circle-fill", label: "Ask" },
-    { href: "/newest", icon: "dice-two", label: "Random", action: "random" },
+    { href: "https://news.ycombinator.com/lists", icon: "list-bullets", label: "Lists" },
   ];
 
   const group = document.createElement("li");
