@@ -7,6 +7,7 @@ import { isUserProfilePage } from "./logic";
 import { appendAppearanceControls, replaceHnSettingsWithToggles } from "./colorMode";
 import { initSubnavOverflow } from "./subnavOverflow";
 import { createModal } from "./modal";
+import { renderIcon } from "./icons";
 
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
 const LOGGED_IN_USERNAME_KEY = "zenHnLoggedInUsername";
@@ -215,12 +216,25 @@ function showEditProfileModal(currentAbout: string, currentEmail: string): void 
     restoreFocus: true,
   });
 
-  // Title
+  // Header with title and close button
+  const header = document.createElement("div");
+  header.className = "zen-hn-edit-profile-header";
+
   const title = document.createElement("h2");
   title.id = TITLE_ID;
   title.className = "zen-hn-edit-profile-title";
   title.textContent = "Edit profile";
-  content.appendChild(title);
+
+  const closeButton = document.createElement("button");
+  closeButton.className = "zen-hn-button-icon-ghost zen-hn-edit-profile-close";
+  closeButton.type = "button";
+  closeButton.setAttribute("aria-label", "Close");
+  closeButton.innerHTML = renderIcon("x");
+  closeButton.addEventListener("click", close);
+
+  header.appendChild(title);
+  header.appendChild(closeButton);
+  content.appendChild(header);
 
   // Form container
   const form = document.createElement("div");
