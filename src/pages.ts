@@ -452,6 +452,12 @@ function createUserProfileHeader(data: UserProfileData): HTMLElement {
       showEditProfileModal(data.about, data.email);
     });
     titleRow.appendChild(editButton);
+
+    const changePasswordLink = document.createElement("a");
+    changePasswordLink.href = "https://news.ycombinator.com/changepw";
+    changePasswordLink.className = "zen-hn-button-outline zen-hn-edit-profile-button";
+    changePasswordLink.textContent = "Change password";
+    titleRow.appendChild(changePasswordLink);
   }
 
   header.appendChild(titleRow);
@@ -1253,6 +1259,83 @@ export function restyleNoprocrastPage(): boolean {
   return true;
 }
 
+// =============================================================================
+// Lists Page
+// =============================================================================
+
+/**
+ * Restyle the Lists page (/lists)
+ * This page shows a directory of various HN list views
+ */
+export function restyleListsPage(): boolean {
+  if (window.location.pathname !== "/lists") {
+    return false;
+  }
+
+  const hnmain = document.getElementById("hnmain") as HTMLElement | null;
+  if (!hnmain || hnmain.dataset[ZEN_HN_RESTYLE_KEY] === "true") {
+    return false;
+  }
+
+  // Find the definition list containing the list items
+  const dl = hnmain.querySelector("dl");
+  if (!dl) {
+    return false;
+  }
+
+  // Create styled content
+  const wrapper = document.createElement("div");
+  wrapper.className = "zen-hn-lists-page";
+
+  const header = document.createElement("header");
+  header.className = "zen-hn-lists-header";
+
+  const title = document.createElement("h1");
+  title.className = "zen-hn-lists-title";
+  title.textContent = "Lists";
+  header.appendChild(title);
+
+  wrapper.appendChild(header);
+
+  // Create a styled list container
+  const listContainer = document.createElement("ul");
+  listContainer.className = "zen-hn-lists-container";
+
+  // Extract dt/dd pairs and create styled items
+  const dts = dl.querySelectorAll("dt");
+  for (const dt of dts) {
+    const link = dt.querySelector("a");
+    const dd = dt.nextElementSibling as HTMLElement | null;
+
+    if (!link) continue;
+
+    const item = document.createElement("li");
+    item.className = "zen-hn-lists-item";
+
+    const itemLink = document.createElement("a");
+    itemLink.className = "zen-hn-lists-link";
+    itemLink.href = link.href;
+    itemLink.textContent = link.textContent;
+    item.appendChild(itemLink);
+
+    if (dd && dd.tagName === "DD") {
+      const description = document.createElement("p");
+      description.className = "zen-hn-lists-description";
+      description.textContent = dd.textContent;
+      item.appendChild(description);
+    }
+
+    listContainer.appendChild(item);
+  }
+
+  wrapper.appendChild(listContainer);
+
+  hnmain.dataset[ZEN_HN_RESTYLE_KEY] = "true";
+  getOrCreateZenHnMain().appendChild(wrapper);
+
+  return true;
+}
+
 (globalThis as Record<string, unknown>).ZenHnPages = {
   restyleChangePwPage,
   restyleSubmitPage,
@@ -1262,5 +1345,6 @@ export function restyleNoprocrastPage(): boolean {
   runUserSubnavWhenReady,
   restyleAboutPage,
   restyleNoprocrastPage,
+  restyleListsPage,
   cacheLoggedInUsername,
 };

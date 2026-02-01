@@ -3096,6 +3096,66 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
   outline-offset: 2px;
 }
 
+/* ==========================================================================
+   Lists Page
+   ========================================================================== */
+
+.zen-hn-lists-page {
+  max-width: 600px;
+  padding: var(--space-300) var(--space-200);
+}
+
+.zen-hn-lists-header {
+  margin-bottom: var(--space-300);
+}
+
+.zen-hn-lists-title {
+  font-size: var(--font-size-3xl);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.zen-hn-lists-container {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-250);
+}
+
+.zen-hn-lists-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-050);
+}
+
+.zen-hn-lists-link {
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color 120ms ease;
+}
+
+.zen-hn-lists-link:hover {
+  text-decoration: underline;
+}
+
+.zen-hn-lists-link:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.zen-hn-lists-description {
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
 /* Skip to content link */
 .zen-hn-skip-link,
 .zen-hn-skip-link:link,
