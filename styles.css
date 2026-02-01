@@ -1961,12 +1961,18 @@ html[data-zen-hn-enabled="true"] .zen-hn-subnav {
   pointer-events: auto;
 }
 
-.zen-hn-subnav-link:hover {
+.zen-hn-subnav-link:visited {
+  color: var(--color-text-muted);
+}
+
+.zen-hn-subnav-link:hover,
+.zen-hn-subnav-link:visited:hover {
   background-color: var(--color-bg-hover);
   color: var(--color-text);
 }
 
-.zen-hn-subnav-link.is-active {
+.zen-hn-subnav-link.is-active,
+.zen-hn-subnav-link:visited.is-active {
   background-color: var(--color-bg-element);
   color: var(--color-text);
 }
@@ -1974,6 +1980,42 @@ html[data-zen-hn-enabled="true"] .zen-hn-subnav {
 .zen-hn-subnav-link:focus-visible {
   outline: 2px solid var(--color-focus-ring);
   outline-offset: var(--space-25);
+}
+
+/* ============================================
+   User Profile Header
+   ============================================ */
+
+.zen-hn-user-header {
+  margin-bottom: 24px;
+}
+
+.zen-hn-user-name {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 8px 0;
+  line-height: 1.2;
+}
+
+.zen-hn-user-meta {
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+  margin: 0 0 16px 0;
+}
+
+.zen-hn-user-about {
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+.zen-hn-user-about a {
+  color: var(--color-accent);
+}
+
+.zen-hn-user-about a:hover {
+  text-decoration: underline;
 }
 
 /* Muted text - only when enabled */
@@ -2220,4 +2262,170 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
   outline: none;
   border-color: var(--color-border);
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15), 0 0 0 2px var(--color-focus-ring);
+}
+
+/* ==========================================================================
+   About Page
+   ========================================================================== */
+
+.zen-hn-about-page {
+  max-width: 600px;
+  padding: var(--space-300) var(--space-200);
+}
+
+.zen-hn-about-header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-150);
+  margin-bottom: var(--space-200);
+}
+
+.zen-hn-about-title {
+  font-size: var(--font-size-3xl);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.zen-hn-about-version {
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+}
+
+.zen-hn-about-description {
+  font-size: var(--font-size-lg);
+  color: var(--color-text);
+  line-height: 1.6;
+  margin: 0 0 var(--space-300) 0;
+}
+
+.zen-hn-about-section {
+  margin-bottom: var(--space-300);
+}
+
+.zen-hn-about-section-title {
+  font-size: var(--font-size-xl);
+  font-weight: 500;
+  color: var(--color-text);
+  margin: 0 0 var(--space-150) 0;
+}
+
+.zen-hn-about-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.zen-hn-about-list li {
+  position: relative;
+  padding-left: var(--space-200);
+  margin-bottom: var(--space-100);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+.zen-hn-about-list li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--color-text-muted);
+}
+
+.zen-hn-about-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.zen-hn-about-links li {
+  margin-bottom: var(--space-100);
+}
+
+.zen-hn-about-links a {
+  font-size: var(--font-size-base);
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color 120ms ease;
+}
+
+.zen-hn-about-links a:hover {
+  text-decoration: underline;
+}
+
+.zen-hn-about-links a:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Noprocrast Page
+   ========================================================================== */
+
+.zen-hn-noprocrast-page {
+  max-width: 600px;
+  padding: var(--space-300);
+}
+
+.zen-hn-noprocrast-header {
+  margin-bottom: var(--space-200);
+}
+
+.zen-hn-noprocrast-title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.zen-hn-noprocrast-message {
+  font-size: var(--font-size-lg);
+  color: var(--color-text);
+  line-height: 1.6;
+  margin: 0 0 var(--space-200) 0;
+}
+
+.zen-hn-noprocrast-message strong {
+  color: var(--color-accent);
+}
+
+.zen-hn-noprocrast-note {
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  margin: 0 0 var(--space-300) 0;
+}
+
+.zen-hn-noprocrast-note code {
+  font-family: var(--font-stack-mono);
+  font-size: var(--font-size-sm);
+  background-color: var(--color-bg-subtle);
+  padding: 2px 6px;
+  border-radius: var(--radius-75);
+}
+
+.zen-hn-noprocrast-retry {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-100) var(--space-200);
+  border-radius: var(--radius-150);
+  border: 1px solid var(--color-border);
+  background-color: transparent;
+  color: var(--color-text);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.zen-hn-noprocrast-retry:hover {
+  background-color: var(--color-bg-subtle);
+  border-color: var(--color-border-strong);
+}
+
+.zen-hn-noprocrast-retry:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
 }
