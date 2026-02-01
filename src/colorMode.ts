@@ -1052,16 +1052,191 @@ function isSelectEnabled(select: HTMLSelectElement): boolean {
   return select.value === "yes";
 }
 
+const NOPROCRAST_MODAL_ID = "zen-hn-noprocrast-modal";
+
+/**
+ * Get current noprocrast settings values from the form
+ */
+function getNoprocrastSettings(): {
+  maxVisit: string;
+  minAway: string;
+  delay: string;
+} {
+  const maxVisitInput = document.querySelector<HTMLInputElement>(
+    'input[name="maxv"]'
+  );
+  const minAwayInput = document.querySelector<HTMLInputElement>(
+    'input[name="mina"]'
+  );
+  const delayInput = document.querySelector<HTMLInputElement>(
+    'input[name="delay"]'
+  );
+
+  return {
+    maxVisit: maxVisitInput?.value || "0",
+    minAway: minAwayInput?.value || "0",
+    delay: delayInput?.value || "0",
+  };
+}
+
+/**
+ * Close the noprocrast confirmation modal
+ */
+function closeNoprocrastModal(): void {
+  const modal = document.getElementById(NOPROCRAST_MODAL_ID);
+  if (modal) {
+    modal.remove();
+  }
+}
+
+/**
+ * Show confirmation modal when enabling noprocrast
+ * @returns Promise that resolves to true if user confirms, false if cancelled
+ */
+function showNoprocrastConfirmation(): Promise<boolean> {
+  console.log("[Zen HN] showNoprocrastConfirmation called");
+  return new Promise((resolve) => {
+    // Close any existing modal
+    closeNoprocrastModal();
+
+    const settings = getNoprocrastSettings();
+    console.log("[Zen HN] Noprocrast settings:", settings);
+
+    const modal = document.createElement("div");
+    modal.id = NOPROCRAST_MODAL_ID;
+    modal.className = "zen-hn-noprocrast-modal";
+    modal.setAttribute("role", "alertdialog");
+    modal.setAttribute("aria-labelledby", "noprocrast-modal-title");
+    modal.setAttribute("aria-describedby", "noprocrast-modal-description");
+
+    const backdrop = document.createElement("div");
+    backdrop.className = "zen-hn-noprocrast-backdrop";
+    backdrop.addEventListener("click", () => {
+      closeNoprocrastModal();
+      resolve(false);
+    });
+
+    const content = document.createElement("div");
+    content.className = "zen-hn-noprocrast-content";
+
+    // Warning icon
+    const iconWrapper = document.createElement("div");
+    iconWrapper.className = "zen-hn-noprocrast-icon";
+    iconWrapper.innerHTML = renderIcon("warning-fill");
+
+    // Title
+    const title = document.createElement("h2");
+    title.id = "noprocrast-modal-title";
+    title.className = "zen-hn-noprocrast-title";
+    title.textContent = "Enable Noprocrast?";
+
+    // Description
+    const description = document.createElement("p");
+    description.id = "noprocrast-modal-description";
+    description.className = "zen-hn-noprocrast-description";
+    description.textContent =
+      "Once enabled, you will be locked out of Hacker News based on the following settings:";
+
+    // Settings summary
+    const settingsList = document.createElement("div");
+    settingsList.className = "zen-hn-noprocrast-settings";
+
+    const settingsItems = [
+      { label: "Max visit", value: `${settings.maxVisit} minutes` },
+      { label: "Min away", value: `${settings.minAway} minutes` },
+      { label: "Delay", value: `${settings.delay} days` },
+    ];
+
+    settingsItems.forEach((item) => {
+      const row = document.createElement("div");
+      row.className = "zen-hn-noprocrast-setting-row";
+
+      const label = document.createElement("span");
+      label.className = "zen-hn-noprocrast-setting-label";
+      label.textContent = item.label;
+
+      const value = document.createElement("span");
+      value.className = "zen-hn-noprocrast-setting-value";
+      value.textContent = item.value;
+
+      row.appendChild(label);
+      row.appendChild(value);
+      settingsList.appendChild(row);
+    });
+
+    // Warning note
+    const warning = document.createElement("p");
+    warning.className = "zen-hn-noprocrast-warning";
+    warning.textContent =
+      "You can adjust these settings above before enabling. After your max visit time expires, you will need to wait the minimum away time before you can access HN again.";
+
+    // Buttons
+    const buttonGroup = document.createElement("div");
+    buttonGroup.className = "zen-hn-noprocrast-buttons";
+
+    const cancelButton = document.createElement("button");
+    cancelButton.type = "button";
+    cancelButton.className = "zen-hn-noprocrast-button zen-hn-noprocrast-button-cancel";
+    cancelButton.textContent = "Cancel";
+    cancelButton.addEventListener("click", () => {
+      closeNoprocrastModal();
+      resolve(false);
+    });
+
+    const confirmButton = document.createElement("button");
+    confirmButton.type = "button";
+    confirmButton.className = "zen-hn-noprocrast-button zen-hn-noprocrast-button-confirm";
+    confirmButton.textContent = "Enable Noprocrast";
+    confirmButton.addEventListener("click", () => {
+      closeNoprocrastModal();
+      resolve(true);
+    });
+
+    buttonGroup.appendChild(cancelButton);
+    buttonGroup.appendChild(confirmButton);
+
+    content.appendChild(iconWrapper);
+    content.appendChild(title);
+    content.appendChild(description);
+    content.appendChild(settingsList);
+    content.appendChild(warning);
+    content.appendChild(buttonGroup);
+
+    modal.appendChild(backdrop);
+    modal.appendChild(content);
+
+    if (!document.body) return;
+    document.body.appendChild(modal);
+
+    // Handle escape key
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        closeNoprocrastModal();
+        document.removeEventListener("keydown", handleEscape);
+        resolve(false);
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+
+    // Focus the cancel button for accessibility
+    requestAnimationFrame(() => {
+      cancelButton.focus();
+    });
+  });
+}
+
 /**
  * Build a toggle switch that syncs with a native select element
  * @param select - The original hidden select element
  * @param config - Configuration for the toggle
  * @param onChange - Optional callback when toggle state changes
+ * @param onBeforeEnable - Optional async callback before enabling; if returns false, enable is cancelled
  */
 function buildSelectToggle(
   select: HTMLSelectElement,
   config: HnSettingConfig,
-  onChange?: (enabled: boolean) => void
+  onChange?: (enabled: boolean) => void,
+  onBeforeEnable?: () => Promise<boolean>
 ): HTMLElement {
   const container = document.createElement("div");
   container.className = "zen-hn-setting-toggle-control";
@@ -1101,9 +1276,7 @@ function buildSelectToggle(
   switchTrack.appendChild(switchThumb);
   switchEl.appendChild(switchTrack);
 
-  switchEl.addEventListener("click", () => {
-    const newEnabled = !switchEl.classList.contains("is-active");
-
+  const updateToggle = (newEnabled: boolean) => {
     // Update the hidden select value
     select.value = newEnabled ? "yes" : "no";
 
@@ -1118,6 +1291,24 @@ function buildSelectToggle(
 
     // Notify listener
     onChange?.(newEnabled);
+  };
+
+  switchEl.addEventListener("click", async () => {
+    console.log("[Zen HN] Toggle clicked for:", config.label);
+    const newEnabled = !switchEl.classList.contains("is-active");
+    console.log("[Zen HN] newEnabled:", newEnabled, "onBeforeEnable:", !!onBeforeEnable);
+
+    // If enabling and we have a confirmation callback, wait for it
+    if (newEnabled && onBeforeEnable) {
+      console.log("[Zen HN] Calling onBeforeEnable callback");
+      const confirmed = await onBeforeEnable();
+      console.log("[Zen HN] Confirmation result:", confirmed);
+      if (!confirmed) {
+        return; // User cancelled, don't toggle
+      }
+    }
+
+    updateToggle(newEnabled);
   });
 
   container.appendChild(labelContainer);
@@ -1175,8 +1366,14 @@ export function replaceHnSettingsWithToggles(): void {
           }
         : undefined;
 
+    // For noprocrast toggle, add confirmation before enabling
+    const onBeforeEnable =
+      config.selectName === "nopro" ? showNoprocrastConfirmation : undefined;
+
+    console.log("[Zen HN] Creating toggle for:", config.selectName, "onBeforeEnable:", !!onBeforeEnable);
+
     // Create the toggle and insert it after the hidden row
-    const toggle = buildSelectToggle(select, config, onChange);
+    const toggle = buildSelectToggle(select, config, onChange, onBeforeEnable);
 
     // Find the form to append the toggles section
     const form = select.closest("form");

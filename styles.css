@@ -216,12 +216,12 @@ html[data-zen-hn-enabled="true"][data-zen-hn-sidebar="loading"] body {
 }
 
 #zen-hn-sidebar .zen-hn-sidebar-icon-link.is-active {
-  color: var(--gray-12);
+  color: var(--color-accent);
 }
 
 #zen-hn-sidebar .zen-hn-sidebar-icon-link.is-active:hover {
   background-color: var(--color-overlay-hover);
-  color: var(--gray-12);
+  color: var(--color-accent);
 }
 
 #zen-hn-sidebar .zen-hn-home-button {
@@ -1036,17 +1036,17 @@ html[data-zen-hn-enabled="true"] .comhead {
 }
 
 .icon-button.is-active {
-  color: var(--gray-12);
+  color: var(--color-accent);
 }
 
 .icon-button.is-active:hover {
   background-color: var(--color-overlay-hover);
-  color: var(--gray-12);
+  color: var(--color-accent);
 }
 
 .icon-button.is-active:active {
   background-color: var(--color-overlay-pressed);
-  color: var(--gray-12);
+  color: var(--color-accent);
 }
 
 .icon-button.is-flipped {
@@ -2278,6 +2278,147 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
   outline: none;
   border-color: var(--color-border);
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15), 0 0 0 2px var(--color-focus-ring);
+}
+
+/* ==========================================================================
+   Noprocrast Confirmation Modal
+   ========================================================================== */
+
+.zen-hn-noprocrast-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 15vh;
+}
+
+.zen-hn-noprocrast-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.zen-hn-noprocrast-content {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  margin: var(--space-200);
+  padding: var(--space-250);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-200);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+.zen-hn-noprocrast-icon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-150);
+}
+
+.zen-hn-noprocrast-icon svg {
+  width: 48px;
+  height: 48px;
+  color: var(--color-warning, #f59e0b);
+}
+
+.zen-hn-noprocrast-title {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 var(--space-100) 0;
+}
+
+.zen-hn-noprocrast-description {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-200) 0;
+  line-height: 1.5;
+}
+
+.zen-hn-noprocrast-settings {
+  background-color: var(--color-bg-subtle);
+  border-radius: var(--radius-100);
+  padding: var(--space-150);
+  margin-bottom: var(--space-150);
+}
+
+.zen-hn-noprocrast-setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-75) 0;
+}
+
+.zen-hn-noprocrast-setting-row:not(:last-child) {
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.zen-hn-noprocrast-setting-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.zen-hn-noprocrast-setting-value {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.zen-hn-noprocrast-warning {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-200) 0;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.zen-hn-noprocrast-buttons {
+  display: flex;
+  gap: var(--space-100);
+}
+
+.zen-hn-noprocrast-button {
+  flex: 1;
+  padding: var(--space-100) var(--space-150);
+  border: none;
+  border-radius: var(--radius-100);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.zen-hn-noprocrast-button-cancel {
+  background-color: var(--color-bg-element);
+  color: var(--color-text);
+}
+
+.zen-hn-noprocrast-button-cancel:hover {
+  background-color: var(--color-overlay-hover);
+}
+
+.zen-hn-noprocrast-button-cancel:focus-visible {
+  outline: 2px solid var(--color-border);
+  outline-offset: 2px;
+}
+
+.zen-hn-noprocrast-button-confirm {
+  background-color: var(--color-warning, #f59e0b);
+  color: #000;
+}
+
+.zen-hn-noprocrast-button-confirm:hover {
+  background-color: var(--color-warning-hover, #d97706);
+}
+
+.zen-hn-noprocrast-button-confirm:focus-visible {
+  outline: 2px solid var(--color-warning, #f59e0b);
+  outline-offset: 2px;
 }
 
 /* ==========================================================================
