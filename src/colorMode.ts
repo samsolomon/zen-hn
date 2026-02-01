@@ -13,7 +13,8 @@ export type FontFamilyPreference =
   | "serif"
   | "mono"
   | "inter"
-  | "ibm-plex";
+  | "ibm-plex"
+  | "literata";
 export type ThemePreference =
   | "zen"
   | "mauve"
@@ -492,6 +493,7 @@ const FONT_FAMILY_OPTIONS: FontFamilyOption[] = [
   { value: "mono", label: "Mono" },
   { value: "inter", label: "Inter" },
   { value: "ibm-plex", label: "IBM Plex" },
+  { value: "literata", label: "Literata" },
 ];
 
 /**

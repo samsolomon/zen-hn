@@ -49,6 +49,7 @@ html[data-font-size="larger"] {
   --font-stack-mono: "SF Mono", ui-monospace, Menlo, Monaco, "Cascadia Mono", monospace;
   --font-stack-inter: 'Inter', system-ui, sans-serif;
   --font-stack-ibm-plex: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-stack-literata: 'Literata', Charter, "Bitstream Charter", serif;
   --font-stack: var(--font-stack-system);
 }
 
@@ -78,6 +79,10 @@ html[data-font-family="inter"] {
 
 html[data-font-family="ibm-plex"] {
   --font-stack: var(--font-stack-ibm-plex);
+}
+
+html[data-font-family="literata"] {
+  --font-stack: var(--font-stack-literata);
 }
 
 /* Base typography - only apply when extension is enabled */

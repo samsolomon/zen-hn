@@ -45,6 +45,7 @@ function injectFontFaces(): void {
   const interUrl = chrome.runtime.getURL("dist/fonts/Inter-Variable.woff2");
   const plexRegularUrl = chrome.runtime.getURL("dist/fonts/IBMPlexSans-Regular.woff2");
   const plexMediumUrl = chrome.runtime.getURL("dist/fonts/IBMPlexSans-Medium.woff2");
+  const literataUrl = chrome.runtime.getURL("dist/fonts/Literata-Variable.woff2");
 
   const style = document.createElement("style");
   style.textContent = `
@@ -64,6 +65,12 @@ function injectFontFaces(): void {
       font-family: 'IBM Plex Sans';
       src: url('${plexMediumUrl}') format('woff2');
       font-weight: 500;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Literata';
+      src: url('${literataUrl}') format('woff2');
+      font-weight: 200 900;
       font-display: swap;
     }
   `;
