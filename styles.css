@@ -2649,6 +2649,50 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
 }
 
 /* ==========================================================================
+   Chord Indicator
+   ========================================================================== */
+
+.zen-hn-chord-indicator {
+  position: fixed;
+  bottom: var(--space-200);
+  right: var(--space-200);
+  z-index: 9998;
+  display: flex;
+  gap: 4px;
+  padding: var(--space-75) var(--space-150);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-100);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 120ms ease, transform 120ms ease;
+  pointer-events: none;
+}
+
+.zen-hn-chord-indicator.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.zen-hn-chord-indicator kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-75);
+  background-color: var(--color-bg-subtle);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+/* ==========================================================================
    Noprocrast Confirmation Modal
    ========================================================================== */
 
@@ -3138,6 +3182,12 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
   padding: var(--space-100);
   margin: calc(-1 * var(--space-100));
   border-radius: var(--radius-100);
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.zen-hn-lists-item:hover {
+  background-color: var(--color-bg-element);
 }
 
 .zen-hn-lists-link {
@@ -3178,6 +3228,82 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
 
 .zen-hn-lists-description a:hover {
   text-decoration: underline;
+}
+
+/* ==========================================================================
+   Submit Page
+   ========================================================================== */
+
+.zen-hn-submit-page {
+  max-width: 600px;
+  padding: var(--space-300) var(--space-200);
+}
+
+.zen-hn-submit-header {
+  margin-bottom: var(--space-300);
+}
+
+.zen-hn-submit-title {
+  font-size: var(--font-size-3xl);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.zen-hn-submit-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-200);
+}
+
+.zen-hn-submit-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-75);
+}
+
+.zen-hn-submit-label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.zen-hn-submit-input,
+.zen-hn-submit-textarea {
+  padding: var(--space-100) var(--space-150);
+  border-radius: var(--radius-100);
+  border: 1px solid var(--color-border-subtle);
+  background-color: var(--color-bg-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-base);
+  font-family: inherit;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.zen-hn-submit-input:focus,
+.zen-hn-submit-textarea:focus {
+  outline: none;
+  border-color: var(--color-border);
+  box-shadow: 0 0 0 2px var(--color-focus-ring);
+}
+
+.zen-hn-submit-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.zen-hn-submit-divider {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.zen-hn-submit-form .zen-hn-button-outline {
+  margin-top: var(--space-100);
+  align-self: flex-start;
 }
 
 /* ==========================================================================

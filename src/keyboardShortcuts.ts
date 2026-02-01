@@ -40,6 +40,7 @@ const MODAL_ID = "zen-hn-shortcuts-modal";
 const MODAL_TITLE_ID = "zen-hn-shortcuts-title";
 const SEARCH_PALETTE_ID = "zen-hn-search-palette";
 const SEARCH_TITLE_ID = "zen-hn-search-title";
+const CHORD_INDICATOR_ID = "zen-hn-chord-indicator";
 const CHORD_TIMEOUT_MS = 500;
 const LAST_LIST_PAGE_KEY = "zenHnLastListPage";
 
@@ -55,6 +56,43 @@ let chordTimer: ReturnType<typeof setTimeout> | null = null;
 
 // Chords that can be extended with a third key (e.g., g+f can become g+f+c)
 const EXTENDABLE_CHORDS = ["f", "u"];
+
+/**
+ * Get or create the chord indicator element
+ */
+function getOrCreateChordIndicator(): HTMLElement {
+  let indicator = document.getElementById(CHORD_INDICATOR_ID);
+  if (!indicator) {
+    indicator = document.createElement("div");
+    indicator.id = CHORD_INDICATOR_ID;
+    indicator.className = "zen-hn-chord-indicator";
+    indicator.setAttribute("role", "status");
+    indicator.setAttribute("aria-live", "polite");
+    document.body?.appendChild(indicator);
+  }
+  return indicator;
+}
+
+/**
+ * Show the chord indicator with the current chord keys
+ */
+function showChordIndicator(chord: string): void {
+  const indicator = getOrCreateChordIndicator();
+  indicator.innerHTML = "";
+  for (const key of chord) {
+    const kbd = document.createElement("kbd");
+    kbd.textContent = key;
+    indicator.appendChild(kbd);
+  }
+  requestAnimationFrame(() => indicator.classList.add("is-visible"));
+}
+
+/**
+ * Hide the chord indicator
+ */
+function hideChordIndicator(): void {
+  document.getElementById(CHORD_INDICATOR_ID)?.classList.remove("is-visible");
+}
 
 /**
  * Check if current page is a list page
@@ -194,11 +232,19 @@ function openStoryLink(newTab: boolean): void {
     titleLink = focusedItem.querySelector<HTMLAnchorElement>(
       ".hn-submission-title"
     );
-    // For list items, the main link is the target
+    // For list items, click the link to trigger any handlers (e.g., Random)
     if (!titleLink) {
-      titleLink = focusedItem.querySelector<HTMLAnchorElement>(
+      const listLink = focusedItem.querySelector<HTMLAnchorElement>(
         ".zen-hn-lists-link"
       );
+      if (listLink) {
+        if (newTab) {
+          window.open(listLink.href, "_blank");
+        } else {
+          listLink.click();
+        }
+        return;
+      }
     }
   }
 
@@ -250,7 +296,7 @@ function openFocusedItem(newTab: boolean): void {
     return;
   }
 
-  // For list items, find the main link
+  // For list items, click the link to trigger any handlers (e.g., Random)
   const listLink = focusedItem.querySelector<HTMLAnchorElement>(
     ".zen-hn-lists-link"
   );
@@ -258,7 +304,7 @@ function openFocusedItem(newTab: boolean): void {
     if (newTab) {
       window.open(listLink.href, "_blank");
     } else {
-      window.location.href = listLink.href;
+      listLink.click();
     }
   }
 }
@@ -456,6 +502,7 @@ function clearPendingChord(): void {
     chordTimer = null;
   }
   pendingChord = null;
+  hideChordIndicator();
 }
 
 /**
@@ -834,6 +881,7 @@ function handleKeyDown(event: KeyboardEvent): void {
     if (result === "extendable") {
       // This chord can be extended with a third key
       pendingChord = "g" + key.toLowerCase();
+      showChordIndicator(pendingChord);
       if (chordTimer) clearTimeout(chordTimer);
       chordTimer = setTimeout(() => {
         const chord = pendingChord;
@@ -852,6 +900,7 @@ function handleKeyDown(event: KeyboardEvent): void {
   if (key === "g") {
     event.preventDefault();
     pendingChord = "g";
+    showChordIndicator("g");
     chordTimer = setTimeout(() => {
       clearPendingChord();
     }, CHORD_TIMEOUT_MS);

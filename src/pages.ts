@@ -9,6 +9,12 @@ import { initSubnavOverflow } from "./subnavOverflow";
 import { createModal } from "./modal";
 import { renderIcon } from "./icons";
 
+interface ZenHnRandomGlobal {
+  handleRandomItemClick: (event: Event) => Promise<void>;
+}
+
+declare const ZenHnRandom: ZenHnRandomGlobal;
+
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
 const LOGGED_IN_USERNAME_KEY = "zenHnLoggedInUsername";
 const EDIT_PROFILE_MODAL_ID = "zen-hn-edit-profile-modal";
@@ -811,13 +817,129 @@ export function restyleSubmitPage(): boolean {
     return false;
   }
 
-  const form = hnmain.querySelector("form");
-  if (!form) {
+  const originalForm = hnmain.querySelector("form");
+  if (!originalForm) {
     return false;
   }
 
+  // Extract values from original form
+  const titleInput = originalForm.querySelector<HTMLInputElement>('input[name="title"]');
+  const urlInput = originalForm.querySelector<HTMLInputElement>('input[name="url"]');
+  const textArea = originalForm.querySelector<HTMLTextAreaElement>('textarea[name="text"]');
+  const formAction = originalForm.action;
+
+  // Find any hidden inputs we need to preserve
+  const hiddenInputs = originalForm.querySelectorAll<HTMLInputElement>('input[type="hidden"]');
+
+  // Create styled page wrapper
   const wrapper = document.createElement("div");
-  wrapper.className = "hn-form-page hn-submit-page";
+  wrapper.className = "zen-hn-submit-page";
+
+  // Header
+  const header = document.createElement("header");
+  header.className = "zen-hn-submit-header";
+
+  const title = document.createElement("h1");
+  title.className = "zen-hn-submit-title";
+  title.textContent = "Submit";
+  header.appendChild(title);
+
+  wrapper.appendChild(header);
+
+  // Form
+  const form = document.createElement("form");
+  form.className = "zen-hn-submit-form";
+  form.method = "post";
+  form.action = formAction;
+
+  // Copy hidden inputs
+  for (const hidden of hiddenInputs) {
+    const hiddenClone = document.createElement("input");
+    hiddenClone.type = "hidden";
+    hiddenClone.name = hidden.name;
+    hiddenClone.value = hidden.value;
+    form.appendChild(hiddenClone);
+  }
+
+  // Title field
+  const titleGroup = document.createElement("div");
+  titleGroup.className = "zen-hn-submit-field";
+
+  const titleLabel = document.createElement("label");
+  titleLabel.className = "zen-hn-submit-label";
+  titleLabel.htmlFor = "zen-hn-title";
+  titleLabel.textContent = "Title";
+  titleGroup.appendChild(titleLabel);
+
+  const titleField = document.createElement("input");
+  titleField.id = "zen-hn-title";
+  titleField.className = "zen-hn-submit-input";
+  titleField.type = "text";
+  titleField.name = "title";
+  titleField.required = true;
+  if (titleInput?.value) {
+    titleField.value = titleInput.value;
+  }
+  titleGroup.appendChild(titleField);
+
+  form.appendChild(titleGroup);
+
+  // URL field
+  const urlGroup = document.createElement("div");
+  urlGroup.className = "zen-hn-submit-field";
+
+  const urlLabel = document.createElement("label");
+  urlLabel.className = "zen-hn-submit-label";
+  urlLabel.htmlFor = "zen-hn-url";
+  urlLabel.textContent = "URL";
+  urlGroup.appendChild(urlLabel);
+
+  const urlField = document.createElement("input");
+  urlField.id = "zen-hn-url";
+  urlField.className = "zen-hn-submit-input";
+  urlField.type = "text";
+  urlField.name = "url";
+  if (urlInput?.value) {
+    urlField.value = urlInput.value;
+  }
+  urlGroup.appendChild(urlField);
+
+  form.appendChild(urlGroup);
+
+  // Divider text
+  const divider = document.createElement("div");
+  divider.className = "zen-hn-submit-divider";
+  divider.textContent = "or";
+  form.appendChild(divider);
+
+  // Text field
+  const textGroup = document.createElement("div");
+  textGroup.className = "zen-hn-submit-field";
+
+  const textLabel = document.createElement("label");
+  textLabel.className = "zen-hn-submit-label";
+  textLabel.htmlFor = "zen-hn-text";
+  textLabel.textContent = "Text";
+  textGroup.appendChild(textLabel);
+
+  const textField = document.createElement("textarea");
+  textField.id = "zen-hn-text";
+  textField.className = "zen-hn-submit-textarea";
+  textField.name = "text";
+  textField.rows = 4;
+  if (textArea?.value) {
+    textField.value = textArea.value;
+  }
+  textGroup.appendChild(textField);
+
+  form.appendChild(textGroup);
+
+  // Submit button
+  const submitButton = document.createElement("button");
+  submitButton.type = "submit";
+  submitButton.className = "zen-hn-button-outline";
+  submitButton.textContent = "Submit";
+  form.appendChild(submitButton);
 
   wrapper.appendChild(form);
 
@@ -1390,6 +1512,36 @@ export function restyleListsPage(): boolean {
   const listContainer = document.createElement("ul");
   listContainer.className = "zen-hn-lists-container";
 
+  // Add Random item at the top
+  const randomItem = document.createElement("li");
+  randomItem.className = "zen-hn-lists-item";
+
+  const randomLink = document.createElement("a");
+  randomLink.className = "zen-hn-lists-link";
+  randomLink.href = "#";
+  randomLink.textContent = "Random";
+  randomLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (typeof ZenHnRandom !== "undefined" && ZenHnRandom.handleRandomItemClick) {
+      ZenHnRandom.handleRandomItemClick(e).catch(() => {});
+    }
+  });
+  randomItem.appendChild(randomLink);
+
+  const randomDescription = document.createElement("p");
+  randomDescription.className = "zen-hn-lists-description";
+  randomDescription.textContent = "Jump to a random story from across HN's history.";
+  randomItem.appendChild(randomDescription);
+
+  // Make entire item clickable
+  randomItem.addEventListener("click", (e) => {
+    // Don't trigger if clicking on the link itself (it has its own handler)
+    if ((e.target as HTMLElement).closest("a")) return;
+    randomLink.click();
+  });
+
+  listContainer.appendChild(randomItem);
+
   // Extract rows from the table - each row has link in first td, description in second
   const rows = bigbox.querySelectorAll("tr");
   for (const row of rows) {
@@ -1416,6 +1568,13 @@ export function restyleListsPage(): boolean {
     description.className = "zen-hn-lists-description";
     description.innerHTML = descCell.innerHTML;
     item.appendChild(description);
+
+    // Make entire item clickable
+    item.addEventListener("click", (e) => {
+      // Don't trigger if clicking on a link (description may have links)
+      if ((e.target as HTMLElement).closest("a")) return;
+      itemLink.click();
+    });
 
     listContainer.appendChild(item);
   }
