@@ -3251,6 +3251,22 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
   line-height: 1.2;
 }
 
+.zen-hn-submit-help {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  margin: 0 0 var(--space-200) 0;
+}
+
+.zen-hn-submit-help a {
+  color: var(--color-text-muted);
+  text-decoration: underline;
+}
+
+.zen-hn-submit-help a:hover {
+  color: var(--color-text);
+}
+
 .zen-hn-submit-form {
   display: flex;
   flex-direction: column;
@@ -3298,7 +3314,6 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
 .zen-hn-submit-divider {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
-  text-align: center;
 }
 
 .zen-hn-submit-form .zen-hn-button-outline {
