@@ -6,7 +6,6 @@ import { getOrCreateZenHnMain } from "./getOrCreateZenHnMain";
 import { isUserProfilePage } from "./logic";
 import { appendAppearanceControls, replaceHnSettingsWithToggles } from "./colorMode";
 import { initSubnavOverflow } from "./subnavOverflow";
-import { createModal, closeModal } from "./modal";
 
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
 const LOGGED_IN_USERNAME_KEY = "zenHnLoggedInUsername";
@@ -188,134 +187,16 @@ function formatHnAbout(text: string): string {
   return html;
 }
 
-const EDIT_PROFILE_MODAL_ID = "zen-hn-edit-profile-modal";
-
 /**
- * Show the edit profile modal
+ * Scroll to the profile form and focus the about textarea
  */
-function showEditProfileModal(data: UserProfileData): void {
-  // Close any existing modal
-  closeModal(EDIT_PROFILE_MODAL_ID);
-
-  // Get current values from the HN form
-  const hnForm = document.querySelector<HTMLFormElement>(".hn-user-page form, .hn-form-page form");
-  const aboutTextarea = hnForm?.querySelector<HTMLTextAreaElement>('textarea[name="about"]');
-  const emailInput = hnForm?.querySelector<HTMLInputElement>('input[name="email"]');
-
-  const currentAbout = aboutTextarea?.value || data.about.replace(/<br\s*\/?>/gi, "\n");
-  const currentEmail = emailInput?.value || data.email;
-
-  // Create modal using generic modal component
-  const { content, close } = createModal({
-    id: EDIT_PROFILE_MODAL_ID,
-    className: "zen-hn-edit-profile-modal",
-    titleId: "edit-profile-modal-title",
-    closeOnBackdrop: true,
-    closeOnEscape: true,
-    restoreFocus: true,
-  });
-
-  // Title
-  const title = document.createElement("h2");
-  title.id = "edit-profile-modal-title";
-  title.className = "zen-hn-edit-profile-title";
-  title.textContent = "Edit Profile";
-
-  // Form fields
-  const form = document.createElement("div");
-  form.className = "zen-hn-edit-profile-form";
-
-  // About field
-  const aboutGroup = document.createElement("div");
-  aboutGroup.className = "zen-hn-edit-profile-field";
-
-  const aboutLabel = document.createElement("label");
-  aboutLabel.className = "zen-hn-edit-profile-label";
-  aboutLabel.textContent = "About";
-  aboutLabel.setAttribute("for", "zen-hn-edit-about");
-
-  const aboutInputField = document.createElement("textarea");
-  aboutInputField.id = "zen-hn-edit-about";
-  aboutInputField.className = "zen-hn-edit-profile-textarea";
-  aboutInputField.value = currentAbout;
-  aboutInputField.rows = 5;
-
-  aboutGroup.appendChild(aboutLabel);
-  aboutGroup.appendChild(aboutInputField);
-
-  // Email field
-  const emailGroup = document.createElement("div");
-  emailGroup.className = "zen-hn-edit-profile-field";
-
-  const emailLabel = document.createElement("label");
-  emailLabel.className = "zen-hn-edit-profile-label";
-  emailLabel.textContent = "Email";
-  emailLabel.setAttribute("for", "zen-hn-edit-email");
-
-  const emailFieldInput = document.createElement("input");
-  emailFieldInput.type = "email";
-  emailFieldInput.id = "zen-hn-edit-email";
-  emailFieldInput.className = "zen-hn-edit-profile-input";
-  emailFieldInput.value = currentEmail;
-
-  emailGroup.appendChild(emailLabel);
-  emailGroup.appendChild(emailFieldInput);
-
-  form.appendChild(aboutGroup);
-  form.appendChild(emailGroup);
-
-  // Buttons
-  const buttonGroup = document.createElement("div");
-  buttonGroup.className = "zen-hn-edit-profile-buttons";
-
-  const cancelButton = document.createElement("button");
-  cancelButton.type = "button";
-  cancelButton.className = "zen-hn-button-ghost";
-  cancelButton.textContent = "Cancel";
-  cancelButton.addEventListener("click", close);
-
-  const saveButton = document.createElement("button");
-  saveButton.type = "button";
-  saveButton.className = "zen-hn-button-outline";
-  saveButton.textContent = "Save";
-  saveButton.addEventListener("click", () => {
-    // Update the HN form fields
-    if (aboutTextarea) {
-      aboutTextarea.value = aboutInputField.value;
-    }
-    if (emailInput) {
-      emailInput.value = emailFieldInput.value;
-    }
-
-    // Update the visible header about section with HN formatting
-    const aboutDisplay = document.querySelector(".zen-hn-user-about");
-    if (aboutDisplay) {
-      aboutDisplay.innerHTML = formatHnAbout(aboutInputField.value);
-    } else if (aboutInputField.value) {
-      // Create about section if it doesn't exist but now has content
-      const header = document.querySelector(".zen-hn-user-header");
-      if (header) {
-        const about = document.createElement("div");
-        about.className = "zen-hn-user-about";
-        about.innerHTML = formatHnAbout(aboutInputField.value);
-        header.appendChild(about);
-      }
-    }
-
-    close();
-  });
-
-  buttonGroup.appendChild(cancelButton);
-  buttonGroup.appendChild(saveButton);
-
-  content.appendChild(title);
-  content.appendChild(form);
-  content.appendChild(buttonGroup);
-
-  // Focus the about textarea
-  requestAnimationFrame(() => {
-    aboutInputField.focus();
-  });
+function scrollToProfileForm(): void {
+  const aboutTextarea = document.querySelector<HTMLTextAreaElement>('textarea[name="about"]');
+  if (aboutTextarea) {
+    aboutTextarea.scrollIntoView({ behavior: "smooth", block: "center" });
+    // Focus after scroll completes
+    setTimeout(() => aboutTextarea.focus(), 300);
+  }
 }
 
 /**
@@ -339,7 +220,7 @@ function createUserProfileHeader(data: UserProfileData): HTMLElement {
     editButton.type = "button";
     editButton.className = "zen-hn-button-outline zen-hn-edit-profile-button";
     editButton.textContent = "Edit";
-    editButton.addEventListener("click", () => showEditProfileModal(data));
+    editButton.addEventListener("click", scrollToProfileForm);
     titleRow.appendChild(editButton);
   }
 
