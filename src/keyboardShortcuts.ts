@@ -50,7 +50,7 @@ const LAST_LIST_PAGE_KEY = "zenHnLastListPage";
 let searchPaletteTrigger: HTMLElement | null = null;
 
 // List pages that we track for Escape navigation
-const LIST_PAGE_PATHS = ["/", "/news", "/newest", "/front", "/best", "/active", "/ask", "/show", "/jobs"];
+const LIST_PAGE_PATHS = ["/", "/news", "/newest", "/front", "/best", "/active", "/ask", "/show", "/jobs", "/lists"];
 
 let focusedItem: HTMLElement | null = null;
 let pendingChord: string | null = null;
