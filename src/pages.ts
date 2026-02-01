@@ -6,9 +6,11 @@ import { getOrCreateZenHnMain } from "./getOrCreateZenHnMain";
 import { isUserProfilePage } from "./logic";
 import { appendAppearanceControls, replaceHnSettingsWithToggles } from "./colorMode";
 import { initSubnavOverflow } from "./subnavOverflow";
+import { createModal } from "./modal";
 
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
 const LOGGED_IN_USERNAME_KEY = "zenHnLoggedInUsername";
+const EDIT_PROFILE_MODAL_ID = "zen-hn-edit-profile-modal";
 
 // =============================================================================
 // User Profile Header
@@ -188,15 +190,148 @@ function formatHnAbout(text: string): string {
 }
 
 /**
- * Scroll to the profile form and focus the about textarea
+ * Auto-resize a textarea to fit its content
  */
-function scrollToProfileForm(): void {
-  const aboutTextarea = document.querySelector<HTMLTextAreaElement>('textarea[name="about"]');
-  if (aboutTextarea) {
-    aboutTextarea.scrollIntoView({ behavior: "smooth", block: "center" });
-    // Focus after scroll completes
-    setTimeout(() => aboutTextarea.focus(), 300);
-  }
+function autoResizeTextarea(textarea: HTMLTextAreaElement): void {
+  // Reset height to auto to get the correct scrollHeight
+  textarea.style.height = "auto";
+  // Set height to scrollHeight to fit content
+  textarea.style.height = `${textarea.scrollHeight}px`;
+}
+
+/**
+ * Show the edit profile modal
+ */
+function showEditProfileModal(currentAbout: string, currentEmail: string): void {
+  const TITLE_ID = "zen-hn-edit-profile-title";
+
+  const { content, close } = createModal({
+    id: EDIT_PROFILE_MODAL_ID,
+    className: "zen-hn-edit-profile-modal",
+    titleId: TITLE_ID,
+    closeOnBackdrop: true,
+    closeOnEscape: true,
+    focusTrap: true,
+    restoreFocus: true,
+  });
+
+  // Title
+  const title = document.createElement("h2");
+  title.id = TITLE_ID;
+  title.className = "zen-hn-edit-profile-title";
+  title.textContent = "Edit profile";
+  content.appendChild(title);
+
+  // Form container
+  const form = document.createElement("div");
+  form.className = "zen-hn-edit-profile-form";
+
+  // About field
+  const aboutGroup = document.createElement("div");
+  aboutGroup.className = "zen-hn-edit-profile-field";
+
+  const aboutLabel = document.createElement("label");
+  aboutLabel.className = "zen-hn-edit-profile-label";
+  aboutLabel.htmlFor = "zen-hn-edit-about";
+  aboutLabel.textContent = "About";
+  aboutGroup.appendChild(aboutLabel);
+
+  const aboutTextarea = document.createElement("textarea");
+  aboutTextarea.id = "zen-hn-edit-about";
+  aboutTextarea.className = "zen-hn-edit-profile-textarea";
+  aboutTextarea.name = "about";
+  aboutTextarea.value = currentAbout;
+  aboutTextarea.rows = 4;
+  aboutGroup.appendChild(aboutTextarea);
+
+  // About hint text
+  const aboutHint = document.createElement("div");
+  aboutHint.className = "zen-hn-edit-profile-hint";
+  aboutHint.innerHTML = `Blank lines separate paragraphs. Text surrounded by asterisks is <i>italicized</i>. To get a literal asterisk, use \\* or **.<br><br>
+Text after a blank line that is indented by two or more spaces is reproduced verbatim. (This is intended for code.)<br><br>
+Urls become links, except in the text field of a submission. If your url gets linked incorrectly, put it in &lt;angle brackets&gt; and it should work.`;
+  aboutGroup.appendChild(aboutHint);
+
+  form.appendChild(aboutGroup);
+
+  // Email field
+  const emailGroup = document.createElement("div");
+  emailGroup.className = "zen-hn-edit-profile-field";
+
+  const emailLabel = document.createElement("label");
+  emailLabel.className = "zen-hn-edit-profile-label";
+  emailLabel.htmlFor = "zen-hn-edit-email";
+  emailLabel.textContent = "Email";
+  emailGroup.appendChild(emailLabel);
+
+  const emailInput = document.createElement("input");
+  emailInput.id = "zen-hn-edit-email";
+  emailInput.className = "zen-hn-edit-profile-input";
+  emailInput.type = "email";
+  emailInput.name = "email";
+  emailInput.value = currentEmail;
+  emailGroup.appendChild(emailInput);
+
+  // Email hint text
+  const emailHint = document.createElement("div");
+  emailHint.className = "zen-hn-edit-profile-hint";
+  emailHint.textContent = "Only admins see your email. To share publicly, add to About.";
+  emailGroup.appendChild(emailHint);
+
+  form.appendChild(emailGroup);
+  content.appendChild(form);
+
+  // Button row
+  const buttonRow = document.createElement("div");
+  buttonRow.className = "zen-hn-edit-profile-buttons";
+
+  const cancelButton = document.createElement("button");
+  cancelButton.type = "button";
+  cancelButton.className = "zen-hn-button-ghost";
+  cancelButton.textContent = "Cancel";
+  cancelButton.addEventListener("click", close);
+
+  const saveButton = document.createElement("button");
+  saveButton.type = "button";
+  saveButton.className = "zen-hn-button-outline";
+  saveButton.textContent = "Save";
+  saveButton.addEventListener("click", () => {
+    // Get the original form from the page
+    const originalForm = document.querySelector<HTMLFormElement>('form[action="xuser"]');
+    if (!originalForm) {
+      close();
+      return;
+    }
+
+    // Update the original form fields
+    const originalAbout = originalForm.querySelector<HTMLTextAreaElement>('textarea[name="about"]');
+    const originalEmail = originalForm.querySelector<HTMLInputElement>('input[name="email"]');
+
+    if (originalAbout) {
+      originalAbout.value = aboutTextarea.value;
+    }
+    if (originalEmail) {
+      originalEmail.value = emailInput.value;
+    }
+
+    // Submit the original form
+    originalForm.submit();
+  });
+
+  buttonRow.appendChild(cancelButton);
+  buttonRow.appendChild(saveButton);
+  content.appendChild(buttonRow);
+
+  // Set up auto-resize for textarea
+  autoResizeTextarea(aboutTextarea);
+  aboutTextarea.addEventListener("input", () => autoResizeTextarea(aboutTextarea));
+
+  // Focus the about textarea
+  requestAnimationFrame(() => {
+    aboutTextarea.focus();
+    // Move cursor to end of text
+    aboutTextarea.setSelectionRange(aboutTextarea.value.length, aboutTextarea.value.length);
+  });
 }
 
 /**
@@ -220,7 +355,9 @@ function createUserProfileHeader(data: UserProfileData): HTMLElement {
     editButton.type = "button";
     editButton.className = "zen-hn-button-outline zen-hn-edit-profile-button";
     editButton.textContent = "Edit";
-    editButton.addEventListener("click", scrollToProfileForm);
+    editButton.addEventListener("click", () => {
+      showEditProfileModal(data.about, data.email);
+    });
     titleRow.appendChild(editButton);
   }
 
