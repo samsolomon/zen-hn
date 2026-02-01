@@ -1058,6 +1058,31 @@ html[data-zen-hn-enabled="true"] .comhead {
 }
 
 /* ==========================================================================
+   Generic Button Variants
+   ========================================================================== */
+
+.zen-hn-button-ghost {
+  background: none;
+  border: none;
+  padding: var(--space-100) var(--space-150);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  font-family: inherit;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color 120ms ease;
+}
+
+.zen-hn-button-ghost:hover {
+  color: var(--color-text);
+}
+
+.zen-hn-button-ghost:focus-visible {
+  outline: 2px solid var(--color-border);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
    Responsive Design - Tablet (≤1024px)
    ========================================================================== */
 @media (max-width: 1024px) {
@@ -1852,15 +1877,15 @@ html[data-zen-hn-enabled="true"] .hn-form-page select:focus {
 html[data-zen-hn-enabled="true"][op="user"] input[type="submit"],
 html[data-zen-hn-enabled="true"][op="user"] input[type="button"],
 html[data-zen-hn-enabled="true"][op="user"] button[type="submit"],
-html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button),
+html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-button-ghost),
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="submit"],
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="button"],
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="submit"],
-html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button),
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-button-ghost),
 html[data-zen-hn-enabled="true"] .hn-form-page input[type="submit"],
 html[data-zen-hn-enabled="true"] .hn-form-page input[type="button"],
 html[data-zen-hn-enabled="true"] .hn-form-page button[type="submit"],
-html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button) {
+html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-button-ghost) {
   appearance: none;
   -webkit-appearance: none;
   padding: 8px 16px;
@@ -1879,15 +1904,15 @@ html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn
 html[data-zen-hn-enabled="true"][op="user"] input[type="submit"]:hover,
 html[data-zen-hn-enabled="true"][op="user"] input[type="button"]:hover,
 html[data-zen-hn-enabled="true"][op="user"] button[type="submit"]:hover,
-html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):hover,
+html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-button-ghost):hover,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="submit"]:hover,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="button"]:hover,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="submit"]:hover,
-html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):hover,
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-button-ghost):hover,
 html[data-zen-hn-enabled="true"] .hn-form-page input[type="submit"]:hover,
 html[data-zen-hn-enabled="true"] .hn-form-page input[type="button"]:hover,
 html[data-zen-hn-enabled="true"] .hn-form-page button[type="submit"]:hover,
-html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):hover {
+html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-button-ghost):hover {
   background-color: var(--color-bg-subtle);
   border-color: var(--color-border-strong);
   color: var(--color-text);
@@ -1896,30 +1921,30 @@ html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn
 html[data-zen-hn-enabled="true"][op="user"] input[type="submit"]:active,
 html[data-zen-hn-enabled="true"][op="user"] input[type="button"]:active,
 html[data-zen-hn-enabled="true"][op="user"] button[type="submit"]:active,
-html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):active,
+html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-button-ghost):active,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="submit"]:active,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="button"]:active,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="submit"]:active,
-html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):active,
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-button-ghost):active,
 html[data-zen-hn-enabled="true"] .hn-form-page input[type="submit"]:active,
 html[data-zen-hn-enabled="true"] .hn-form-page input[type="button"]:active,
 html[data-zen-hn-enabled="true"] .hn-form-page button[type="submit"]:active,
-html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):active {
+html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-button-ghost):active {
   transform: translateY(1px) scale(0.98);
 }
 
 html[data-zen-hn-enabled="true"][op="user"] input[type="submit"]:focus-visible,
 html[data-zen-hn-enabled="true"][op="user"] input[type="button"]:focus-visible,
 html[data-zen-hn-enabled="true"][op="user"] button[type="submit"]:focus-visible,
-html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):focus-visible,
+html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-button-ghost):focus-visible,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="submit"]:focus-visible,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="button"]:focus-visible,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="submit"]:focus-visible,
-html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):focus-visible,
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-button-ghost):focus-visible,
 html[data-zen-hn-enabled="true"] .hn-form-page input[type="submit"]:focus-visible,
 html[data-zen-hn-enabled="true"] .hn-form-page input[type="button"]:focus-visible,
 html[data-zen-hn-enabled="true"] .hn-form-page button[type="submit"]:focus-visible,
-html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):focus-visible {
+html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-button-ghost):focus-visible {
   outline: 2px solid var(--color-border);
   outline-offset: 2px;
 }
@@ -2313,6 +2338,38 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
   text-align: center;
 }
 
+.zen-hn-noprocrast-close {
+  position: absolute;
+  top: var(--space-100);
+  right: var(--space-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--radius-100);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.zen-hn-noprocrast-close svg {
+  width: 20px;
+  height: 20px;
+}
+
+.zen-hn-noprocrast-close:hover {
+  background-color: var(--color-overlay-hover);
+  color: var(--color-text);
+}
+
+.zen-hn-noprocrast-close:focus-visible {
+  outline: 2px solid var(--color-border);
+  outline-offset: 2px;
+}
+
 .zen-hn-noprocrast-icon {
   display: flex;
   justify-content: center;
@@ -2322,7 +2379,7 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
 .zen-hn-noprocrast-icon svg {
   width: 48px;
   height: 48px;
-  color: var(--color-warning, #f59e0b);
+  color: #f59e0b;
 }
 
 .zen-hn-noprocrast-title {
@@ -2381,6 +2438,10 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
   gap: var(--space-100);
 }
 
+.zen-hn-noprocrast-buttons .zen-hn-button-ghost {
+  flex: 1;
+}
+
 .zen-hn-noprocrast-button {
   flex: 1;
   padding: var(--space-100) var(--space-150);
@@ -2393,31 +2454,17 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
   transition: background-color 120ms ease, color 120ms ease;
 }
 
-.zen-hn-noprocrast-button-cancel {
-  background-color: var(--color-bg-element);
-  color: var(--color-text);
-}
-
-.zen-hn-noprocrast-button-cancel:hover {
-  background-color: var(--color-overlay-hover);
-}
-
-.zen-hn-noprocrast-button-cancel:focus-visible {
-  outline: 2px solid var(--color-border);
-  outline-offset: 2px;
-}
-
 .zen-hn-noprocrast-button-confirm {
-  background-color: var(--color-warning, #f59e0b);
-  color: #000;
+  background-color: var(--color-text);
+  color: var(--color-bg-surface);
 }
 
 .zen-hn-noprocrast-button-confirm:hover {
-  background-color: var(--color-warning-hover, #d97706);
+  background-color: var(--color-text-muted);
 }
 
 .zen-hn-noprocrast-button-confirm:focus-visible {
-  outline: 2px solid var(--color-warning, #f59e0b);
+  outline: 2px solid var(--color-text);
   outline-offset: 2px;
 }
 
@@ -2448,6 +2495,45 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
 .zen-hn-about-version {
   font-size: var(--font-size-base);
   color: var(--color-text-muted);
+}
+
+.zen-hn-about-tagline {
+  font-size: var(--font-size-xl);
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  margin: 0;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.zen-hn-about-divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: var(--space-300) 0;
+}
+
+.zen-hn-about-story {
+  margin-bottom: var(--space-100);
+}
+
+.zen-hn-about-story-title {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 var(--space-200) 0;
+}
+
+.zen-hn-about-story p {
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  line-height: 1.7;
+  margin: 0 0 var(--space-200) 0;
+}
+
+.zen-hn-about-story p:last-child {
+  margin-bottom: 0;
 }
 
 .zen-hn-about-description {

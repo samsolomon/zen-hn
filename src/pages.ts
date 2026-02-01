@@ -575,15 +575,34 @@ export function runUserSubnavWhenReady(): void {
 
 /**
  * Restyle the About page with custom Zen HN content
+ * Note: HN doesn't have an /about page, so we create our own
  */
 export function restyleAboutPage(): boolean {
   if (window.location.pathname !== "/about") {
     return false;
   }
 
-  const hnmain = document.getElementById("hnmain") as HTMLElement | null;
-  if (!hnmain || hnmain.dataset[ZEN_HN_RESTYLE_KEY] === "true") {
+  // Check if already restyled (use documentElement since hnmain may not exist on 404)
+  if (document.documentElement.dataset.zenHnAboutRestyled === "true") {
     return false;
+  }
+
+  // Mark as restyled early to prevent double-processing
+  document.documentElement.dataset.zenHnAboutRestyled = "true";
+
+  // Hide any HN content (404 page shows "Unknown" in a pre tag)
+  const hnmain = document.getElementById("hnmain");
+  if (hnmain) {
+    hnmain.dataset[ZEN_HN_RESTYLE_KEY] = "true";
+  }
+  const centerWrapper = document.querySelector("center") as HTMLElement | null;
+  if (centerWrapper) {
+    centerWrapper.style.display = "none";
+  }
+  // Hide the "Unknown." pre tag that appears on 404 pages
+  const unknownPre = document.querySelector("body > pre") as HTMLElement | null;
+  if (unknownPre) {
+    unknownPre.style.display = "none";
   }
 
   // Get version from manifest
@@ -599,29 +618,50 @@ export function restyleAboutPage(): boolean {
       <span class="zen-hn-about-version">v${version}</span>
     </header>
 
-    <p class="zen-hn-about-description">
-      A clean, modern interface for Hacker News that enhances readability
-      and adds powerful features while respecting the spirit of the original.
+    <p class="zen-hn-about-tagline">
+      A calmer way to read Hacker News. Less noise, more focus.
     </p>
 
+    <hr class="zen-hn-about-divider" />
+
+    <section class="zen-hn-about-story">
+      <h2 class="zen-hn-about-story-title">Why I Built This</h2>
+
+      <p>
+        Hacker News has been part of my daily routine for over a decade. The community
+        is thoughtful, the discussions are substantive, and I always learn something new.
+        But the interface never quite matched the quality of the content.
+      </p>
+
+      <p>
+        I wanted something that felt more intentional. Something that would let me read
+        without the visual clutter, navigate without reaching for the mouse, and focus
+        on what matters: the ideas and conversations.
+      </p>
+
+      <p>
+        Zen HN is that something. It's not a replacement for Hacker News—it's a lens
+        that brings the experience into sharper focus. I hope it serves you as well
+        as it serves me.
+      </p>
+    </section>
+
+    <hr class="zen-hn-about-divider" />
+
     <section class="zen-hn-about-section">
-      <h2 class="zen-hn-about-section-title">Features</h2>
-      <ul class="zen-hn-about-list">
-        <li>Multiple color themes</li>
-        <li>Dark mode support (auto, light, dark)</li>
-        <li>Customizable fonts and font sizes</li>
-        <li>Keyboard navigation</li>
-        <li>Collapsible comments</li>
-        <li>Clean, distraction-free interface</li>
-        <li>Improved user profile pages</li>
+      <h2 class="zen-hn-about-section-title">Connect</h2>
+      <ul class="zen-hn-about-links">
+        <li><a href="https://twitter.com/username" target="_blank" rel="noopener">Twitter</a></li>
+        <li><a href="https://github.com/samsolomon" target="_blank" rel="noopener">GitHub</a></li>
+        <li><a href="https://example.com" target="_blank" rel="noopener">Website</a></li>
       </ul>
     </section>
 
     <section class="zen-hn-about-section">
-      <h2 class="zen-hn-about-section-title">Links</h2>
+      <h2 class="zen-hn-about-section-title">Project</h2>
       <ul class="zen-hn-about-links">
-        <li><a href="https://github.com/samsolomon/zen-hn" target="_blank" rel="noopener">GitHub Repository</a></li>
-        <li><a href="https://github.com/samsolomon/zen-hn/issues" target="_blank" rel="noopener">Report Issues</a></li>
+        <li><a href="https://github.com/samsolomon/zen-hn" target="_blank" rel="noopener">Source Code</a></li>
+        <li><a href="https://github.com/samsolomon/zen-hn/issues" target="_blank" rel="noopener">Report an Issue</a></li>
         <li><a href="#" class="zen-hn-about-shortcuts-link">Keyboard Shortcuts</a></li>
       </ul>
     </section>
@@ -639,11 +679,10 @@ export function restyleAboutPage(): boolean {
     });
   }
 
-  hnmain.dataset[ZEN_HN_RESTYLE_KEY] = "true";
   getOrCreateZenHnMain().appendChild(wrapper);
 
   // Add subnav for About page (use logged-in user for user-specific links)
-  if (!document.querySelector(".zen-hn-subnav")) {
+  if (!document.querySelector(".zen-hn-subnav") && document.body) {
     const loggedInUser = getLoggedInUsername();
     const subnav = createUserSubnav(loggedInUser);
     document.body.appendChild(subnav);

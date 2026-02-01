@@ -292,12 +292,33 @@ async function goToRandomStory(): Promise<void> {
   }
 }
 
+const LOGGED_IN_USERNAME_KEY = "zenHnLoggedInUsername";
+
 /**
  * Get the logged-in user's username
+ * Falls back to localStorage for pages without the header (like /about)
  */
 function getLoggedInUsername(): string | null {
   const meLink = document.querySelector<HTMLAnchorElement>("a#me");
-  return meLink?.textContent?.trim() || null;
+  if (meLink) {
+    const username = meLink.textContent?.trim() || null;
+    if (username) {
+      // Cache for pages without header
+      try {
+        localStorage.setItem(LOGGED_IN_USERNAME_KEY, username);
+      } catch {
+        // Ignore storage errors
+      }
+      return username;
+    }
+  }
+
+  // Fallback to cached username
+  try {
+    return localStorage.getItem(LOGGED_IN_USERNAME_KEY);
+  } catch {
+    return null;
+  }
 }
 
 /**
