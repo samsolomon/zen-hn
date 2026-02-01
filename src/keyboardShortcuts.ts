@@ -8,7 +8,7 @@
  * - O: Open in new tab
  * - u: Upvote
  * - f: Favorite/bookmark
- * - c: Create/submit (when item focused)
+ * - c: Create/submit
  * - Space: Expand/collapse comment
  * - l: Copy link
  * - g+h: Go to Home
@@ -598,7 +598,7 @@ function showHelpModal(): void {
     { key: "o / Shift + Enter", action: "Open story link" },
     { key: "u", action: "Upvote" },
     { key: "f", action: "Favorite / bookmark" },
-    { key: "c", action: "Create / submit (requires focus)" },
+    { key: "c", action: "Submit" },
     { key: "Space", action: "Expand / collapse comment" },
     { key: "l", action: "Copy link" },
     { key: "g h", action: "Go to home" },
@@ -883,12 +883,10 @@ function handleKeyDown(event: KeyboardEvent): void {
     return;
   }
 
-  // c to go to submit page (only when an item is focused)
+  // c to go to submit page
   if (key === "c") {
-    if (focusedItem) {
-      event.preventDefault();
-      window.location.href = "/submit";
-    }
+    event.preventDefault();
+    window.location.href = "/submit";
     return;
   }
 
