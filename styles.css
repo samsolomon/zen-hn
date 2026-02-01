@@ -3156,6 +3156,67 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
   line-height: 1.5;
 }
 
+/* ==========================================================================
+   Change Password Page
+   ========================================================================== */
+
+.zen-hn-changepw-page {
+  max-width: 400px;
+  padding: var(--space-300) var(--space-200);
+}
+
+.zen-hn-changepw-header {
+  margin-bottom: var(--space-300);
+}
+
+.zen-hn-changepw-title {
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.zen-hn-changepw-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-200);
+}
+
+.zen-hn-changepw-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-75);
+}
+
+.zen-hn-changepw-label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.zen-hn-changepw-input {
+  padding: var(--space-100) var(--space-150);
+  border-radius: var(--radius-100);
+  border: 1px solid var(--color-border-subtle);
+  background-color: var(--color-bg-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-base);
+  font-family: inherit;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.zen-hn-changepw-input:focus {
+  outline: none;
+  border-color: var(--color-border);
+  box-shadow: 0 0 0 2px var(--color-focus-ring);
+}
+
+.zen-hn-changepw-form .zen-hn-button-outline {
+  margin-top: var(--space-100);
+  align-self: flex-start;
+}
+
 /* Skip to content link */
 .zen-hn-skip-link,
 .zen-hn-skip-link:link,

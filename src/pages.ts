@@ -707,13 +707,91 @@ export function restyleChangePwPage(): boolean {
     return false;
   }
 
-  const form = hnmain.querySelector("form");
-  if (!form) {
+  const originalForm = hnmain.querySelector("form");
+  if (!originalForm) {
     return false;
   }
 
+  // Extract values from original form
+  const currentPwInput = originalForm.querySelector<HTMLInputElement>('input[name="oldpw"]');
+  const newPwInput = originalForm.querySelector<HTMLInputElement>('input[name="pw"]');
+  const formAction = originalForm.action;
+
+  // Create styled page
   const wrapper = document.createElement("div");
-  wrapper.className = "hn-form-page hn-changepw-page";
+  wrapper.className = "zen-hn-changepw-page";
+
+  // Header
+  const header = document.createElement("header");
+  header.className = "zen-hn-changepw-header";
+
+  const title = document.createElement("h1");
+  title.className = "zen-hn-changepw-title";
+  title.textContent = "Change password";
+  header.appendChild(title);
+
+  wrapper.appendChild(header);
+
+  // Form
+  const form = document.createElement("form");
+  form.className = "zen-hn-changepw-form";
+  form.method = "post";
+  form.action = formAction;
+
+  // Current password field
+  const currentPwGroup = document.createElement("div");
+  currentPwGroup.className = "zen-hn-changepw-field";
+
+  const currentPwLabel = document.createElement("label");
+  currentPwLabel.className = "zen-hn-changepw-label";
+  currentPwLabel.htmlFor = "zen-hn-oldpw";
+  currentPwLabel.textContent = "Current password";
+  currentPwGroup.appendChild(currentPwLabel);
+
+  const currentPwField = document.createElement("input");
+  currentPwField.id = "zen-hn-oldpw";
+  currentPwField.className = "zen-hn-changepw-input";
+  currentPwField.type = "password";
+  currentPwField.name = "oldpw";
+  currentPwField.autocomplete = "current-password";
+  currentPwField.required = true;
+  if (currentPwInput?.value) {
+    currentPwField.value = currentPwInput.value;
+  }
+  currentPwGroup.appendChild(currentPwField);
+
+  form.appendChild(currentPwGroup);
+
+  // New password field
+  const newPwGroup = document.createElement("div");
+  newPwGroup.className = "zen-hn-changepw-field";
+
+  const newPwLabel = document.createElement("label");
+  newPwLabel.className = "zen-hn-changepw-label";
+  newPwLabel.htmlFor = "zen-hn-newpw";
+  newPwLabel.textContent = "New password";
+  newPwGroup.appendChild(newPwLabel);
+
+  const newPwField = document.createElement("input");
+  newPwField.id = "zen-hn-newpw";
+  newPwField.className = "zen-hn-changepw-input";
+  newPwField.type = "password";
+  newPwField.name = "pw";
+  newPwField.autocomplete = "new-password";
+  newPwField.required = true;
+  if (newPwInput?.value) {
+    newPwField.value = newPwInput.value;
+  }
+  newPwGroup.appendChild(newPwField);
+
+  form.appendChild(newPwGroup);
+
+  // Submit button
+  const submitButton = document.createElement("button");
+  submitButton.type = "submit";
+  submitButton.className = "zen-hn-button-outline";
+  submitButton.textContent = "Change password";
+  form.appendChild(submitButton);
 
   wrapper.appendChild(form);
 
