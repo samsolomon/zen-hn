@@ -1119,6 +1119,17 @@ function showNoprocrastConfirmation(): Promise<boolean> {
     const content = document.createElement("div");
     content.className = "zen-hn-noprocrast-content";
 
+    // Close button
+    const closeButton = document.createElement("button");
+    closeButton.type = "button";
+    closeButton.className = "zen-hn-noprocrast-close";
+    closeButton.setAttribute("aria-label", "Close");
+    closeButton.innerHTML = renderIcon("x");
+    closeButton.addEventListener("click", () => {
+      closeNoprocrastModal();
+      resolve(false);
+    });
+
     // Warning icon
     const iconWrapper = document.createElement("div");
     iconWrapper.className = "zen-hn-noprocrast-icon";
@@ -1168,7 +1179,7 @@ function showNoprocrastConfirmation(): Promise<boolean> {
     const warning = document.createElement("p");
     warning.className = "zen-hn-noprocrast-warning";
     warning.textContent =
-      "You can adjust these settings above before enabling. After your max visit time expires, you will need to wait the minimum away time before you can access HN again.";
+      "After your max visit time expires, you will need to wait the minimum away time before you can access HN again. You can adjust these settings after noprocrast is enabled.";
 
     // Buttons
     const buttonGroup = document.createElement("div");
@@ -1176,7 +1187,7 @@ function showNoprocrastConfirmation(): Promise<boolean> {
 
     const cancelButton = document.createElement("button");
     cancelButton.type = "button";
-    cancelButton.className = "zen-hn-noprocrast-button zen-hn-noprocrast-button-cancel";
+    cancelButton.className = "zen-hn-button-ghost";
     cancelButton.textContent = "Cancel";
     cancelButton.addEventListener("click", () => {
       closeNoprocrastModal();
@@ -1195,6 +1206,7 @@ function showNoprocrastConfirmation(): Promise<boolean> {
     buttonGroup.appendChild(cancelButton);
     buttonGroup.appendChild(confirmButton);
 
+    content.appendChild(closeButton);
     content.appendChild(iconWrapper);
     content.appendChild(title);
     content.appendChild(description);
