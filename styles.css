@@ -1961,6 +1961,7 @@ html[data-zen-hn-enabled="true"] .zen-hn-subnav {
   pointer-events: auto;
 }
 
+.zen-hn-subnav-link:link,
 .zen-hn-subnav-link:visited {
   color: var(--color-text-muted);
 }
