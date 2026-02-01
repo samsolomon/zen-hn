@@ -7,7 +7,7 @@ import { isUserProfilePage } from "./logic";
 import { appendAppearanceControls, replaceHnSettingsWithToggles } from "./colorMode";
 import { initSubnavOverflow } from "./subnavOverflow";
 import { createModal } from "./modal";
-import { renderIcon } from "./icons";
+import { renderIcon, IconName } from "./icons";
 
 interface ZenHnRandomGlobal {
   handleRandomItemClick: (event: Event) => Promise<void>;
@@ -424,13 +424,6 @@ Urls become links, except in the text field of a submission. If your url gets li
   // Set up auto-resize for textarea
   autoResizeTextarea(aboutTextarea);
   aboutTextarea.addEventListener("input", () => autoResizeTextarea(aboutTextarea));
-
-  // Focus the about textarea
-  requestAnimationFrame(() => {
-    aboutTextarea.focus();
-    // Move cursor to end of text
-    aboutTextarea.setSelectionRange(aboutTextarea.value.length, aboutTextarea.value.length);
-  });
 }
 
 /**
@@ -1480,6 +1473,79 @@ export function restyleNoprocrastPage(): boolean {
 // Lists Page
 // =============================================================================
 
+/** Icon mapping for list items by URL path */
+const LIST_ICONS: Record<string, IconName> = {
+  random: "dice-two",
+  front: "house-simple",
+  pool: "lifebuoy",
+  invited: "envelope",
+  highlights: "highlighter",
+  shownew: "presentation",
+  asknew: "chat-circle",
+  best: "crown-simple",
+  bestcomments: "crown-simple",
+  active: "lightning",
+  noobstories: "baby-carriage",
+  noobcomments: "baby-carriage",
+  classic: "floppy-disk-back",
+  leaders: "trophy",
+  jobs: "briefcase-simple",
+  whoishiring: "briefcase-simple",
+  launches: "rocket-launch",
+  newest: "seal",
+  newcomments: "chats-circle",
+  ask: "chat-circle",
+  show: "presentation",
+};
+
+/**
+ * Convert a list name to sentence case
+ * E.g., "bestcomments" -> "Best comments", "whoishiring" -> "Who is hiring"
+ */
+function toListSentenceCase(name: string): string {
+  const mappings: Record<string, string> = {
+    bestcomments: "Best comments",
+    noobstories: "Noob stories",
+    noobcomments: "Noob comments",
+    whoishiring: "Who is hiring",
+    shownew: "Show new",
+    asknew: "Ask new",
+    newcomments: "New comments",
+  };
+
+  const lower = name.toLowerCase();
+  if (mappings[lower]) return mappings[lower];
+
+  // Default: capitalize first letter
+  return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+}
+
+/**
+ * Get the icon for a list item based on href or link text
+ */
+function getListIcon(href: string, linkText: string): IconName {
+  // Extract path from href (e.g., "/front" → "front")
+  const path = href.replace(/^\//, "").split("?")[0].toLowerCase();
+  if (LIST_ICONS[path]) return LIST_ICONS[path];
+
+  // Fallback to text matching
+  const text = linkText.toLowerCase();
+  for (const [key, icon] of Object.entries(LIST_ICONS)) {
+    if (text.includes(key)) return icon;
+  }
+  return "list-bullets";
+}
+
+/**
+ * Create an icon element for list items
+ */
+function createListIcon(iconName: IconName): HTMLSpanElement {
+  const iconSpan = document.createElement("span");
+  iconSpan.className = "zen-hn-lists-icon";
+  iconSpan.innerHTML = renderIcon(iconName);
+  return iconSpan;
+}
+
 /**
  * Restyle the Lists page (/lists)
  * This page shows a directory of various HN list views
@@ -1522,6 +1588,8 @@ export function restyleListsPage(): boolean {
   const randomItem = document.createElement("li");
   randomItem.className = "zen-hn-lists-item";
 
+  randomItem.appendChild(createListIcon("dice-two"));
+
   const randomLink = document.createElement("a");
   randomLink.className = "zen-hn-lists-link";
   randomLink.href = "#";
@@ -1551,7 +1619,7 @@ export function restyleListsPage(): boolean {
   // Add main navigation items not on HN's /lists page
   const navItems = [
     { href: "/newest", label: "New", description: "The newest submissions to Hacker News." },
-    { href: "/newcomments", label: "Comments", description: "The most recent comments across all stories." },
+    { href: "/newcomments", label: "New comments", description: "The most recent comments across all stories." },
     { href: "/ask", label: "Ask", description: "Ask HN posts where users ask questions to the community." },
     { href: "/show", label: "Show", description: "Show HN posts where users share their projects." },
   ];
@@ -1559,6 +1627,8 @@ export function restyleListsPage(): boolean {
   for (const navItem of navItems) {
     const item = document.createElement("li");
     item.className = "zen-hn-lists-item";
+
+    item.appendChild(createListIcon(getListIcon(navItem.href, navItem.label)));
 
     const itemLink = document.createElement("a");
     itemLink.className = "zen-hn-lists-link";
@@ -1597,10 +1667,12 @@ export function restyleListsPage(): boolean {
     const item = document.createElement("li");
     item.className = "zen-hn-lists-item";
 
+    item.appendChild(createListIcon(getListIcon(link.href, link.textContent || "")));
+
     const itemLink = document.createElement("a");
     itemLink.className = "zen-hn-lists-link";
     itemLink.href = link.href;
-    itemLink.textContent = link.textContent;
+    itemLink.textContent = toListSentenceCase(link.textContent || "");
     item.appendChild(itemLink);
 
     // Description may contain links, so preserve HTML

@@ -502,7 +502,10 @@ export function restyleSubmissions(): void {
     if (meta.childNodes.length) {
       subRow.appendChild(meta);
     }
-    subRow.appendChild(actions);
+    // Skip actions on leaders page - they don't make sense there
+    if (window.location.pathname !== "/leaders") {
+      subRow.appendChild(actions);
+    }
     body.appendChild(subRow);
 
     if (effectiveItemId) {
