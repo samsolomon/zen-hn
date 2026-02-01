@@ -1094,13 +1094,11 @@ function closeNoprocrastModal(): void {
  * @returns Promise that resolves to true if user confirms, false if cancelled
  */
 function showNoprocrastConfirmation(): Promise<boolean> {
-  console.log("[Zen HN] showNoprocrastConfirmation called");
   return new Promise((resolve) => {
     // Close any existing modal
     closeNoprocrastModal();
 
     const settings = getNoprocrastSettings();
-    console.log("[Zen HN] Noprocrast settings:", settings);
 
     const modal = document.createElement("div");
     modal.id = NOPROCRAST_MODAL_ID;
@@ -1306,15 +1304,11 @@ function buildSelectToggle(
   };
 
   switchEl.addEventListener("click", async () => {
-    console.log("[Zen HN] Toggle clicked for:", config.label);
     const newEnabled = !switchEl.classList.contains("is-active");
-    console.log("[Zen HN] newEnabled:", newEnabled, "onBeforeEnable:", !!onBeforeEnable);
 
     // If enabling and we have a confirmation callback, wait for it
     if (newEnabled && onBeforeEnable) {
-      console.log("[Zen HN] Calling onBeforeEnable callback");
       const confirmed = await onBeforeEnable();
-      console.log("[Zen HN] Confirmation result:", confirmed);
       if (!confirmed) {
         return; // User cancelled, don't toggle
       }
@@ -1381,8 +1375,6 @@ export function replaceHnSettingsWithToggles(): void {
     // For noprocrast toggle, add confirmation before enabling
     const onBeforeEnable =
       config.selectName === "nopro" ? showNoprocrastConfirmation : undefined;
-
-    console.log("[Zen HN] Creating toggle for:", config.selectName, "onBeforeEnable:", !!onBeforeEnable);
 
     // Create the toggle and insert it after the hidden row
     const toggle = buildSelectToggle(select, config, onChange, onBeforeEnable);

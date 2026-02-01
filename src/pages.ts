@@ -21,12 +21,13 @@ interface UserProfileData {
 }
 
 /**
- * Extract user profile data from HN's bigbox table
+ * Extract user profile data from HN's table rows
+ * Works for both bigbox (other users) and form pages (own profile)
  */
-function extractUserProfileData(bigbox: HTMLElement): UserProfileData | null {
-  // The bigbox td contains a table with the user data
-  const table = bigbox.querySelector("table");
-  const rows = table ? table.querySelectorAll("tr") : bigbox.querySelectorAll("tr");
+function extractUserProfileData(container: HTMLElement): UserProfileData | null {
+  // Find all table rows - works for both bigbox and form pages
+  const table = container.querySelector("table");
+  const rows = table ? table.querySelectorAll("tr") : container.querySelectorAll("tr");
   const data: Partial<UserProfileData> = {};
 
   for (const row of rows) {
@@ -37,7 +38,11 @@ function extractUserProfileData(bigbox: HTMLElement): UserProfileData | null {
       if (label === "user") data.username = value.textContent?.trim() || "";
       if (label === "created") data.created = value.textContent?.trim() || "";
       if (label === "karma") data.karma = value.textContent?.trim() || "";
-      if (label === "about") data.about = value.innerHTML || "";
+      // For about, check for textarea (own profile) or just innerHTML (other users)
+      if (label === "about") {
+        const textarea = value.querySelector("textarea");
+        data.about = textarea ? textarea.value : value.innerHTML || "";
+      }
     }
   }
 
@@ -392,6 +397,13 @@ export function restyleUserPage(): boolean {
   }
 
   if (form) {
+    // Extract profile data from the form and show header
+    const profileData = extractUserProfileData(form);
+    if (profileData) {
+      const header = createUserProfileHeader(profileData);
+      wrapper.appendChild(header);
+    }
+
     wrapper.appendChild(form);
 
     const settingsSection = document.createElement("div");
@@ -648,38 +660,40 @@ export function restyleAboutPage(): boolean {
 
     <hr class="zen-hn-about-divider" />
 
-    <section class="zen-hn-about-section">
-      <h2 class="zen-hn-about-section-title">Connect</h2>
-      <ul class="zen-hn-about-links">
-        <li><a href="https://solomon.io" target="_blank" rel="noopener">Website</a></li>
-        <li><a href="https://github.com/samsolomon" target="_blank" rel="noopener">GitHub</a></li>
-        <li><a href="https://news.ycombinator.com/user?id=samsolomon" target="_blank" rel="noopener">Hacker News</a></li>
-        <li><a href="https://www.linkedin.com/in/samuelrsolomon" target="_blank" rel="noopener">LinkedIn</a></li>
-        <li><a href="https://twitter.com/samuelrsolomon" target="_blank" rel="noopener">Twitter</a></li>
-      </ul>
-    </section>
+    <div class="zen-hn-about-sections-row">
+      <section class="zen-hn-about-section">
+        <h2 class="zen-hn-about-section-title">Connect</h2>
+        <ul class="zen-hn-about-links">
+          <li><a href="https://solomon.io" target="_blank" rel="noopener">Website</a></li>
+          <li><a href="https://github.com/samsolomon" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://news.ycombinator.com/user?id=samsolomon" target="_blank" rel="noopener">Hacker News</a></li>
+          <li><a href="https://www.linkedin.com/in/samuelrsolomon" target="_blank" rel="noopener">LinkedIn</a></li>
+          <li><a href="https://twitter.com/samuelrsolomon" target="_blank" rel="noopener">Twitter</a></li>
+        </ul>
+      </section>
 
-    <section class="zen-hn-about-section">
-      <h2 class="zen-hn-about-section-title">Project</h2>
-      <ul class="zen-hn-about-links">
-        <li><a href="https://github.com/samsolomon/zen-hn" target="_blank" rel="noopener">Source Code</a></li>
-        <li><a href="https://github.com/samsolomon/zen-hn/issues" target="_blank" rel="noopener">Report an Issue</a></li>
-        <li><a href="#" class="zen-hn-about-shortcuts-link">Keyboard Shortcuts</a></li>
-      </ul>
-    </section>
+      <section class="zen-hn-about-section">
+        <h2 class="zen-hn-about-section-title">Project</h2>
+        <ul class="zen-hn-about-links">
+          <li><a href="https://github.com/samsolomon/zen-hn" target="_blank" rel="noopener">Source Code</a></li>
+          <li><a href="https://github.com/samsolomon/zen-hn/issues" target="_blank" rel="noopener">Report an Issue</a></li>
+          <li><a href="#" class="zen-hn-about-shortcuts-link">Keyboard Shortcuts</a></li>
+        </ul>
+      </section>
 
-    <section class="zen-hn-about-section">
-      <h2 class="zen-hn-about-section-title">HN</h2>
-      <ul class="zen-hn-about-links">
-        <li><a href="https://news.ycombinator.com/newsguidelines.html" target="_blank" rel="noopener">Guidelines</a></li>
-        <li><a href="https://news.ycombinator.com/newsfaq.html" target="_blank" rel="noopener">FAQ</a></li>
-        <li><a href="https://github.com/HackerNews/API" target="_blank" rel="noopener">API</a></li>
-        <li><a href="https://news.ycombinator.com/security.html" target="_blank" rel="noopener">Security</a></li>
-        <li><a href="https://www.ycombinator.com/legal/" target="_blank" rel="noopener">Legal</a></li>
-        <li><a href="https://www.ycombinator.com/apply/" target="_blank" rel="noopener">Apply to YC</a></li>
-        <li><a href="mailto:hn@ycombinator.com">Contact</a></li>
-      </ul>
-    </section>
+      <section class="zen-hn-about-section">
+        <h2 class="zen-hn-about-section-title">HN</h2>
+        <ul class="zen-hn-about-links">
+          <li><a href="https://news.ycombinator.com/newsguidelines.html" target="_blank" rel="noopener">Guidelines</a></li>
+          <li><a href="https://news.ycombinator.com/newsfaq.html" target="_blank" rel="noopener">FAQ</a></li>
+          <li><a href="https://github.com/HackerNews/API" target="_blank" rel="noopener">API</a></li>
+          <li><a href="https://news.ycombinator.com/security.html" target="_blank" rel="noopener">Security</a></li>
+          <li><a href="https://www.ycombinator.com/legal/" target="_blank" rel="noopener">Legal</a></li>
+          <li><a href="https://www.ycombinator.com/apply/" target="_blank" rel="noopener">Apply to YC</a></li>
+          <li><a href="mailto:hn@ycombinator.com">Contact</a></li>
+        </ul>
+      </section>
+    </div>
   `;
 
   // Add click handler for keyboard shortcuts link
