@@ -7,6 +7,7 @@ import { isUserProfilePage } from "./logic";
 import { appendAppearanceControls, replaceHnSettingsWithToggles } from "./colorMode";
 import { initSubnavOverflow } from "./subnavOverflow";
 import { createModal } from "./modal";
+import { renderIcon } from "./icons";
 
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
 const LOGGED_IN_USERNAME_KEY = "zenHnLoggedInUsername";
@@ -577,16 +578,9 @@ function createUserSubnav(username: string | null): HTMLElement {
   moreButton.className = "zen-hn-subnav-link zen-dropdown-button";
   moreButton.setAttribute("aria-haspopup", "menu");
   moreButton.setAttribute("aria-expanded", "false");
+  moreButton.setAttribute("aria-label", "More");
   moreButton.type = "button";
-
-  const moreText = document.createTextNode("More ");
-  const moreIcon = document.createElement("span");
-  moreIcon.className = "zen-dropdown-icon";
-  moreIcon.setAttribute("aria-hidden", "true");
-  moreIcon.textContent = "▾";
-
-  moreButton.appendChild(moreText);
-  moreButton.appendChild(moreIcon);
+  moreButton.innerHTML = renderIcon("dots-three");
 
   const moreDropdown = document.createElement("ul");
   moreDropdown.className = "zen-dropdown-dropdown";
