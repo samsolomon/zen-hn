@@ -1,6 +1,6 @@
 import { test, describe, mock } from "node:test";
 import assert from "node:assert/strict";
-import { addUserSubnav, runUserSubnavWhenReady, restyleUserListPage, addFilterButtons } from "../src/pages";
+import { addUserSubnav, runUserSubnavWhenReady, restyleUserListPage, addFilterButtons, restyleChangePwPage, restyleListsPage } from "../src/pages";
 
 describe("addUserSubnav", () => {
   test("returns false when extension is disabled", () => {
@@ -769,5 +769,508 @@ describe("subnav tab order", () => {
     // Should use insertBefore on body with firstChild
     assert.equal(insertBeforeMock.mock.callCount(), 1);
     assert.equal(insertBeforeMock.mock.calls[0].arguments[1], firstChild);
+  });
+});
+
+describe("restyleChangePwPage", () => {
+  test("returns false when not on /changepw", () => {
+    const mockDocument = {
+      getElementById: mock.fn(() => null),
+    };
+
+    Object.defineProperty(globalThis, "document", {
+      value: mockDocument,
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "window", {
+      value: {
+        location: {
+          pathname: "/news",
+        },
+      },
+      configurable: true,
+    });
+
+    const result = restyleChangePwPage();
+    assert.equal(result, false);
+    // getElementById should not be called when not on /changepw
+    assert.equal(mockDocument.getElementById.mock.callCount(), 0);
+  });
+
+  test("returns false when hnmain not found", () => {
+    const mockDocument = {
+      getElementById: mock.fn(() => null),
+    };
+
+    Object.defineProperty(globalThis, "document", {
+      value: mockDocument,
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "window", {
+      value: {
+        location: {
+          pathname: "/changepw",
+        },
+      },
+      configurable: true,
+    });
+
+    const result = restyleChangePwPage();
+    assert.equal(result, false);
+  });
+
+  test("returns false when already restyled", () => {
+    const mockHnMain = {
+      dataset: { zenHnRestyled: "true" },
+      querySelector: mock.fn(() => null),
+    };
+
+    const mockDocument = {
+      getElementById: mock.fn((id: string) => {
+        if (id === "hnmain") return mockHnMain;
+        return null;
+      }),
+    };
+
+    Object.defineProperty(globalThis, "document", {
+      value: mockDocument,
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "window", {
+      value: {
+        location: {
+          pathname: "/changepw",
+        },
+      },
+      configurable: true,
+    });
+
+    const result = restyleChangePwPage();
+    assert.equal(result, false);
+  });
+
+  test("returns false when no form found", () => {
+    const mockHnMain = {
+      dataset: {},
+      querySelector: mock.fn(() => null),
+    };
+
+    const mockDocument = {
+      getElementById: mock.fn((id: string) => {
+        if (id === "hnmain") return mockHnMain;
+        return null;
+      }),
+    };
+
+    Object.defineProperty(globalThis, "document", {
+      value: mockDocument,
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "window", {
+      value: {
+        location: {
+          pathname: "/changepw",
+        },
+      },
+      configurable: true,
+    });
+
+    const result = restyleChangePwPage();
+    assert.equal(result, false);
+  });
+
+  test("returns true and creates styled form when form exists", () => {
+    const mockForm = {
+      action: "https://news.ycombinator.com/changepw",
+      querySelector: mock.fn((selector: string) => {
+        if (selector === 'input[name="oldpw"]') {
+          return { value: "" };
+        }
+        if (selector === 'input[name="pw"]') {
+          return { value: "" };
+        }
+        return null;
+      }),
+    };
+
+    const mockHnMain = {
+      dataset: {} as Record<string, string>,
+      querySelector: mock.fn((selector: string) => {
+        if (selector === "form") return mockForm;
+        return null;
+      }),
+    };
+
+    const mockZenHnMain = {
+      appendChild: mock.fn(),
+    };
+
+    const mockDocument = {
+      getElementById: mock.fn((id: string) => {
+        if (id === "hnmain") return mockHnMain;
+        if (id === "zen-hn-main") return mockZenHnMain;
+        return null;
+      }),
+      createElement: mock.fn((tag: string) => ({
+        tagName: tag.toUpperCase(),
+        className: "",
+        id: "",
+        htmlFor: "",
+        type: "",
+        name: "",
+        value: "",
+        autocomplete: "",
+        required: false,
+        textContent: "",
+        method: "",
+        action: "",
+        appendChild: mock.fn(),
+      })),
+      body: {
+        appendChild: mock.fn(),
+      },
+    };
+
+    Object.defineProperty(globalThis, "document", {
+      value: mockDocument,
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "window", {
+      value: {
+        location: {
+          pathname: "/changepw",
+        },
+      },
+      configurable: true,
+    });
+
+    const result = restyleChangePwPage();
+    assert.equal(result, true);
+    assert.equal(mockHnMain.dataset.zenHnRestyled, "true");
+    assert.equal(mockZenHnMain.appendChild.mock.callCount(), 1);
+  });
+});
+
+describe("restyleListsPage", () => {
+  test("returns false when not on /lists", () => {
+    const mockDocument = {
+      getElementById: mock.fn(() => null),
+    };
+
+    Object.defineProperty(globalThis, "document", {
+      value: mockDocument,
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "window", {
+      value: {
+        location: {
+          pathname: "/news",
+        },
+      },
+      configurable: true,
+    });
+
+    const result = restyleListsPage();
+    assert.equal(result, false);
+    // getElementById should not be called when not on /lists
+    assert.equal(mockDocument.getElementById.mock.callCount(), 0);
+  });
+
+  test("returns false when hnmain not found", () => {
+    const mockDocument = {
+      getElementById: mock.fn(() => null),
+    };
+
+    Object.defineProperty(globalThis, "document", {
+      value: mockDocument,
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "window", {
+      value: {
+        location: {
+          pathname: "/lists",
+        },
+      },
+      configurable: true,
+    });
+
+    const result = restyleListsPage();
+    assert.equal(result, false);
+  });
+
+  test("returns false when already restyled", () => {
+    const mockHnMain = {
+      dataset: { zenHnRestyled: "true" },
+      querySelector: mock.fn(() => null),
+    };
+
+    const mockDocument = {
+      getElementById: mock.fn((id: string) => {
+        if (id === "hnmain") return mockHnMain;
+        return null;
+      }),
+    };
+
+    Object.defineProperty(globalThis, "document", {
+      value: mockDocument,
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "window", {
+      value: {
+        location: {
+          pathname: "/lists",
+        },
+      },
+      configurable: true,
+    });
+
+    const result = restyleListsPage();
+    assert.equal(result, false);
+  });
+
+  test("returns false when no bigbox table found", () => {
+    const mockHnMain = {
+      dataset: {},
+      querySelector: mock.fn(() => null),
+    };
+
+    const mockDocument = {
+      getElementById: mock.fn((id: string) => {
+        if (id === "hnmain") return mockHnMain;
+        return null;
+      }),
+    };
+
+    Object.defineProperty(globalThis, "document", {
+      value: mockDocument,
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "window", {
+      value: {
+        location: {
+          pathname: "/lists",
+        },
+      },
+      configurable: true,
+    });
+
+    const result = restyleListsPage();
+    assert.equal(result, false);
+  });
+
+  test("returns true and creates styled list when bigbox table exists", () => {
+    const mockRow = {
+      querySelectorAll: mock.fn(() => [
+        {
+          querySelector: mock.fn(() => ({
+            href: "/newest",
+            textContent: "Newest",
+          })),
+        },
+        {
+          innerHTML: "Most recent submissions",
+        },
+      ]),
+    };
+
+    const mockBigboxTable = {
+      querySelectorAll: mock.fn(() => [mockRow]),
+    };
+
+    const mockHnMain = {
+      dataset: {} as Record<string, string>,
+      querySelector: mock.fn((selector: string) => {
+        if (selector === "#bigbox table") return mockBigboxTable;
+        return null;
+      }),
+    };
+
+    const mockZenHnMain = {
+      appendChild: mock.fn(),
+    };
+
+    const mockDocument = {
+      getElementById: mock.fn((id: string) => {
+        if (id === "hnmain") return mockHnMain;
+        if (id === "zen-hn-main") return mockZenHnMain;
+        return null;
+      }),
+      createElement: mock.fn((tag: string) => ({
+        tagName: tag.toUpperCase(),
+        className: "",
+        href: "",
+        textContent: "",
+        innerHTML: "",
+        appendChild: mock.fn(),
+      })),
+      body: {
+        appendChild: mock.fn(),
+      },
+    };
+
+    Object.defineProperty(globalThis, "document", {
+      value: mockDocument,
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "window", {
+      value: {
+        location: {
+          pathname: "/lists",
+        },
+      },
+      configurable: true,
+    });
+
+    const result = restyleListsPage();
+    assert.equal(result, true);
+    assert.equal(mockHnMain.dataset.zenHnRestyled, "true");
+    assert.equal(mockZenHnMain.appendChild.mock.callCount(), 1);
+  });
+
+  test("skips rows without enough cells", () => {
+    const mockRowWithOneCell = {
+      querySelectorAll: mock.fn(() => [
+        { querySelector: mock.fn(() => null) },
+      ]),
+    };
+
+    const mockBigboxTable = {
+      querySelectorAll: mock.fn(() => [mockRowWithOneCell]),
+    };
+
+    const mockHnMain = {
+      dataset: {} as Record<string, string>,
+      querySelector: mock.fn((selector: string) => {
+        if (selector === "#bigbox table") return mockBigboxTable;
+        return null;
+      }),
+    };
+
+    const mockZenHnMain = {
+      appendChild: mock.fn(),
+    };
+
+    const createElementMock = mock.fn((tag: string) => ({
+      tagName: tag.toUpperCase(),
+      className: "",
+      href: "",
+      textContent: "",
+      innerHTML: "",
+      appendChild: mock.fn(),
+    }));
+
+    const mockDocument = {
+      getElementById: mock.fn((id: string) => {
+        if (id === "hnmain") return mockHnMain;
+        if (id === "zen-hn-main") return mockZenHnMain;
+        return null;
+      }),
+      createElement: createElementMock,
+      body: {
+        appendChild: mock.fn(),
+      },
+    };
+
+    Object.defineProperty(globalThis, "document", {
+      value: mockDocument,
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "window", {
+      value: {
+        location: {
+          pathname: "/lists",
+        },
+      },
+      configurable: true,
+    });
+
+    const result = restyleListsPage();
+    assert.equal(result, true);
+    // Should still create the wrapper but no list items
+    // The page wrapper, header, title, and list container are created (4 elements)
+    // No li elements should be created since the row was skipped
+    const liCalls = createElementMock.mock.calls.filter(
+      (c: { arguments: [string] }) => c.arguments[0] === "li"
+    );
+    assert.equal(liCalls.length, 0);
+  });
+
+  test("skips rows without a link in the first cell", () => {
+    const mockRowWithNoLink = {
+      querySelectorAll: mock.fn(() => [
+        { querySelector: mock.fn(() => null) }, // No link
+        { innerHTML: "Some description" },
+      ]),
+    };
+
+    const mockBigboxTable = {
+      querySelectorAll: mock.fn(() => [mockRowWithNoLink]),
+    };
+
+    const mockHnMain = {
+      dataset: {} as Record<string, string>,
+      querySelector: mock.fn((selector: string) => {
+        if (selector === "#bigbox table") return mockBigboxTable;
+        return null;
+      }),
+    };
+
+    const mockZenHnMain = {
+      appendChild: mock.fn(),
+    };
+
+    const createElementMock = mock.fn((tag: string) => ({
+      tagName: tag.toUpperCase(),
+      className: "",
+      href: "",
+      textContent: "",
+      innerHTML: "",
+      appendChild: mock.fn(),
+    }));
+
+    const mockDocument = {
+      getElementById: mock.fn((id: string) => {
+        if (id === "hnmain") return mockHnMain;
+        if (id === "zen-hn-main") return mockZenHnMain;
+        return null;
+      }),
+      createElement: createElementMock,
+      body: {
+        appendChild: mock.fn(),
+      },
+    };
+
+    Object.defineProperty(globalThis, "document", {
+      value: mockDocument,
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "window", {
+      value: {
+        location: {
+          pathname: "/lists",
+        },
+      },
+      configurable: true,
+    });
+
+    const result = restyleListsPage();
+    assert.equal(result, true);
+    // No li elements should be created since the row had no link
+    const liCalls = createElementMock.mock.calls.filter(
+      (c: { arguments: [string] }) => c.arguments[0] === "li"
+    );
+    assert.equal(liCalls.length, 0);
   });
 });

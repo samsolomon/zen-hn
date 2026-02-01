@@ -221,24 +221,5 @@ describe("submissionMenu", () => {
         throw new Error(`Expected "keydown", got "${events[1]}"`);
       }
     });
-
-    test.skip("does not register listeners on subsequent calls", () => {
-      let registrationCount = 0;
-
-      globalThis.document = {
-        addEventListener: (_event: string, _handler: EventListener) => {
-          registrationCount++;
-        },
-        querySelectorAll: () => [],
-      } as unknown as Document;
-
-      registerSubmissionMenuListeners();
-      registerSubmissionMenuListeners();
-      registerSubmissionMenuListeners();
-
-      if (registrationCount !== 2) {
-        throw new Error(`Expected 2 event registrations (not more on subsequent calls), got ${registrationCount}`);
-      }
-    });
   });
 });
