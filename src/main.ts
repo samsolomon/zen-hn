@@ -13,6 +13,41 @@ import { registerKeyboardShortcuts } from "./keyboardShortcuts";
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
 const ENABLED_STORAGE_KEY = "zenHnEnabled";
 
+/**
+ * Inject @font-face rules with proper extension URLs
+ * CSS can't use relative paths in content scripts, so we inject these dynamically
+ */
+function injectFontFaces(): void {
+  if (!chrome?.runtime?.getURL) return;
+
+  const interUrl = chrome.runtime.getURL("dist/fonts/Inter-Variable.woff2");
+  const plexRegularUrl = chrome.runtime.getURL("dist/fonts/IBMPlexSans-Regular.woff2");
+  const plexMediumUrl = chrome.runtime.getURL("dist/fonts/IBMPlexSans-Medium.woff2");
+
+  const style = document.createElement("style");
+  style.textContent = `
+    @font-face {
+      font-family: 'Inter';
+      src: url('${interUrl}') format('woff2');
+      font-weight: 100 900;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'IBM Plex Sans';
+      src: url('${plexRegularUrl}') format('woff2');
+      font-weight: 400;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'IBM Plex Sans';
+      src: url('${plexMediumUrl}') format('woff2');
+      font-weight: 500;
+      font-display: swap;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 async function getEnabled(): Promise<boolean> {
   if (!chrome?.storage?.local) {
     return true; // Default to enabled if storage not available
@@ -49,6 +84,9 @@ async function init(): Promise<void> {
 
   // Mark extension as active
   document.documentElement.dataset.zenHnActive = "true";
+
+  // Inject font-face rules with extension URLs
+  injectFontFaces();
 
   // Set loading states for UI elements
   if (!document.documentElement.dataset.zenHnSidebar) {

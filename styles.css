@@ -1,23 +1,4 @@
-@font-face {
-  font-family: 'Inter';
-  src: url('fonts/Inter-Variable.woff2') format('woff2');
-  font-weight: 100 900;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'IBM Plex Sans';
-  src: url('fonts/IBMPlexSans-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'IBM Plex Sans';
-  src: url('fonts/IBMPlexSans-Medium.woff2') format('woff2');
-  font-weight: 500;
-  font-display: swap;
-}
+/* Note: @font-face rules are injected via JavaScript to use extension URLs */
 
 :root {
   --font-size-base: 16px;
@@ -1707,6 +1688,22 @@ html[data-zen-hn-enabled="true"] .comhead {
   box-shadow: 0 0 0 2px var(--color-focus-ring);
 }
 
+/* Auto-save states for input controls */
+.zen-hn-setting-input.is-saving {
+  opacity: 0.7;
+  border-color: var(--color-border);
+}
+
+.zen-hn-setting-input.is-success {
+  border-color: var(--green-9, #30a46c);
+  box-shadow: 0 0 0 2px var(--green-a3, rgba(48, 164, 108, 0.15));
+}
+
+.zen-hn-setting-input.is-error {
+  border-color: var(--red-9, #e5484d);
+  box-shadow: 0 0 0 2px var(--red-a3, rgba(229, 72, 77, 0.15));
+}
+
 .zen-hn-setting-input-suffix {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
@@ -1774,9 +1771,6 @@ html[data-zen-hn-enabled="true"] .hn-form-page select {
   border-radius: 8px;
   border: 1px solid var(--color-border-subtle);
   background-color: var(--color-bg-surface);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='14' viewBox='0 0 10 14' fill='none'%3E%3Cpath d='M2 5.5L5 2.5L8 5.5' stroke='%23646464' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M2 8.5L5 11.5L8 8.5' stroke='%23646464' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
   color: var(--color-text);
   font-size: var(--font-size-sm);
   font-weight: 500;
