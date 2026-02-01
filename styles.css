@@ -2215,6 +2215,11 @@ html[data-zen-hn-enabled="true"] .zen-hn-subnav {
   transform: rotate(180deg);
 }
 
+/* Show dropdown when open */
+.zen-hn-subnav-more-menu.is-open .zen-dropdown-dropdown {
+  display: flex;
+}
+
 /* Subnav dropdown overrides */
 .zen-hn-subnav-more-menu .zen-dropdown-dropdown {
   min-width: 160px;

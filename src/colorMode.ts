@@ -3,6 +3,7 @@
  */
 
 import { renderIcon } from "./icons";
+import { createModal, closeModal } from "./modal";
 
 export type ColorModePreference = "light" | "dark" | "system";
 export type FontFamilyPreference =
@@ -1080,42 +1081,36 @@ function getNoprocrastSettings(): {
 }
 
 /**
- * Close the noprocrast confirmation modal
- */
-function closeNoprocrastModal(): void {
-  const modal = document.getElementById(NOPROCRAST_MODAL_ID);
-  if (modal) {
-    modal.remove();
-  }
-}
-
-/**
  * Show confirmation modal when enabling noprocrast
  * @returns Promise that resolves to true if user confirms, false if cancelled
  */
 function showNoprocrastConfirmation(): Promise<boolean> {
   return new Promise((resolve) => {
     // Close any existing modal
-    closeNoprocrastModal();
+    closeModal(NOPROCRAST_MODAL_ID);
 
     const settings = getNoprocrastSettings();
 
-    const modal = document.createElement("div");
-    modal.id = NOPROCRAST_MODAL_ID;
-    modal.className = "zen-hn-noprocrast-modal";
-    modal.setAttribute("role", "alertdialog");
-    modal.setAttribute("aria-labelledby", "noprocrast-modal-title");
-    modal.setAttribute("aria-describedby", "noprocrast-modal-description");
+    // Track if promise has been resolved (to prevent double-resolution)
+    let resolved = false;
+    const resolveOnce = (value: boolean) => {
+      if (!resolved) {
+        resolved = true;
+        resolve(value);
+      }
+    };
 
-    const backdrop = document.createElement("div");
-    backdrop.className = "zen-hn-noprocrast-backdrop";
-    backdrop.addEventListener("click", () => {
-      closeNoprocrastModal();
-      resolve(false);
+    // Create modal using generic modal component
+    const { content, close } = createModal({
+      id: NOPROCRAST_MODAL_ID,
+      className: "zen-hn-noprocrast-modal",
+      titleId: "noprocrast-modal-title",
+      descriptionId: "noprocrast-modal-description",
+      closeOnBackdrop: true,
+      closeOnEscape: true,
+      role: "alertdialog",
+      onClose: () => resolveOnce(false),
     });
-
-    const content = document.createElement("div");
-    content.className = "zen-hn-noprocrast-content";
 
     // Close button
     const closeButton = document.createElement("button");
@@ -1123,10 +1118,7 @@ function showNoprocrastConfirmation(): Promise<boolean> {
     closeButton.className = "zen-hn-button-icon-ghost zen-hn-noprocrast-close";
     closeButton.setAttribute("aria-label", "Close");
     closeButton.innerHTML = renderIcon("x");
-    closeButton.addEventListener("click", () => {
-      closeNoprocrastModal();
-      resolve(false);
-    });
+    closeButton.addEventListener("click", close);
 
     // Warning icon
     const iconWrapper = document.createElement("div");
@@ -1187,18 +1179,15 @@ function showNoprocrastConfirmation(): Promise<boolean> {
     cancelButton.type = "button";
     cancelButton.className = "zen-hn-button-ghost";
     cancelButton.textContent = "Cancel";
-    cancelButton.addEventListener("click", () => {
-      closeNoprocrastModal();
-      resolve(false);
-    });
+    cancelButton.addEventListener("click", close);
 
     const confirmButton = document.createElement("button");
     confirmButton.type = "button";
     confirmButton.className = "zen-hn-button-outline";
     confirmButton.textContent = "Enable Noprocrast";
     confirmButton.addEventListener("click", () => {
-      closeNoprocrastModal();
-      resolve(true);
+      resolveOnce(true);
+      close();
     });
 
     buttonGroup.appendChild(cancelButton);
@@ -1211,22 +1200,6 @@ function showNoprocrastConfirmation(): Promise<boolean> {
     content.appendChild(settingsList);
     content.appendChild(warning);
     content.appendChild(buttonGroup);
-
-    modal.appendChild(backdrop);
-    modal.appendChild(content);
-
-    if (!document.body) return;
-    document.body.appendChild(modal);
-
-    // Handle escape key
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        closeNoprocrastModal();
-        document.removeEventListener("keydown", handleEscape);
-        resolve(false);
-      }
-    };
-    document.addEventListener("keydown", handleEscape);
 
     // Focus the cancel button for accessibility
     requestAnimationFrame(() => {
