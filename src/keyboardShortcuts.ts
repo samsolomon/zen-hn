@@ -602,7 +602,7 @@ function showHelpModal(): void {
   title.textContent = "Keyboard Shortcuts";
 
   const closeButton = document.createElement("button");
-  closeButton.className = "zen-hn-shortcuts-close";
+  closeButton.className = "zen-hn-button-icon-ghost zen-hn-shortcuts-close";
   closeButton.type = "button";
   closeButton.setAttribute("aria-label", "Close");
   closeButton.innerHTML = renderIcon("x");

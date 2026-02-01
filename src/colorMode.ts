@@ -1122,7 +1122,7 @@ function showNoprocrastConfirmation(): Promise<boolean> {
     // Close button
     const closeButton = document.createElement("button");
     closeButton.type = "button";
-    closeButton.className = "zen-hn-noprocrast-close";
+    closeButton.className = "zen-hn-button-icon-ghost zen-hn-noprocrast-close";
     closeButton.setAttribute("aria-label", "Close");
     closeButton.innerHTML = renderIcon("x");
     closeButton.addEventListener("click", () => {
