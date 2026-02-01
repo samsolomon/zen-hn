@@ -513,8 +513,17 @@ function showHelpModal(): void {
   header.appendChild(closeButton);
   content.appendChild(header);
 
+  const searchInput = document.createElement("input");
+  searchInput.type = "text";
+  searchInput.className = "zen-hn-shortcuts-search";
+  searchInput.placeholder = "Filter shortcuts...";
+  searchInput.setAttribute("aria-label", "Filter shortcuts");
+  content.appendChild(searchInput);
+
   const list = document.createElement("div");
   list.className = "zen-hn-shortcuts-list";
+
+  const rows: { element: HTMLElement; key: string; action: string }[] = [];
 
   shortcuts.forEach(({ key, action }) => {
     const row = document.createElement("div");
@@ -553,6 +562,29 @@ function showHelpModal(): void {
     row.appendChild(keyEl);
     row.appendChild(actionEl);
     list.appendChild(row);
+    rows.push({ element: row, key: key.toLowerCase(), action: action.toLowerCase() });
+  });
+
+  // Filter shortcuts based on search input
+  searchInput.addEventListener("input", () => {
+    const query = searchInput.value.toLowerCase().trim();
+    rows.forEach(({ element, key, action }) => {
+      const matches = query === "" || key.includes(query) || action.includes(query);
+      element.style.display = matches ? "" : "none";
+    });
+  });
+
+  // Prevent keyboard shortcuts from firing while typing in search
+  searchInput.addEventListener("keydown", (e) => {
+    e.stopPropagation();
+    if (e.key === "Escape") {
+      if (searchInput.value) {
+        searchInput.value = "";
+        searchInput.dispatchEvent(new Event("input"));
+      } else {
+        closeHelpModal();
+      }
+    }
   });
 
   content.appendChild(list);
@@ -560,8 +592,8 @@ function showHelpModal(): void {
   modal.appendChild(content);
   document.body.appendChild(modal);
 
-  // Focus the close button for accessibility
-  closeButton.focus();
+  // Focus the search input for immediate filtering
+  searchInput.focus();
 }
 
 /**
