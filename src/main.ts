@@ -32,6 +32,7 @@ import { runUserSubnavWhenReady } from "./pages";
 import { initRestyle } from "./initRestyle";
 import { registerKeyboardShortcuts } from "./keyboardShortcuts";
 import { createAnnouncer } from "./announcer";
+import { createSkipLink } from "./skipLink";
 
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
 const ENABLED_STORAGE_KEY = "zenHnEnabled";
@@ -155,6 +156,9 @@ async function init(): Promise<void> {
 
   // Create live region for screen reader announcements
   createAnnouncer();
+
+  // Create skip link for keyboard navigation
+  createSkipLink();
 
   // Run comment collapse early on item pages
   if (window.location.pathname === "/item") {

@@ -128,6 +128,11 @@ html[data-zen-hn-enabled="true"] button {
   font-family: var(--font-stack);
 }
 
+/* Default link color */
+html[data-zen-hn-enabled="true"] a:link {
+  color: var(--color-text-muted);
+}
+
 html[data-zen-hn-enabled="true"][data-zen-hn-sidebar="true"] body {
   padding-left: var(--sidebar-width);
 }
@@ -3092,7 +3097,9 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
 }
 
 /* Skip to content link */
-.zen-hn-skip-link {
+.zen-hn-skip-link,
+.zen-hn-skip-link:link,
+.zen-hn-skip-link:visited {
   position: fixed;
   top: -100px;
   left: 0;
