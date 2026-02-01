@@ -103,11 +103,16 @@ function hideChordIndicator(): void {
 
 /**
  * Show the complete chord briefly, then hide it
- * Used when a chord completes successfully
+ * Used when a chord completes successfully (with matched visual feedback)
  */
 function showChordIndicatorThenHide(chord: string, delay: number = 500): void {
   showChordIndicator(chord);
-  setTimeout(hideChordIndicator, delay);
+  const indicator = document.getElementById(CHORD_INDICATOR_ID);
+  indicator?.classList.add("is-matched");
+  setTimeout(() => {
+    hideChordIndicator();
+    indicator?.classList.remove("is-matched");
+  }, delay);
 }
 
 /**
@@ -938,10 +943,12 @@ function handleKeyDown(event: KeyboardEvent): void {
     if (executeThreeKeyChord(secondKey, key)) {
       storeChordForDisplay(fullChord);
       showChordIndicator(fullChord);
+      document.getElementById(CHORD_INDICATOR_ID)?.classList.add("is-matched");
     } else {
       // Third key didn't match, store the two-key chord instead and execute default
       storeChordForDisplay(twoKeyChord);
       showChordIndicator(twoKeyChord);
+      document.getElementById(CHORD_INDICATOR_ID)?.classList.add("is-matched");
       executeExtendableChordDefault(secondKey);
     }
     return;
@@ -975,14 +982,16 @@ function handleKeyDown(event: KeyboardEvent): void {
           // Store chord to display on destination page
           storeChordForDisplay(chord);
           showChordIndicator(chord);
+          document.getElementById(CHORD_INDICATOR_ID)?.classList.add("is-matched");
           executeExtendableChordDefault(chord[1]);
         }
       }, CHORD_TIMEOUT_MS);
       return;
     }
     if (result === "executed") {
-      // Show full chord while navigating (no flash)
+      // Show full chord with matched styling while navigating
       showChordIndicator(fullChord);
+      document.getElementById(CHORD_INDICATOR_ID)?.classList.add("is-matched");
     } else {
       // Chord wasn't recognized, clear storage and hide indicator
       clearChordForDisplay();
@@ -1033,6 +1042,7 @@ function handleKeyDown(event: KeyboardEvent): void {
     event.preventDefault();
     storeChordForDisplay("o");
     showChordIndicator("o");
+    document.getElementById(CHORD_INDICATOR_ID)?.classList.add("is-matched");
     openStoryLink(false);
     return;
   }
@@ -1061,6 +1071,7 @@ function handleKeyDown(event: KeyboardEvent): void {
     event.preventDefault();
     storeChordForDisplay("c");
     showChordIndicator("c");
+    document.getElementById(CHORD_INDICATOR_ID)?.classList.add("is-matched");
     window.location.href = "/submit";
     return;
   }
