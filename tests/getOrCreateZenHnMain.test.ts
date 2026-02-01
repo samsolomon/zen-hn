@@ -15,7 +15,7 @@ describe("getOrCreateZenHnMain", () => {
     mockDocument = {
       getElementById: mock.fn((_id: string) => null),
       createElement: mock.fn((_tag: string) => {
-        return { id: "", insertAdjacentElement: mock.fn() };
+        return { id: "", insertAdjacentElement: mock.fn(), setAttribute: mock.fn() };
       }),
       body: {
         appendChild: mock.fn(),
@@ -41,7 +41,7 @@ describe("getOrCreateZenHnMain", () => {
   });
 
   test("creates new main element when none exists", () => {
-    const newMain = { id: "", insertAdjacentElement: mock.fn() } as unknown as HTMLElement;
+    const newMain = { id: "", insertAdjacentElement: mock.fn(), setAttribute: mock.fn() } as unknown as HTMLElement;
     mockDocument.createElement = mock.fn((_tag: string) => newMain);
 
     const result = getOrCreateZenHnMain();
@@ -58,7 +58,7 @@ describe("getOrCreateZenHnMain", () => {
       closest: mock.fn(() => centerWrapper),
       insertAdjacentElement: mock.fn(() => {}),
     };
-    const newMain = { id: "zen-hn-main", insertAdjacentElement: mock.fn() } as unknown as HTMLElement;
+    const newMain = { id: "zen-hn-main", insertAdjacentElement: mock.fn(), setAttribute: mock.fn() } as unknown as HTMLElement;
 
     mockDocument.getElementById = mock.fn((id: string) => {
       if (id === "hnmain") return hnmain as unknown as HTMLElement;
@@ -78,7 +78,7 @@ describe("getOrCreateZenHnMain", () => {
       closest: mock.fn(() => null),
       insertAdjacentElement: mock.fn(() => {}),
     };
-    const newMain = { id: "zen-hn-main", insertAdjacentElement: mock.fn() } as unknown as HTMLElement;
+    const newMain = { id: "zen-hn-main", insertAdjacentElement: mock.fn(), setAttribute: mock.fn() } as unknown as HTMLElement;
 
     mockDocument.getElementById = mock.fn((id: string) => {
       if (id === "hnmain") return hnmain as unknown as HTMLElement;
@@ -96,7 +96,7 @@ describe("getOrCreateZenHnMain", () => {
   test("appends to body when hnmain does not exist", () => {
     mockDocument.getElementById = mock.fn(() => null);
     mockDocument.createElement = mock.fn((_tag: string) => {
-      return { id: "zen-hn-main", insertAdjacentElement: mock.fn() } as unknown as HTMLElement;
+      return { id: "zen-hn-main", insertAdjacentElement: mock.fn(), setAttribute: mock.fn() } as unknown as HTMLElement;
     });
 
     getOrCreateZenHnMain();

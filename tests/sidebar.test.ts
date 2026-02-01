@@ -164,3 +164,163 @@ describe("IconLinkConfig interface", () => {
     assert.equal(randomLink.icon, "dice-two");
   });
 });
+
+describe("sidebar tab order insertion", () => {
+  test("sidebar is inserted after skip link when skip link exists", () => {
+    const insertAdjacentElementMock = mock.fn();
+    const skipLinkElement = {
+      insertAdjacentElement: insertAdjacentElementMock,
+    };
+    const insertBeforeMock = mock.fn();
+    const appendChildMock = mock.fn();
+    const setAttributeMock = mock.fn();
+
+    const mockDocument = {
+      getElementById: mock.fn((id: string) => {
+        if (id === "zen-hn-sidebar") return null;
+        if (id === "hnmain") return {};
+        return null;
+      }),
+      documentElement: {
+        dataset: {} as DOMStringMap,
+      },
+      querySelectorAll: mock.fn((selector: string) => {
+        if (selector === "span.pagetop") {
+          return [{ closest: mock.fn(() => ({ style: { display: "" } })) }];
+        }
+        return [];
+      }),
+      querySelector: mock.fn((selector: string) => {
+        if (selector === ".zen-hn-skip-link") {
+          return skipLinkElement;
+        }
+        if (selector === 'span.pagetop a[href^="login"]') {
+          return null;
+        }
+        if (selector === "a#me") {
+          return null;
+        }
+        if (selector === "tr#pagespace") {
+          return null;
+        }
+        return null;
+      }),
+      body: {
+        appendChild: appendChildMock,
+        insertBefore: insertBeforeMock,
+        firstChild: null,
+      },
+      createElement: mock.fn((tag: string) => ({
+        tagName: tag.toUpperCase(),
+        className: "",
+        id: "",
+        appendChild: mock.fn(),
+        setAttribute: setAttributeMock,
+        innerHTML: "",
+        href: "",
+        childNodes: { length: 3 },
+        style: { display: "" },
+        classList: {
+          add: mock.fn(),
+          remove: mock.fn(),
+          contains: mock.fn(() => false),
+        },
+      })),
+    };
+
+    Object.defineProperty(globalThis, "document", {
+      value: mockDocument,
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "location", {
+      value: { pathname: "/" },
+      configurable: true,
+    });
+
+    const result = buildSidebarNavigation();
+
+    assert.equal(result, true);
+    // Should use insertAdjacentElement on skip link, not insertBefore on body
+    assert.equal(insertAdjacentElementMock.mock.callCount(), 1);
+    assert.equal(insertAdjacentElementMock.mock.calls[0].arguments[0], "afterend");
+    assert.equal(insertBeforeMock.mock.callCount(), 0);
+  });
+
+  test("sidebar is inserted at start of body when no skip link", () => {
+    const insertBeforeMock = mock.fn();
+    const appendChildMock = mock.fn();
+    const setAttributeMock = mock.fn();
+    const firstChild = { id: "first-child" };
+
+    const mockDocument = {
+      getElementById: mock.fn((id: string) => {
+        if (id === "zen-hn-sidebar") return null;
+        if (id === "hnmain") return {};
+        return null;
+      }),
+      documentElement: {
+        dataset: {} as DOMStringMap,
+      },
+      querySelectorAll: mock.fn((selector: string) => {
+        if (selector === "span.pagetop") {
+          return [{ closest: mock.fn(() => ({ style: { display: "" } })) }];
+        }
+        return [];
+      }),
+      querySelector: mock.fn((selector: string) => {
+        if (selector === ".zen-hn-skip-link") {
+          return null; // No skip link
+        }
+        if (selector === 'span.pagetop a[href^="login"]') {
+          return null;
+        }
+        if (selector === "a#me") {
+          return null;
+        }
+        if (selector === "tr#pagespace") {
+          return null;
+        }
+        return null;
+      }),
+      body: {
+        appendChild: appendChildMock,
+        insertBefore: insertBeforeMock,
+        firstChild,
+      },
+      createElement: mock.fn((tag: string) => ({
+        tagName: tag.toUpperCase(),
+        className: "",
+        id: "",
+        appendChild: mock.fn(),
+        setAttribute: setAttributeMock,
+        innerHTML: "",
+        href: "",
+        childNodes: { length: 3 },
+        style: { display: "" },
+        classList: {
+          add: mock.fn(),
+          remove: mock.fn(),
+          contains: mock.fn(() => false),
+        },
+      })),
+    };
+
+    Object.defineProperty(globalThis, "document", {
+      value: mockDocument,
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "location", {
+      value: { pathname: "/" },
+      configurable: true,
+    });
+
+    const result = buildSidebarNavigation();
+
+    assert.equal(result, true);
+    // Should use insertBefore on body with firstChild
+    assert.equal(insertBeforeMock.mock.callCount(), 1);
+    assert.equal(insertBeforeMock.mock.calls[0].arguments[1], firstChild);
+  });
+});

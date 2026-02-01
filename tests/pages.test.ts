@@ -628,3 +628,146 @@ describe("addFilterButtons", () => {
     assert.equal(result, true);
   });
 });
+
+describe("subnav tab order", () => {
+  test("subnav is inserted after sidebar for correct tab order", () => {
+    const insertAdjacentElementMock = mock.fn();
+    const insertBeforeMock = mock.fn();
+    const sidebarElement = {
+      insertAdjacentElement: insertAdjacentElementMock,
+    };
+
+    const mockDocument = {
+      documentElement: {
+        dataset: { zenHnEnabled: "true" } as DOMStringMap,
+        setAttribute: mock.fn(),
+      },
+      querySelector: mock.fn((selector: string) => {
+        if (selector === ".zen-hn-subnav") {
+          return null; // No subnav exists yet
+        }
+        return null;
+      }),
+      getElementById: mock.fn((id: string) => {
+        if (id === "zen-hn-sidebar") {
+          return sidebarElement;
+        }
+        return null;
+      }),
+      createElement: mock.fn((tag: string) => ({
+        tagName: tag.toUpperCase(),
+        className: "",
+        appendChild: mock.fn(),
+        setAttribute: mock.fn(),
+        querySelectorAll: mock.fn(() => []),
+        classList: {
+          add: mock.fn(),
+          remove: mock.fn(),
+          contains: mock.fn(() => false),
+        },
+      })),
+      body: {
+        appendChild: mock.fn(),
+        insertBefore: insertBeforeMock,
+        firstChild: null,
+      },
+    };
+
+    Object.defineProperty(globalThis, "document", {
+      value: mockDocument,
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "window", {
+      value: {
+        location: {
+          pathname: "/user",
+          search: "?id=testuser",
+        },
+      },
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "requestAnimationFrame", {
+      value: mock.fn(),
+      configurable: true,
+    });
+
+    const result = addUserSubnav();
+
+    assert.equal(result, true);
+    // Should use insertAdjacentElement on sidebar
+    assert.equal(insertAdjacentElementMock.mock.callCount(), 1);
+    assert.equal(insertAdjacentElementMock.mock.calls[0].arguments[0], "afterend");
+    // Should NOT use insertBefore on body
+    assert.equal(insertBeforeMock.mock.callCount(), 0);
+  });
+
+  test("subnav falls back to body start when no sidebar", () => {
+    const insertBeforeMock = mock.fn();
+    const firstChild = { id: "first-child" };
+
+    const mockDocument = {
+      documentElement: {
+        dataset: { zenHnEnabled: "true" } as DOMStringMap,
+        setAttribute: mock.fn(),
+      },
+      querySelector: mock.fn((selector: string) => {
+        if (selector === ".zen-hn-subnav") {
+          return null;
+        }
+        return null;
+      }),
+      getElementById: mock.fn((id: string) => {
+        if (id === "zen-hn-sidebar") {
+          return null; // No sidebar
+        }
+        return null;
+      }),
+      createElement: mock.fn((tag: string) => ({
+        tagName: tag.toUpperCase(),
+        className: "",
+        appendChild: mock.fn(),
+        setAttribute: mock.fn(),
+        querySelectorAll: mock.fn(() => []),
+        classList: {
+          add: mock.fn(),
+          remove: mock.fn(),
+          contains: mock.fn(() => false),
+        },
+      })),
+      body: {
+        appendChild: mock.fn(),
+        insertBefore: insertBeforeMock,
+        firstChild,
+      },
+    };
+
+    Object.defineProperty(globalThis, "document", {
+      value: mockDocument,
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "window", {
+      value: {
+        location: {
+          pathname: "/user",
+          search: "?id=testuser",
+        },
+      },
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "requestAnimationFrame", {
+      value: mock.fn(),
+      configurable: true,
+    });
+
+    const result = addUserSubnav();
+
+    assert.equal(result, true);
+    // Should use insertBefore on body with firstChild
+    assert.equal(insertBeforeMock.mock.callCount(), 1);
+    assert.equal(insertBeforeMock.mock.calls[0].arguments[1], firstChild);
+  });
+});
