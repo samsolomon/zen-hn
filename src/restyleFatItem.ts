@@ -14,6 +14,7 @@ import { resolveReplyFormFromElement, submitReplyWithResolved, submitReply } fro
 import { buildCommentItem } from "./buildCommentItem";
 import { getOrCreateZenHnMain } from "./getOrCreateZenHnMain";
 import { copyTextToClipboard, stripParenTextNodes } from "./utils";
+import { announce } from "./announcer";
 
 function getFatItemCommentRow(fatitem: Element | null): HTMLTableRowElement | null {
   if (!fatitem) {
@@ -166,6 +167,7 @@ export function restyleFatItem(): void {
       upvoteButton.classList.toggle("is-active", isUpvotedState);
       upvoteButton.setAttribute("aria-pressed", isUpvotedState ? "true" : "false");
       upvoteButton.innerHTML = renderIcon(isUpvotedState ? "arrow-fat-up-fill" : "arrow-fat-up");
+      announce(isUpvotedState ? "Upvoted" : "Vote removed");
     });
   } else {
     upvoteButton.hidden = true;
@@ -250,6 +252,7 @@ export function restyleFatItem(): void {
       updateStoredAction("stories", itemId, { favorite: isFavorited });
     }
     favoriteHref = buildNextFavoriteHref(favoriteHref, !isFavorited);
+    announce(isFavorited ? "Added to favorites" : "Removed from favorites");
   });
 
   const linkButton = document.createElement("button");
@@ -276,6 +279,7 @@ export function restyleFatItem(): void {
       }
       linkButton.classList.add("is-copied");
       linkButton.classList.add("is-active");
+      announce("Link copied to clipboard");
       copyResetTimer = window.setTimeout(() => {
         linkButton.classList.remove("is-copied");
         linkButton.classList.remove("is-active");
@@ -320,7 +324,7 @@ export function restyleFatItem(): void {
     replyContainer.classList.add("is-hidden");
   };
   const replySubmitButton = document.createElement("button");
-  replySubmitButton.className = "hn-reply-button";
+  replySubmitButton.className = "zen-hn-button-outline hn-reply-button";
   replySubmitButton.type = "button";
   replySubmitButton.textContent = "Reply";
   replyTextarea.addEventListener("keydown", (event) => {
@@ -331,7 +335,7 @@ export function restyleFatItem(): void {
     replySubmitButton.click();
   });
   const cancelButton = document.createElement("button");
-  cancelButton.className = "hn-reply-cancel";
+  cancelButton.className = "zen-hn-button-ghost hn-reply-cancel";
   cancelButton.type = "button";
   cancelButton.textContent = "Cancel";
   cancelButton.addEventListener("click", (event) => {

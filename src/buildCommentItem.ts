@@ -16,6 +16,7 @@ import { setCollapseButtonState, toggleCommentCollapse } from "./commentCollapse
 import { resolveFavoriteLink } from "./favorites";
 import { submitReply, submitReplyWithResolved, type ResolvedReplyForm } from "./replyForm";
 import { copyTextToClipboard } from "./utils";
+import { announce } from "./announcer";
 
 export interface BuildCommentItemOptions {
   indentLevel?: number;
@@ -102,6 +103,10 @@ export function buildCommentItem(
   const item = document.createElement("div");
   item.className = "hn-comment";
   item.classList.add(`level-${indentLevel}`);
+  // Set a unique ID for aria-controls on collapse button
+  if (commentId) {
+    item.id = `comment-${commentId}`;
+  }
   item.style.setProperty("--indent-level", String(indentLevel));
   item.dataset.indentLevel = String(indentLevel);
   item.dataset.collapsed = "false";
@@ -114,6 +119,10 @@ export function buildCommentItem(
   collapseButton.className = "icon-button hn-collapse-button";
   collapseButton.type = "button";
   collapseButton.innerHTML = renderIcon("caret-down");
+  // Connect collapse button to the comment it controls for accessibility
+  if (commentId) {
+    collapseButton.setAttribute("aria-controls", `comment-${commentId}`);
+  }
   setCollapseButtonState(collapseButton, false, hasChildren);
   collapseButton.addEventListener("click", (event) => {
     event.stopPropagation();
@@ -212,6 +221,7 @@ export function buildCommentItem(
       downvoteButton.classList.toggle("is-active", isDownvoted);
       downvoteButton.setAttribute("aria-pressed", isDownvoted ? "true" : "false");
       updateVoteIcons();
+      announce(isUpvoted ? "Upvoted" : "Vote removed");
     });
   } else {
     upvoteButton.hidden = true;
@@ -241,6 +251,7 @@ export function buildCommentItem(
       upvoteButton.classList.toggle("is-active", isUpvoted);
       upvoteButton.setAttribute("aria-pressed", isUpvoted ? "true" : "false");
       updateVoteIcons();
+      announce(isDownvoted ? "Downvoted" : "Vote removed");
     });
   } else {
     downvoteButton.hidden = true;
@@ -298,6 +309,7 @@ export function buildCommentItem(
     if (commentId) {
       updateStoredAction("comments", commentId, { favorite: isFavorited });
     }
+    announce(isFavorited ? "Added to favorites" : "Removed from favorites");
   });
 
   const shareButton = document.createElement("button");
@@ -342,6 +354,7 @@ export function buildCommentItem(
       }
       linkButton.classList.add("is-copied");
       linkButton.classList.add("is-active");
+      announce("Link copied to clipboard");
       copyResetTimer = window.setTimeout(() => {
         linkButton.classList.remove("is-copied");
         linkButton.classList.remove("is-active");
@@ -373,7 +386,7 @@ export function buildCommentItem(
     replyContainer!.classList.add("is-hidden");
   };
   const replyButton = document.createElement("button");
-  replyButton.className = "hn-reply-button";
+  replyButton.className = "zen-hn-button-outline hn-reply-button";
   replyButton.type = "button";
   replyButton.textContent = "Reply";
   replyTextarea.addEventListener("keydown", (event) => {
@@ -384,7 +397,7 @@ export function buildCommentItem(
     replyButton.click();
   });
   const cancelButton = document.createElement("button");
-  cancelButton.className = "hn-reply-cancel";
+  cancelButton.className = "zen-hn-button-ghost hn-reply-cancel";
   cancelButton.type = "button";
   cancelButton.textContent = "Cancel";
   cancelButton.addEventListener("click", (event) => {
