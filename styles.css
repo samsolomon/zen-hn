@@ -2903,8 +2903,22 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
   margin: 0 0 var(--space-300) 0;
 }
 
+.zen-hn-about-sections-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-400);
+}
+
+@media (max-width: 600px) {
+  .zen-hn-about-sections-row {
+    flex-direction: column;
+    gap: var(--space-300);
+  }
+}
+
 .zen-hn-about-section {
-  margin-bottom: var(--space-300);
+  flex: 1;
+  min-width: 120px;
 }
 
 .zen-hn-about-section-title {

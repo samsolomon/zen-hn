@@ -296,9 +296,28 @@ Urls become links, except in the text field of a submission. If your url gets li
   saveButton.className = "zen-hn-button-outline";
   saveButton.textContent = "Save";
   saveButton.addEventListener("click", () => {
-    // Get the original form from the page
-    const originalForm = document.querySelector<HTMLFormElement>('form[action="xuser"]');
+    console.log("[Edit Profile] Save clicked");
+
+    // Debug: log all forms on the page
+    const allForms = document.querySelectorAll("form");
+    console.log("[Edit Profile] All forms on page:", allForms.length);
+    allForms.forEach((f, i) => {
+      console.log(`[Edit Profile] Form ${i}: action="${f.action}", id="${f.id}", class="${f.className}"`);
+    });
+
+    // Get the original form from the page - try multiple selectors
+    let originalForm = document.querySelector<HTMLFormElement>('form[action="xuser"]');
     if (!originalForm) {
+      // Try finding form with about textarea
+      originalForm = document.querySelector<HTMLFormElement>('form:has(textarea[name="about"])');
+    }
+    if (!originalForm) {
+      // Try any form in the user page wrapper
+      originalForm = document.querySelector<HTMLFormElement>('.hn-user-page form');
+    }
+    console.log("[Edit Profile] Original form found:", !!originalForm, originalForm?.action);
+    if (!originalForm) {
+      console.log("[Edit Profile] No form found, closing modal");
       close();
       return;
     }
@@ -306,15 +325,47 @@ Urls become links, except in the text field of a submission. If your url gets li
     // Update the original form fields
     const originalAbout = originalForm.querySelector<HTMLTextAreaElement>('textarea[name="about"]');
     const originalEmail = originalForm.querySelector<HTMLInputElement>('input[name="email"]');
+    console.log("[Edit Profile] Form fields found - about:", !!originalAbout, "email:", !!originalEmail);
 
     if (originalAbout) {
+      console.log("[Edit Profile] Updating about from:", originalAbout.value.substring(0, 50), "to:", aboutTextarea.value.substring(0, 50));
       originalAbout.value = aboutTextarea.value;
     }
     if (originalEmail) {
+      console.log("[Edit Profile] Updating email from:", originalEmail.value, "to:", emailInput.value);
       originalEmail.value = emailInput.value;
     }
 
-    // Submit the original form
+    // Update the displayed header immediately (optimistic update)
+    const headerAbout = document.querySelector(".zen-hn-user-about");
+    console.log("[Edit Profile] Header about element found:", !!headerAbout);
+    if (headerAbout) {
+      const newAboutValue = aboutTextarea.value.trim();
+      if (newAboutValue) {
+        console.log("[Edit Profile] Updating header about content");
+        headerAbout.innerHTML = formatHnAbout(newAboutValue);
+      } else {
+        console.log("[Edit Profile] Removing empty header about");
+        headerAbout.remove();
+      }
+    } else if (aboutTextarea.value.trim()) {
+      // Create about section if it didn't exist before
+      const header = document.querySelector(".zen-hn-user-header");
+      console.log("[Edit Profile] Creating new about section, header found:", !!header);
+      if (header) {
+        const about = document.createElement("div");
+        about.className = "zen-hn-user-about";
+        about.innerHTML = formatHnAbout(aboutTextarea.value.trim());
+        header.appendChild(about);
+      }
+    }
+
+    // Close the modal
+    console.log("[Edit Profile] Closing modal");
+    close();
+
+    // Submit the original form to save to HN's server
+    console.log("[Edit Profile] Submitting form");
     originalForm.submit();
   });
 
@@ -1043,15 +1094,6 @@ export function restyleAboutPage(): boolean {
       </section>
 
       <section class="zen-hn-about-section">
-        <h2 class="zen-hn-about-section-title">Project</h2>
-        <ul class="zen-hn-about-links">
-          <li><a href="https://github.com/samsolomon/zen-hn" target="_blank" rel="noopener">Source Code</a></li>
-          <li><a href="https://github.com/samsolomon/zen-hn/issues" target="_blank" rel="noopener">Report an Issue</a></li>
-          <li><a href="#" class="zen-hn-about-shortcuts-link">Keyboard Shortcuts</a></li>
-        </ul>
-      </section>
-
-      <section class="zen-hn-about-section">
         <h2 class="zen-hn-about-section-title">HN</h2>
         <ul class="zen-hn-about-links">
           <li><a href="https://news.ycombinator.com/newsguidelines.html" target="_blank" rel="noopener">Guidelines</a> / <a href="https://news.ycombinator.com/newsfaq.html" target="_blank" rel="noopener">FAQ</a></li>
@@ -1059,6 +1101,15 @@ export function restyleAboutPage(): boolean {
           <li><a href="https://github.com/HackerNews/API" target="_blank" rel="noopener">API</a></li>
           <li><a href="https://www.ycombinator.com/apply/" target="_blank" rel="noopener">Apply to YC</a></li>
           <li><a href="mailto:hn@ycombinator.com">Contact</a></li>
+        </ul>
+      </section>
+
+      <section class="zen-hn-about-section">
+        <h2 class="zen-hn-about-section-title">Project</h2>
+        <ul class="zen-hn-about-links">
+          <li><a href="https://github.com/samsolomon/zen-hn" target="_blank" rel="noopener">Source Code</a></li>
+          <li><a href="https://github.com/samsolomon/zen-hn/issues" target="_blank" rel="noopener">Report an Issue</a></li>
+          <li><a href="#" class="zen-hn-about-shortcuts-link">Keyboard Shortcuts</a></li>
         </ul>
       </section>
     </div>
