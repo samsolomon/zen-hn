@@ -2,7 +2,7 @@ import { loadActionStore } from "./actionStore";
 import { buildSidebarNavigation } from "./sidebar";
 import { isUserProfilePage } from "./logic";
 import { restyleSubmissions } from "./restyleSubmissions";
-import { restyleSubmitPage, restyleUserPage, restyleChangePwPage, restyleUserListPage, restyleAboutPage, restyleNoprocrastPage, cacheLoggedInUsername } from "./pages";
+import { restyleSubmitPage, restyleUserPage, restyleChangePwPage, restyleUserListPage, restyleAboutPage, restyleNoprocrastPage, cacheLoggedInUsername, addFilterButtons } from "./pages";
 import { restyleFatItem } from "./restyleFatItem";
 import { runRestyleWhenReady } from "./restyleComments";
 
@@ -21,6 +21,7 @@ export async function initRestyle(): Promise<void> {
   restyleAboutPage();
   restyleNoprocrastPage();
   restyleFatItem();
+  addFilterButtons();
   runRestyleWhenReady();
 
   // Hide original HN content only if we created restyled content

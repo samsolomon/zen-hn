@@ -5,6 +5,7 @@
 import { getOrCreateZenHnMain } from "./getOrCreateZenHnMain";
 import { isUserProfilePage } from "./logic";
 import { appendAppearanceControls, replaceHnSettingsWithToggles } from "./colorMode";
+import { initSubnavOverflow } from "./subnavOverflow";
 
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
 const LOGGED_IN_USERNAME_KEY = "zenHnLoggedInUsername";
@@ -18,6 +19,8 @@ interface UserProfileData {
   created: string;
   karma: string;
   about: string;
+  email: string;
+  isOwnProfile: boolean;
 }
 
 /**
@@ -29,6 +32,7 @@ function extractUserProfileData(container: HTMLElement): UserProfileData | null 
   const table = container.querySelector("table");
   const rows = table ? table.querySelectorAll("tr") : container.querySelectorAll("tr");
   const data: Partial<UserProfileData> = {};
+  let isOwnProfile = false;
 
   for (const row of rows) {
     const cells = row.querySelectorAll("td");
@@ -41,15 +45,25 @@ function extractUserProfileData(container: HTMLElement): UserProfileData | null 
       // For about, check for textarea (own profile) or just innerHTML (other users)
       if (label === "about") {
         const textarea = value.querySelector("textarea");
-        data.about = textarea
-          ? textarea.value.replace(/\n/g, "<br>")
-          : value.innerHTML || "";
+        if (textarea) {
+          // Own profile: store raw text, will be formatted later
+          data.about = textarea.value;
+          isOwnProfile = true;
+        } else {
+          // Other users: HN already rendered, just use innerHTML
+          data.about = value.innerHTML || "";
+        }
+      }
+      // Email is only on own profile form
+      if (label === "email") {
+        const emailInput = value.querySelector("input");
+        data.email = emailInput?.value || "";
       }
     }
   }
 
   if (!data.username) return null;
-  return data as UserProfileData;
+  return { ...data, email: data.email || "", isOwnProfile } as UserProfileData;
 }
 
 /**
@@ -106,16 +120,257 @@ function linkifyText(html: string): string {
 }
 
 /**
+ * Format HN about field text to HTML matching HN's rendering rules
+ *
+ * HN formatting rules:
+ * - Blank line = paragraph break
+ * - *text* = italic
+ * - \* or ** = literal *
+ * - 2+ space indent after blank line = code block (verbatim)
+ * - URLs = auto-linked
+ * - <url> = explicit link syntax
+ */
+function formatHnAbout(text: string): string {
+  // 1. Escape HTML entities (prevent XSS)
+  let html = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+
+  // 2. Handle escaped asterisks: \* becomes placeholder, ** becomes *
+  const ESCAPED_ASTERISK = "\u0000ESC_AST\u0000";
+  html = html.replace(/\\\*/g, ESCAPED_ASTERISK);
+  html = html.replace(/\*\*/g, "*");
+
+  // 3. Convert *text* to <i>text</i> (non-greedy, no newlines inside)
+  html = html.replace(/\*([^*\n]+)\*/g, "<i>$1</i>");
+
+  // 4. Restore escaped asterisks
+  html = html.replace(new RegExp(ESCAPED_ASTERISK, "g"), "*");
+
+  // 5. Split into paragraphs (blank lines)
+  const paragraphs = html.split(/\n\n+/);
+
+  // 6. Process each paragraph for code blocks and regular content
+  const processedParagraphs = paragraphs.map((para) => {
+    // Check if paragraph starts with 2+ spaces (code block)
+    // A code block is text that starts with 2+ spaces after a blank line
+    const lines = para.split("\n");
+    const isCodeBlock = lines.every((line) => line === "" || /^  +/.test(line));
+
+    if (isCodeBlock && lines.some((line) => line.trim() !== "")) {
+      // Remove the leading 2 spaces from each line for code block
+      const codeContent = lines
+        .map((line) => (line.startsWith("  ") ? line.slice(2) : line))
+        .join("\n");
+      return `<pre>${codeContent}</pre>`;
+    }
+
+    // 7. Handle &lt;url&gt; syntax (explicit link) - now safe after HTML escaping
+    let processed = para.replace(/&lt;(https?:\/\/[^&]+)&gt;/g, (_, url) => {
+      return `<a href="${url}" rel="nofollow">${url}</a>`;
+    });
+
+    // 8. Convert single newlines to <br>
+    processed = processed.replace(/\n/g, "<br>");
+
+    return `<p>${processed}</p>`;
+  });
+
+  // Join paragraphs
+  html = processedParagraphs.join("");
+
+  // 9. Run through linkifyText() for plain URL detection
+  html = linkifyText(html);
+
+  return html;
+}
+
+const EDIT_PROFILE_MODAL_ID = "zen-hn-edit-profile-modal";
+
+/**
+ * Close the edit profile modal
+ */
+function closeEditProfileModal(): void {
+  const modal = document.getElementById(EDIT_PROFILE_MODAL_ID);
+  if (modal) {
+    modal.remove();
+  }
+}
+
+/**
+ * Show the edit profile modal
+ */
+function showEditProfileModal(data: UserProfileData): void {
+  // Close any existing modal
+  closeEditProfileModal();
+
+  // Get current values from the HN form
+  const hnForm = document.querySelector<HTMLFormElement>(".hn-user-page form, .hn-form-page form");
+  const aboutTextarea = hnForm?.querySelector<HTMLTextAreaElement>('textarea[name="about"]');
+  const emailInput = hnForm?.querySelector<HTMLInputElement>('input[name="email"]');
+
+  const currentAbout = aboutTextarea?.value || data.about.replace(/<br\s*\/?>/gi, "\n");
+  const currentEmail = emailInput?.value || data.email;
+
+  const modal = document.createElement("div");
+  modal.id = EDIT_PROFILE_MODAL_ID;
+  modal.className = "zen-hn-edit-profile-modal";
+  modal.setAttribute("role", "dialog");
+  modal.setAttribute("aria-modal", "true");
+  modal.setAttribute("aria-labelledby", "edit-profile-modal-title");
+
+  const backdrop = document.createElement("div");
+  backdrop.className = "zen-hn-edit-profile-backdrop";
+  backdrop.addEventListener("click", closeEditProfileModal);
+
+  const content = document.createElement("div");
+  content.className = "zen-hn-edit-profile-content";
+
+  // Title
+  const title = document.createElement("h2");
+  title.id = "edit-profile-modal-title";
+  title.className = "zen-hn-edit-profile-title";
+  title.textContent = "Edit Profile";
+
+  // Form fields
+  const form = document.createElement("div");
+  form.className = "zen-hn-edit-profile-form";
+
+  // About field
+  const aboutGroup = document.createElement("div");
+  aboutGroup.className = "zen-hn-edit-profile-field";
+
+  const aboutLabel = document.createElement("label");
+  aboutLabel.className = "zen-hn-edit-profile-label";
+  aboutLabel.textContent = "About";
+  aboutLabel.setAttribute("for", "zen-hn-edit-about");
+
+  const aboutInputField = document.createElement("textarea");
+  aboutInputField.id = "zen-hn-edit-about";
+  aboutInputField.className = "zen-hn-edit-profile-textarea";
+  aboutInputField.value = currentAbout;
+  aboutInputField.rows = 5;
+
+  aboutGroup.appendChild(aboutLabel);
+  aboutGroup.appendChild(aboutInputField);
+
+  // Email field
+  const emailGroup = document.createElement("div");
+  emailGroup.className = "zen-hn-edit-profile-field";
+
+  const emailLabel = document.createElement("label");
+  emailLabel.className = "zen-hn-edit-profile-label";
+  emailLabel.textContent = "Email";
+  emailLabel.setAttribute("for", "zen-hn-edit-email");
+
+  const emailFieldInput = document.createElement("input");
+  emailFieldInput.type = "email";
+  emailFieldInput.id = "zen-hn-edit-email";
+  emailFieldInput.className = "zen-hn-edit-profile-input";
+  emailFieldInput.value = currentEmail;
+
+  emailGroup.appendChild(emailLabel);
+  emailGroup.appendChild(emailFieldInput);
+
+  form.appendChild(aboutGroup);
+  form.appendChild(emailGroup);
+
+  // Buttons
+  const buttonGroup = document.createElement("div");
+  buttonGroup.className = "zen-hn-edit-profile-buttons";
+
+  const cancelButton = document.createElement("button");
+  cancelButton.type = "button";
+  cancelButton.className = "zen-hn-button-ghost";
+  cancelButton.textContent = "Cancel";
+  cancelButton.addEventListener("click", closeEditProfileModal);
+
+  const saveButton = document.createElement("button");
+  saveButton.type = "button";
+  saveButton.className = "zen-hn-button-outline";
+  saveButton.textContent = "Save";
+  saveButton.addEventListener("click", () => {
+    // Update the HN form fields
+    if (aboutTextarea) {
+      aboutTextarea.value = aboutInputField.value;
+    }
+    if (emailInput) {
+      emailInput.value = emailFieldInput.value;
+    }
+
+    // Update the visible header about section with HN formatting
+    const aboutDisplay = document.querySelector(".zen-hn-user-about");
+    if (aboutDisplay) {
+      aboutDisplay.innerHTML = formatHnAbout(aboutInputField.value);
+    } else if (aboutInputField.value) {
+      // Create about section if it doesn't exist but now has content
+      const header = document.querySelector(".zen-hn-user-header");
+      if (header) {
+        const about = document.createElement("div");
+        about.className = "zen-hn-user-about";
+        about.innerHTML = formatHnAbout(aboutInputField.value);
+        header.appendChild(about);
+      }
+    }
+
+    closeEditProfileModal();
+  });
+
+  buttonGroup.appendChild(cancelButton);
+  buttonGroup.appendChild(saveButton);
+
+  content.appendChild(title);
+  content.appendChild(form);
+  content.appendChild(buttonGroup);
+
+  modal.appendChild(backdrop);
+  modal.appendChild(content);
+
+  document.body.appendChild(modal);
+
+  // Handle escape key
+  const handleEscape = (e: KeyboardEvent): void => {
+    if (e.key === "Escape") {
+      closeEditProfileModal();
+      document.removeEventListener("keydown", handleEscape);
+    }
+  };
+  document.addEventListener("keydown", handleEscape);
+
+  // Focus the about textarea
+  requestAnimationFrame(() => {
+    aboutInputField.focus();
+  });
+}
+
+/**
  * Create a styled header element for user profiles
  */
 function createUserProfileHeader(data: UserProfileData): HTMLElement {
   const header = document.createElement("header");
   header.className = "zen-hn-user-header";
 
+  // Title row with username and optional edit button
+  const titleRow = document.createElement("div");
+  titleRow.className = "zen-hn-user-title-row";
+
   const username = document.createElement("h1");
   username.className = "zen-hn-user-name";
   username.textContent = data.username;
-  header.appendChild(username);
+  titleRow.appendChild(username);
+
+  if (data.isOwnProfile) {
+    const editButton = document.createElement("button");
+    editButton.type = "button";
+    editButton.className = "zen-hn-button-outline zen-hn-edit-profile-button";
+    editButton.textContent = "Edit";
+    editButton.addEventListener("click", () => showEditProfileModal(data));
+    titleRow.appendChild(editButton);
+  }
+
+  header.appendChild(titleRow);
 
   const meta = document.createElement("p");
   meta.className = "zen-hn-user-meta";
@@ -125,7 +380,10 @@ function createUserProfileHeader(data: UserProfileData): HTMLElement {
   if (data.about) {
     const about = document.createElement("div");
     about.className = "zen-hn-user-about";
-    about.innerHTML = linkifyText(data.about);
+    // Own profile: format raw text with HN rules; other users: already rendered by HN
+    about.innerHTML = data.isOwnProfile
+      ? formatHnAbout(data.about)
+      : linkifyText(data.about);
     header.appendChild(about);
   }
 
@@ -320,7 +578,40 @@ function createUserSubnav(username: string | null): HTMLElement {
     list.appendChild(li);
   }
 
+  // Add More button wrapper for overflow items (uses generic dropdown classes)
+  const moreWrapper = document.createElement("li");
+  moreWrapper.className = "zen-hn-subnav-item zen-hn-subnav-more-menu";
+
+  const moreButton = document.createElement("button");
+  moreButton.className = "zen-hn-subnav-link zen-dropdown-button";
+  moreButton.setAttribute("aria-haspopup", "menu");
+  moreButton.setAttribute("aria-expanded", "false");
+  moreButton.type = "button";
+
+  const moreText = document.createTextNode("More ");
+  const moreIcon = document.createElement("span");
+  moreIcon.className = "zen-dropdown-icon";
+  moreIcon.setAttribute("aria-hidden", "true");
+  moreIcon.textContent = "▾";
+
+  moreButton.appendChild(moreText);
+  moreButton.appendChild(moreIcon);
+
+  const moreDropdown = document.createElement("ul");
+  moreDropdown.className = "zen-dropdown-dropdown";
+  moreDropdown.setAttribute("role", "menu");
+
+  moreWrapper.appendChild(moreButton);
+  moreWrapper.appendChild(moreDropdown);
+  list.appendChild(moreWrapper);
+
   nav.appendChild(list);
+
+  // Initialize overflow detection after DOM is ready
+  requestAnimationFrame(() => {
+    initSubnavOverflow(nav);
+  });
+
   return nav;
 }
 
@@ -456,10 +747,92 @@ export function restyleUserPage(): boolean {
 const USER_LIST_PAGES = ["/favorites", "/upvoted", "/flagged", "/hidden", "/submitted"];
 
 /**
+ * Pages that support filtering between submissions and comments
+ */
+const FILTER_PAGES = ["/favorites", "/upvoted", "/flagged"];
+
+/**
  * Check if the current page is a user list page
  */
 function isUserListPage(): boolean {
   return USER_LIST_PAGES.includes(window.location.pathname);
+}
+
+/**
+ * Check if the current page supports submissions/comments filtering
+ */
+function isFilterPage(): boolean {
+  return FILTER_PAGES.includes(window.location.pathname);
+}
+
+/**
+ * Check if we're currently viewing comments (via URL param)
+ */
+function isCommentsView(): boolean {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("comments") === "t";
+}
+
+/**
+ * Create filter buttons for switching between submissions and comments
+ */
+function createFilterButtons(username: string): HTMLElement {
+  const pathname = window.location.pathname;
+  const isComments = isCommentsView();
+
+  const container = document.createElement("div");
+  container.className = "zen-hn-filter-buttons";
+
+  const submissionsLink = document.createElement("a");
+  submissionsLink.className = "zen-hn-button-outline";
+  submissionsLink.href = `${pathname}?id=${username}`;
+  submissionsLink.textContent = "Submissions";
+  if (!isComments) {
+    submissionsLink.classList.add("is-active");
+    submissionsLink.setAttribute("aria-current", "page");
+  }
+
+  const commentsLink = document.createElement("a");
+  commentsLink.className = "zen-hn-button-outline";
+  commentsLink.href = `${pathname}?id=${username}&comments=t`;
+  commentsLink.textContent = "Comments";
+  if (isComments) {
+    commentsLink.classList.add("is-active");
+    commentsLink.setAttribute("aria-current", "page");
+  }
+
+  container.appendChild(submissionsLink);
+  container.appendChild(commentsLink);
+
+  return container;
+}
+
+/**
+ * Add filter buttons to pages that support submissions/comments filtering.
+ * Called after restyleSubmissions/restyleComments have already processed the content.
+ */
+export function addFilterButtons(): boolean {
+  if (!isFilterPage()) {
+    return false;
+  }
+
+  // Skip if filter buttons already exist
+  if (document.querySelector(".zen-hn-filter-buttons")) {
+    return false;
+  }
+
+  const username = getUsernameFromUrl();
+  if (!username) {
+    return false;
+  }
+
+  const zenHnMain = getOrCreateZenHnMain();
+  const filterButtons = createFilterButtons(username);
+
+  // Insert at the beginning of zen-hn-main
+  zenHnMain.insertBefore(filterButtons, zenHnMain.firstChild);
+
+  return true;
 }
 
 /**
@@ -468,6 +841,11 @@ function isUserListPage(): boolean {
  */
 export function restyleUserListPage(): boolean {
   if (!isUserListPage()) {
+    return false;
+  }
+
+  // Filter pages are handled by restyleSubmissions/restyleComments + addFilterButtons
+  if (isFilterPage()) {
     return false;
   }
 
@@ -491,6 +869,7 @@ export function restyleUserListPage(): boolean {
   // Clone content table to zen-hn-main
   const wrapper = document.createElement("div");
   wrapper.className = "hn-user-list-page";
+
   const contentClone = contentTable.cloneNode(true) as HTMLElement;
   wrapper.appendChild(contentClone);
   getOrCreateZenHnMain().appendChild(wrapper);
