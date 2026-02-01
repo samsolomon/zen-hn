@@ -869,8 +869,7 @@ export function restyleUserPage(): boolean {
       wrapper.appendChild(header);
     }
 
-    wrapper.appendChild(form);
-
+    // Form stays hidden in hnmain - profile editing is done via modal
     const settingsSection = document.createElement("div");
     settingsSection.className = "zen-hn-settings-section";
 
@@ -901,6 +900,18 @@ export function restyleUserPage(): boolean {
 
   if (form) {
     replaceHnSettingsWithToggles();
+
+    // Move HN settings section from hidden form to visible wrapper
+    const hnSettingsSection = form.querySelector(".zen-hn-hn-settings-section");
+    if (hnSettingsSection) {
+      // Insert before the Zen HN Appearance section
+      const zenHnSettings = wrapper.querySelector(".zen-hn-settings-section");
+      if (zenHnSettings) {
+        wrapper.insertBefore(hnSettingsSection, zenHnSettings);
+      } else {
+        wrapper.appendChild(hnSettingsSection);
+      }
+    }
   }
 
   return true;
