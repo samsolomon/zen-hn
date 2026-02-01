@@ -1709,6 +1709,46 @@ html[data-zen-hn-enabled="true"] .comhead {
   color: var(--color-text-muted);
 }
 
+/* Success icon for input controls */
+.zen-hn-setting-input-success-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 160ms ease;
+  color: var(--green-9, #30a46c);
+}
+
+.zen-hn-setting-input-success-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.zen-hn-setting-input-wrapper.is-success .zen-hn-setting-input-success-icon {
+  opacity: 1;
+}
+
+/* Noprocrast-dependent inputs container */
+.zen-hn-noprocrast-inputs {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 250ms ease;
+}
+
+.zen-hn-noprocrast-inputs-inner {
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.zen-hn-noprocrast-inputs.is-visible {
+  grid-template-rows: 1fr;
+}
+
+.zen-hn-noprocrast-inputs.is-visible .zen-hn-noprocrast-inputs-inner {
+  opacity: 1;
+}
+
 /* Switch - shadcn style */
 .zen-hn-switch {
   all: unset;

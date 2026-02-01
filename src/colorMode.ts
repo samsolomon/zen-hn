@@ -852,12 +852,20 @@ function buildExternalEscapeToggle(
 }
 
 /**
- * Append the external escape toggle to a container
+ * Insert the external escape toggle at the top of a container (after the title)
  */
 async function appendExternalEscapeToggle(container: HTMLElement): Promise<void> {
   const isEnabled = await getExternalEscapeStatus();
   const control = buildExternalEscapeToggle(isEnabled);
-  container.appendChild(control);
+  // Insert after the title (first child) to keep it at the top
+  const title = container.querySelector(".zen-hn-settings-title");
+  if (title && title.nextSibling) {
+    container.insertBefore(control, title.nextSibling);
+  } else if (title) {
+    title.after(control);
+  } else {
+    container.prepend(control);
+  }
 }
 
 /**
@@ -929,19 +937,16 @@ const HN_INPUT_SETTING_CONFIGS: HnInputSettingConfig[] = [
     inputName: "maxv",
     label: "Max visit",
     description: "Maximum minutes you can spend on HN per visit.",
-    suffix: "minutes",
   },
   {
     inputName: "mina",
     label: "Min away",
     description: "Minimum minutes you must stay away before returning.",
-    suffix: "minutes",
   },
   {
     inputName: "delay",
     label: "Delay",
     description: "Days before noprocrast takes effect for new accounts.",
-    suffix: "days",
   },
 ];
 
@@ -995,6 +1000,11 @@ function buildInputControl(
   const inputWrapper = document.createElement("div");
   inputWrapper.className = "zen-hn-setting-input-wrapper";
 
+  // Success icon (shown on successful save)
+  const successIcon = document.createElement("span");
+  successIcon.className = "zen-hn-setting-input-success-icon";
+  successIcon.innerHTML = renderIcon("check-circle-fill");
+
   const styledInput = document.createElement("input");
   styledInput.type = "text";
   styledInput.className = "zen-hn-setting-input";
@@ -1013,6 +1023,7 @@ function buildInputControl(
     });
   }
 
+  inputWrapper.appendChild(successIcon);
   inputWrapper.appendChild(styledInput);
 
   if (config.suffix) {
@@ -1037,10 +1048,14 @@ function isSelectEnabled(select: HTMLSelectElement): boolean {
 
 /**
  * Build a toggle switch that syncs with a native select element
+ * @param select - The original hidden select element
+ * @param config - Configuration for the toggle
+ * @param onChange - Optional callback when toggle state changes
  */
 function buildSelectToggle(
   select: HTMLSelectElement,
-  config: HnSettingConfig
+  config: HnSettingConfig,
+  onChange?: (enabled: boolean) => void
 ): HTMLElement {
   const container = document.createElement("div");
   container.className = "zen-hn-setting-toggle-control";
@@ -1094,6 +1109,9 @@ function buildSelectToggle(
       switchEl.classList.remove("is-active");
       switchEl.setAttribute("aria-checked", "false");
     }
+
+    // Notify listener
+    onChange?.(newEnabled);
   });
 
   container.appendChild(labelContainer);
@@ -1108,6 +1126,14 @@ function buildSelectToggle(
  */
 export function replaceHnSettingsWithToggles(): void {
   let hnSettingsSection: Element | null = null;
+  let noprocrastInputsContainer: HTMLElement | null = null;
+  let noprocrastInputsInner: HTMLElement | null = null;
+
+  // Find noprocrast select to get initial state
+  const noprocrastSelect = document.querySelector<HTMLSelectElement>(
+    'select[name="nopro"]'
+  );
+  const isNoprocrastEnabled = noprocrastSelect?.value === "yes";
 
   for (const config of HN_SETTING_CONFIGS) {
     const select = document.querySelector<HTMLSelectElement>(
@@ -1129,8 +1155,22 @@ export function replaceHnSettingsWithToggles(): void {
     // Mark as processed
     select.dataset.zenHnToggled = "true";
 
+    // For noprocrast toggle, add onChange handler to show/hide dependent inputs
+    const onChange =
+      config.selectName === "nopro"
+        ? (enabled: boolean) => {
+            if (noprocrastInputsContainer) {
+              if (enabled) {
+                noprocrastInputsContainer.classList.add("is-visible");
+              } else {
+                noprocrastInputsContainer.classList.remove("is-visible");
+              }
+            }
+          }
+        : undefined;
+
     // Create the toggle and insert it after the hidden row
-    const toggle = buildSelectToggle(select, config);
+    const toggle = buildSelectToggle(select, config, onChange);
 
     // Find the form to append the toggles section
     const form = select.closest("form");
@@ -1158,6 +1198,22 @@ export function replaceHnSettingsWithToggles(): void {
       }
 
       hnSettingsSection.appendChild(toggle);
+
+      // Create container for noprocrast-dependent inputs after the noprocrast toggle
+      if (config.selectName === "nopro" && !noprocrastInputsContainer) {
+        noprocrastInputsContainer = document.createElement("div");
+        noprocrastInputsContainer.className = "zen-hn-noprocrast-inputs";
+        if (isNoprocrastEnabled) {
+          noprocrastInputsContainer.classList.add("is-visible");
+        }
+
+        // Inner wrapper for grid animation
+        noprocrastInputsInner = document.createElement("div");
+        noprocrastInputsInner.className = "zen-hn-noprocrast-inputs-inner";
+        noprocrastInputsContainer.appendChild(noprocrastInputsInner);
+
+        hnSettingsSection.appendChild(noprocrastInputsContainer);
+      }
     }
   }
 
@@ -1190,8 +1246,11 @@ export function replaceHnSettingsWithToggles(): void {
         saveDebounceTimer = setTimeout(async () => {
           if (!lastBlurredInput) return;
 
+          const wrapper = lastBlurredInput.closest(".zen-hn-setting-input-wrapper");
+
           // Mark only the triggering input as saving
           lastBlurredInput.classList.remove("is-success", "is-error");
+          wrapper?.classList.remove("is-success", "is-error");
           lastBlurredInput.classList.add("is-saving");
 
           const success = await saveHnSettingsForm(settingsForm);
@@ -1200,12 +1259,20 @@ export function replaceHnSettingsWithToggles(): void {
           lastBlurredInput.classList.remove("is-saving");
           if (success) {
             lastBlurredInput.classList.add("is-success");
+            wrapper?.classList.add("is-success");
             const input = lastBlurredInput;
-            setTimeout(() => input.classList.remove("is-success"), 1500);
+            setTimeout(() => {
+              input.classList.remove("is-success");
+              wrapper?.classList.remove("is-success");
+            }, 1500);
           } else {
             lastBlurredInput.classList.add("is-error");
+            wrapper?.classList.add("is-error");
             const input = lastBlurredInput;
-            setTimeout(() => input.classList.remove("is-error"), 2000);
+            setTimeout(() => {
+              input.classList.remove("is-error");
+              wrapper?.classList.remove("is-error");
+            }, 2000);
           }
         }, 500);
       }
@@ -1234,14 +1301,13 @@ export function replaceHnSettingsWithToggles(): void {
     // Create the styled input control with save callback
     const inputControl = buildInputControl(input, config, debouncedSave);
 
-    // Find the form to append the controls
-    const form = input.closest("form");
-    if (form && hnSettingsSection) {
-      hnSettingsSection.appendChild(inputControl);
+    // Append to noprocrast inputs inner container (these are dependent on noprocrast being enabled)
+    if (noprocrastInputsInner) {
+      noprocrastInputsInner.appendChild(inputControl);
     }
   }
 
-  // Add the external escape toggle to HN settings section
+  // Add the external escape toggle at the top of HN settings section
   if (hnSettingsSection) {
     appendExternalEscapeToggle(hnSettingsSection as HTMLElement);
   }
