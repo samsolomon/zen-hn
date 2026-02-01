@@ -6,12 +6,22 @@ import { restyleSubmitPage, restyleUserPage, restyleChangePwPage, restyleUserLis
 import { restyleFatItem } from "./restyleFatItem";
 import { runRestyleWhenReady } from "./restyleComments";
 
+/** Pages that should not have content restyled (e.g., confirmation pages with forms) */
+const SKIP_CONTENT_RESTYLE_PAGES = ["/delete-confirm"];
+
+function shouldSkipContentRestyle(): boolean {
+  return SKIP_CONTENT_RESTYLE_PAGES.includes(window.location.pathname);
+}
+
 export async function initRestyle(): Promise<void> {
   await loadActionStore();
   buildSidebarNavigation();
   cacheLoggedInUsername();
   if (isUserProfilePage()) {
     document.documentElement.dataset.zenHnUserPage = "true";
+  }
+  if (shouldSkipContentRestyle()) {
+    return;
   }
   restyleSubmissions();
   restyleSubmitPage();

@@ -193,6 +193,14 @@ export function restyleSubmissions(): void {
         })
       : null;
     const flagLink = flagLinkByHref || flagLinkByText;
+    const deleteLinkByHref = subtext?.querySelector("a[href*='delete-confirm']");
+    const deleteLinkByText = subtext
+      ? Array.from(subtext.querySelectorAll("a")).find((link) => {
+          const text = link.textContent?.trim().toLowerCase() || "";
+          return text === "delete";
+        })
+      : null;
+    const deleteLink = deleteLinkByHref || deleteLinkByText;
 
     appendMetaItem(score, "hn-submission-score");
     appendMetaItem(hnuser, "hn-submission-user");
@@ -370,6 +378,7 @@ export function restyleSubmissions(): void {
         unvoteLink,
         hideLink,
         flagLink,
+        deleteLink,
       ]);
       extraLinks.push(
         ...Array.from(subtext.querySelectorAll("a")).filter(
@@ -380,6 +389,7 @@ export function restyleSubmissions(): void {
 
     const hideHref = hideLink?.getAttribute("href") || "";
     const flagHref = flagLink?.getAttribute("href") || "";
+    const deleteHref = deleteLink?.getAttribute("href") || "";
     const menuItems = buildMenuItems([
       {
         href: hideHref,
@@ -392,6 +402,12 @@ export function restyleSubmissions(): void {
         text: flagLink?.textContent ?? undefined,
         fallback: "Flag",
         action: "flag",
+      },
+      {
+        href: deleteHref,
+        text: deleteLink?.textContent ?? undefined,
+        fallback: "Delete",
+        action: "delete",
       },
     ]);
     const extraMenuItems: MenuItem[] = [];
@@ -443,6 +459,10 @@ export function restyleSubmissions(): void {
         setSubmissionMenuState(menuWrapper, false);
         if (menuItem.action === "hide") {
           item.remove();
+        }
+        if (menuItem.action === "delete" && menuItem.href) {
+          globalThis.location.href = menuItem.href;
+          return;
         }
         if (menuItem.href) {
           fetch(menuItem.href, { credentials: "same-origin", cache: "no-store" });
