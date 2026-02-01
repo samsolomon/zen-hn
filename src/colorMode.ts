@@ -946,11 +946,34 @@ const HN_INPUT_SETTING_CONFIGS: HnInputSettingConfig[] = [
 ];
 
 /**
+ * Submit HN settings form via AJAX
+ * @param form - The form element to submit
+ * @returns Promise resolving to true if successful, false otherwise
+ */
+async function saveHnSettingsForm(form: HTMLFormElement): Promise<boolean> {
+  try {
+    const formData = new FormData(form);
+    const response = await fetch(form.action, {
+      method: form.method || "POST",
+      body: new URLSearchParams(formData as unknown as Record<string, string>),
+      credentials: "same-origin",
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Build an input control that syncs with a native input element
+ * @param input - The original hidden input element
+ * @param config - Configuration for the input control
+ * @param onSave - Optional callback to trigger save on blur, receives the triggering input
  */
 function buildInputControl(
   input: HTMLInputElement,
-  config: HnInputSettingConfig
+  config: HnInputSettingConfig,
+  onSave?: (triggeringInput: HTMLInputElement) => void
 ): HTMLElement {
   const container = document.createElement("div");
   container.className = "zen-hn-setting-input-control";
@@ -982,6 +1005,13 @@ function buildInputControl(
   styledInput.addEventListener("input", () => {
     input.value = styledInput.value;
   });
+
+  // Trigger save on blur if callback provided
+  if (onSave) {
+    styledInput.addEventListener("blur", () => {
+      onSave(styledInput);
+    });
+  }
 
   inputWrapper.appendChild(styledInput);
 
@@ -1132,6 +1162,55 @@ export function replaceHnSettingsWithToggles(): void {
   }
 
   // Process input settings (maxvisit, minaway, delay)
+  // Create a shared debounced save function for all input controls
+  let saveDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+  let lastBlurredInput: HTMLInputElement | null = null;
+
+  // Find the form once for setting up save callback
+  // Try multiple selectors since the action might be a full URL or relative path
+  let settingsForm = document.querySelector<HTMLFormElement>(
+    'form[action*="xuser"]'
+  );
+  // Fallback: find the form containing our input fields
+  if (!settingsForm) {
+    const firstInput = document.querySelector<HTMLInputElement>('input[name="maxv"]');
+    settingsForm = firstInput?.closest("form") ?? null;
+  }
+
+  const debouncedSave = settingsForm
+    ? (triggeringInput: HTMLInputElement) => {
+        lastBlurredInput = triggeringInput;
+
+        // Clear any pending timer
+        if (saveDebounceTimer) {
+          clearTimeout(saveDebounceTimer);
+        }
+
+        // Start new debounce timer
+        saveDebounceTimer = setTimeout(async () => {
+          if (!lastBlurredInput) return;
+
+          // Mark only the triggering input as saving
+          lastBlurredInput.classList.remove("is-success", "is-error");
+          lastBlurredInput.classList.add("is-saving");
+
+          const success = await saveHnSettingsForm(settingsForm);
+
+          // Update visual feedback on the triggering input only
+          lastBlurredInput.classList.remove("is-saving");
+          if (success) {
+            lastBlurredInput.classList.add("is-success");
+            const input = lastBlurredInput;
+            setTimeout(() => input.classList.remove("is-success"), 1500);
+          } else {
+            lastBlurredInput.classList.add("is-error");
+            const input = lastBlurredInput;
+            setTimeout(() => input.classList.remove("is-error"), 2000);
+          }
+        }, 500);
+      }
+    : undefined;
+
   for (const config of HN_INPUT_SETTING_CONFIGS) {
     const input = document.querySelector<HTMLInputElement>(
       `input[name="${config.inputName}"]`
@@ -1152,8 +1231,8 @@ export function replaceHnSettingsWithToggles(): void {
     // Mark as processed
     input.dataset.zenHnStyled = "true";
 
-    // Create the styled input control
-    const inputControl = buildInputControl(input, config);
+    // Create the styled input control with save callback
+    const inputControl = buildInputControl(input, config, debouncedSave);
 
     // Find the form to append the controls
     const form = input.closest("form");
