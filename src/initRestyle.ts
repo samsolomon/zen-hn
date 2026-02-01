@@ -2,16 +2,9 @@ import { loadActionStore } from "./actionStore";
 import { buildSidebarNavigation } from "./sidebar";
 import { isUserProfilePage } from "./logic";
 import { restyleSubmissions } from "./restyleSubmissions";
-import { restyleSubmitPage, restyleUserPage, restyleChangePwPage, restyleUserListPage, restyleAboutPage, restyleNoprocrastPage, restyleListsPage, cacheLoggedInUsername, addFilterButtons } from "./pages";
+import { restyleSubmitPage, restyleUserPage, restyleChangePwPage, restyleUserListPage, restyleAboutPage, restyleNoprocrastPage, restyleListsPage, restyleDeleteConfirmPage, cacheLoggedInUsername, addFilterButtons } from "./pages";
 import { restyleFatItem } from "./restyleFatItem";
 import { runRestyleWhenReady } from "./restyleComments";
-
-/** Pages that should not have content restyled (e.g., confirmation pages with forms) */
-const SKIP_CONTENT_RESTYLE_PAGES = ["/delete-confirm"];
-
-function shouldSkipContentRestyle(): boolean {
-  return SKIP_CONTENT_RESTYLE_PAGES.includes(window.location.pathname);
-}
 
 export async function initRestyle(): Promise<void> {
   await loadActionStore();
@@ -19,9 +12,6 @@ export async function initRestyle(): Promise<void> {
   cacheLoggedInUsername();
   if (isUserProfilePage()) {
     document.documentElement.dataset.zenHnUserPage = "true";
-  }
-  if (shouldSkipContentRestyle()) {
-    return;
   }
   restyleSubmissions();
   restyleSubmitPage();
@@ -31,6 +21,7 @@ export async function initRestyle(): Promise<void> {
   restyleAboutPage();
   restyleNoprocrastPage();
   restyleListsPage();
+  restyleDeleteConfirmPage();
   restyleFatItem();
   addFilterButtons();
   runRestyleWhenReady();

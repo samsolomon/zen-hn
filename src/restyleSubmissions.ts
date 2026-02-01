@@ -43,6 +43,10 @@ export function restyleSubmissions(): void {
   if (isUserProfilePage()) {
     return;
   }
+  // Skip on delete-confirm page - that page has its own restyling
+  if (window.location.pathname === "/delete-confirm") {
+    return;
+  }
   const bigboxRow = document.querySelector<HTMLTableRowElement>("tr#bigbox");
   const itemList = document.querySelector<HTMLTableElement>("table.itemlist");
   const bigboxTable = bigboxRow?.querySelector<HTMLTableElement>("table");

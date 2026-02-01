@@ -1593,6 +1593,83 @@ export function restyleListsPage(): boolean {
   return true;
 }
 
+export function restyleDeleteConfirmPage(): boolean {
+  if (window.location.pathname !== "/delete-confirm") {
+    return false;
+  }
+
+  const hnmain = document.getElementById("hnmain") as HTMLElement | null;
+  if (!hnmain || hnmain.dataset[ZEN_HN_RESTYLE_KEY] === "true") {
+    return false;
+  }
+
+  // Find the Yes/No links - they're typically anchor tags
+  const allLinks = hnmain.querySelectorAll<HTMLAnchorElement>("a");
+  let yesLink: HTMLAnchorElement | null = null;
+  let noLink: HTMLAnchorElement | null = null;
+
+  allLinks.forEach((link) => {
+    const text = link.textContent?.trim().toLowerCase();
+    if (text === "yes") {
+      yesLink = link;
+    } else if (text === "no") {
+      noLink = link;
+    }
+  });
+
+  if (!yesLink && !noLink) {
+    return false;
+  }
+
+  // Create styled page
+  const wrapper = document.createElement("div");
+  wrapper.className = "zen-hn-delete-confirm-page";
+
+  // Header
+  const header = document.createElement("header");
+  header.className = "zen-hn-delete-confirm-header";
+
+  const title = document.createElement("h1");
+  title.className = "zen-hn-delete-confirm-title";
+  title.textContent = "Confirm deletion";
+  header.appendChild(title);
+
+  wrapper.appendChild(header);
+
+  // Confirmation message
+  const message = document.createElement("p");
+  message.className = "zen-hn-delete-confirm-message";
+  message.textContent = "Do you want this to be deleted?";
+  wrapper.appendChild(message);
+
+  // Button group
+  const buttonGroup = document.createElement("div");
+  buttonGroup.className = "zen-hn-delete-confirm-buttons";
+
+  if (yesLink) {
+    const yesButton = document.createElement("a");
+    yesButton.href = yesLink.href;
+    yesButton.className = "zen-hn-button-outline";
+    yesButton.textContent = "Yes";
+    buttonGroup.appendChild(yesButton);
+  }
+
+  if (noLink) {
+    const noButton = document.createElement("a");
+    noButton.href = noLink.href;
+    noButton.className = "zen-hn-button-ghost";
+    noButton.textContent = "No";
+    buttonGroup.appendChild(noButton);
+  }
+
+  wrapper.appendChild(buttonGroup);
+
+  hnmain.dataset[ZEN_HN_RESTYLE_KEY] = "true";
+  getOrCreateZenHnMain().appendChild(wrapper);
+
+  return true;
+}
+
 (globalThis as Record<string, unknown>).ZenHnPages = {
   restyleChangePwPage,
   restyleSubmitPage,
@@ -1603,5 +1680,6 @@ export function restyleListsPage(): boolean {
   restyleAboutPage,
   restyleNoprocrastPage,
   restyleListsPage,
+  restyleDeleteConfirmPage,
   cacheLoggedInUsername,
 };
