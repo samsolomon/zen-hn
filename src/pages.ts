@@ -209,7 +209,7 @@ export function restyleUserPage(): boolean {
 
     const sectionTitle = document.createElement("h3");
     sectionTitle.className = "zen-hn-settings-title";
-    sectionTitle.textContent = "Zen HN Settings";
+    sectionTitle.textContent = "Appearance";
     settingsSection.appendChild(sectionTitle);
 
     appendAppearanceControls(settingsSection);

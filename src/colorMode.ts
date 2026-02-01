@@ -472,7 +472,6 @@ export async function appendAppearanceControls(container: HTMLElement): Promise<
   await appendThemeButtons(container);
   await appendFontFamilyButtons(container);
   await appendFontSizeButtons(container);
-  await appendExternalEscapeToggle(container);
 }
 
 // =============================================================================
@@ -789,17 +788,17 @@ function buildExternalEscapeToggle(
   onChange?: (enabled: boolean) => void
 ): HTMLElement {
   const container = document.createElement("div");
-  container.className = "zen-hn-external-escape-control";
+  container.className = "zen-hn-setting-toggle-control";
 
   const labelContainer = document.createElement("div");
-  labelContainer.className = "zen-hn-external-escape-label-container";
+  labelContainer.className = "zen-hn-setting-toggle-label-container";
 
   const label = document.createElement("span");
-  label.className = "zen-hn-external-escape-label";
+  label.className = "zen-hn-setting-toggle-label";
   label.textContent = "Escape to return";
 
   const description = document.createElement("span");
-  description.className = "zen-hn-external-escape-description";
+  description.className = "zen-hn-setting-toggle-description";
   description.textContent = "Press Esc to come back here after opening external links. Requires additional Chrome permissions.";
 
   labelContainer.appendChild(label);
@@ -993,6 +992,8 @@ function buildSelectToggle(
  * The original selects are hidden but remain in the DOM for form submission
  */
 export function replaceHnSettingsWithToggles(): void {
+  let hnSettingsSection: Element | null = null;
+
   for (const config of HN_SETTING_CONFIGS) {
     const select = document.querySelector<HTMLSelectElement>(
       `select[name="${config.selectName}"]`
@@ -1020,7 +1021,9 @@ export function replaceHnSettingsWithToggles(): void {
     const form = select.closest("form");
     if (form) {
       // Look for existing HN settings section or create one
-      let hnSettingsSection = form.querySelector(".zen-hn-hn-settings-section");
+      if (!hnSettingsSection) {
+        hnSettingsSection = form.querySelector(".zen-hn-hn-settings-section");
+      }
       if (!hnSettingsSection) {
         hnSettingsSection = document.createElement("div");
         hnSettingsSection.className = "zen-hn-hn-settings-section";
@@ -1041,5 +1044,10 @@ export function replaceHnSettingsWithToggles(): void {
 
       hnSettingsSection.appendChild(toggle);
     }
+  }
+
+  // Add the external escape toggle to HN settings section
+  if (hnSettingsSection) {
+    appendExternalEscapeToggle(hnSettingsSection as HTMLElement);
   }
 }
