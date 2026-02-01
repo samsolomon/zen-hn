@@ -913,6 +913,91 @@ const HN_SETTING_CONFIGS: HnSettingConfig[] = [
   },
 ];
 
+// =============================================================================
+// HN Native Input Settings (maxvisit, minaway, delay)
+// =============================================================================
+
+interface HnInputSettingConfig {
+  inputName: string;
+  label: string;
+  description: string;
+  suffix?: string;
+}
+
+const HN_INPUT_SETTING_CONFIGS: HnInputSettingConfig[] = [
+  {
+    inputName: "maxv",
+    label: "Max visit",
+    description: "Maximum minutes you can spend on HN per visit.",
+    suffix: "minutes",
+  },
+  {
+    inputName: "mina",
+    label: "Min away",
+    description: "Minimum minutes you must stay away before returning.",
+    suffix: "minutes",
+  },
+  {
+    inputName: "delay",
+    label: "Delay",
+    description: "Days before noprocrast takes effect for new accounts.",
+    suffix: "days",
+  },
+];
+
+/**
+ * Build an input control that syncs with a native input element
+ */
+function buildInputControl(
+  input: HTMLInputElement,
+  config: HnInputSettingConfig
+): HTMLElement {
+  const container = document.createElement("div");
+  container.className = "zen-hn-setting-input-control";
+
+  const labelContainer = document.createElement("div");
+  labelContainer.className = "zen-hn-setting-toggle-label-container";
+
+  const label = document.createElement("span");
+  label.className = "zen-hn-setting-toggle-label";
+  label.textContent = config.label;
+
+  const description = document.createElement("span");
+  description.className = "zen-hn-setting-toggle-description";
+  description.textContent = config.description;
+
+  labelContainer.appendChild(label);
+  labelContainer.appendChild(description);
+
+  const inputWrapper = document.createElement("div");
+  inputWrapper.className = "zen-hn-setting-input-wrapper";
+
+  const styledInput = document.createElement("input");
+  styledInput.type = "text";
+  styledInput.className = "zen-hn-setting-input";
+  styledInput.value = input.value;
+  styledInput.inputMode = "numeric";
+
+  // Sync styled input with hidden original input
+  styledInput.addEventListener("input", () => {
+    input.value = styledInput.value;
+  });
+
+  inputWrapper.appendChild(styledInput);
+
+  if (config.suffix) {
+    const suffix = document.createElement("span");
+    suffix.className = "zen-hn-setting-input-suffix";
+    suffix.textContent = config.suffix;
+    inputWrapper.appendChild(suffix);
+  }
+
+  container.appendChild(labelContainer);
+  container.appendChild(inputWrapper);
+
+  return container;
+}
+
 /**
  * Check if a select element's current value represents "enabled"
  */
@@ -1043,6 +1128,37 @@ export function replaceHnSettingsWithToggles(): void {
       }
 
       hnSettingsSection.appendChild(toggle);
+    }
+  }
+
+  // Process input settings (maxvisit, minaway, delay)
+  for (const config of HN_INPUT_SETTING_CONFIGS) {
+    const input = document.querySelector<HTMLInputElement>(
+      `input[name="${config.inputName}"]`
+    );
+
+    if (!input) continue;
+
+    // Skip if already processed
+    if (input.dataset.zenHnStyled === "true") continue;
+
+    // Find the parent row (usually a <tr> containing the input)
+    const parentRow = input.closest("tr");
+    if (!parentRow) continue;
+
+    // Hide the original row
+    parentRow.style.display = "none";
+
+    // Mark as processed
+    input.dataset.zenHnStyled = "true";
+
+    // Create the styled input control
+    const inputControl = buildInputControl(input, config);
+
+    // Find the form to append the controls
+    const form = input.closest("form");
+    if (form && hnSettingsSection) {
+      hnSettingsSection.appendChild(inputControl);
     }
   }
 
