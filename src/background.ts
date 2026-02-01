@@ -12,6 +12,9 @@ const EXTERNAL_HOST_PERMISSIONS = {
   origins: ["https://*/*", "http://*/*"],
 };
 
+// Lock to prevent concurrent script registration
+let isRegistering = false;
+
 async function getEnabled(): Promise<boolean> {
   const result = await chrome.storage.local.get(ENABLED_STORAGE_KEY);
   // Default to enabled if not set
@@ -111,30 +114,16 @@ async function revokeExternalSitePermissions(): Promise<boolean> {
 }
 
 /**
- * Check if the external site script is already registered
- */
-async function isExternalScriptRegistered(): Promise<boolean> {
-  try {
-    const scripts = await chrome.scripting.getRegisteredContentScripts({
-      ids: [EXTERNAL_SCRIPT_ID],
-    });
-    return scripts.length > 0;
-  } catch {
-    return false;
-  }
-}
-
-/**
  * Register the external site escape content script
  */
 async function registerExternalSiteScript(): Promise<void> {
-  try {
-    // Check if already registered to avoid duplicate ID error
-    const alreadyRegistered = await isExternalScriptRegistered();
-    if (alreadyRegistered) {
-      return;
-    }
+  // Prevent concurrent registration attempts
+  if (isRegistering) {
+    return;
+  }
+  isRegistering = true;
 
+  try {
     await chrome.scripting.registerContentScripts([
       {
         id: EXTERNAL_SCRIPT_ID,
@@ -147,9 +136,10 @@ async function registerExternalSiteScript(): Promise<void> {
         runAt: "document_idle",
       },
     ]);
-  } catch (error) {
-    // Log but don't throw - registration may have failed for various reasons
-    console.error("Failed to register external site script:", error);
+  } catch {
+    // Ignore errors - script may already be registered
+  } finally {
+    isRegistering = false;
   }
 }
 
