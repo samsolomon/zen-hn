@@ -23,13 +23,52 @@ function isActiveRoute(href: string): boolean {
   return currentPath === href;
 }
 
+const LOGGED_IN_USERNAME_KEY = "zenHnLoggedInUsername";
+
 function findUserLink(): { href: string; label: string } {
   const profileLink = document.querySelector<HTMLAnchorElement>("a#me");
   const loginLink = document.querySelector<HTMLAnchorElement>("span.pagetop a[href^='login']");
-  const userLink = profileLink || loginLink;
-  const href = userLink?.getAttribute("href") || "/login";
-  const label = userLink === loginLink ? "Log in" : userLink ? "Profile" : "Log in";
-  return { href, label };
+
+  // If we have a profile link, extract and validate the username
+  if (profileLink) {
+    const href = profileLink.getAttribute("href") || "";
+    const match = href.match(/user\?id=([^&]+)/);
+    if (match && match[1]) {
+      // Cache username for pages without header
+      try {
+        localStorage.setItem(LOGGED_IN_USERNAME_KEY, match[1]);
+      } catch {
+        // Ignore storage errors
+      }
+      // Return absolute URL to avoid relative URL resolution issues
+      return { href: `/user?id=${match[1]}`, label: "Profile" };
+    }
+
+    // Fallback: try getting username from link text
+    const username = profileLink.textContent?.trim();
+    if (username) {
+      try {
+        localStorage.setItem(LOGGED_IN_USERNAME_KEY, username);
+      } catch {
+        // Ignore storage errors
+      }
+      return { href: `/user?id=${username}`, label: "Profile" };
+    }
+  }
+
+  // Try cached username if no profile link found
+  try {
+    const cachedUsername = localStorage.getItem(LOGGED_IN_USERNAME_KEY);
+    if (cachedUsername) {
+      return { href: `/user?id=${cachedUsername}`, label: "Profile" };
+    }
+  } catch {
+    // Ignore storage errors
+  }
+
+  // Fall back to login link or /login
+  const loginHref = loginLink?.getAttribute("href") || "/login";
+  return { href: loginHref, label: "Log in" };
 }
 
 function createIconLink(item: IconLinkConfig): HTMLAnchorElement {
