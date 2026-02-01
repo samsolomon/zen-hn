@@ -873,6 +873,102 @@ async function appendExternalEscapeToggle(container: HTMLElement): Promise<void>
   } else {
     container.prepend(control);
   }
+
+  // Add chord indicator toggle after external escape toggle
+  const chordControl = buildChordIndicatorToggle(getChordIndicatorEnabled());
+  control.after(chordControl);
+}
+
+// =============================================================================
+// Chord Indicator Toggle
+// =============================================================================
+
+const CHORD_INDICATOR_STORAGE_KEY = "zenHnChordIndicatorEnabled";
+
+/**
+ * Get the current chord indicator enabled state from localStorage
+ */
+export function getChordIndicatorEnabled(): boolean {
+  try {
+    const stored = localStorage.getItem(CHORD_INDICATOR_STORAGE_KEY);
+    // Default to true if not set
+    return stored === null ? true : stored === "true";
+  } catch {
+    return true;
+  }
+}
+
+/**
+ * Set the chord indicator enabled state in localStorage
+ */
+function setChordIndicatorEnabled(enabled: boolean): void {
+  try {
+    localStorage.setItem(CHORD_INDICATOR_STORAGE_KEY, String(enabled));
+  } catch {
+    // localStorage might be unavailable
+  }
+}
+
+/**
+ * Build the chord indicator toggle control
+ */
+function buildChordIndicatorToggle(
+  isEnabled: boolean,
+  onChange?: (enabled: boolean) => void
+): HTMLElement {
+  const container = document.createElement("div");
+  container.className = "zen-hn-setting-toggle-control";
+
+  const labelContainer = document.createElement("div");
+  labelContainer.className = "zen-hn-setting-toggle-label-container";
+
+  const label = document.createElement("span");
+  label.className = "zen-hn-setting-toggle-label";
+  label.textContent = "Show chord indicator";
+
+  const description = document.createElement("span");
+  description.className = "zen-hn-setting-toggle-description";
+  description.textContent = "Display keyboard chord keys (like g+h) in the bottom right corner.";
+
+  labelContainer.appendChild(label);
+  labelContainer.appendChild(description);
+
+  const switchEl = document.createElement("button");
+  switchEl.type = "button";
+  switchEl.className = "zen-hn-switch";
+  switchEl.setAttribute("role", "switch");
+  switchEl.setAttribute("aria-checked", isEnabled ? "true" : "false");
+  if (isEnabled) {
+    switchEl.classList.add("is-active");
+  }
+
+  const switchTrack = document.createElement("span");
+  switchTrack.className = "zen-hn-switch-track";
+
+  const switchThumb = document.createElement("span");
+  switchThumb.className = "zen-hn-switch-thumb";
+
+  switchTrack.appendChild(switchThumb);
+  switchEl.appendChild(switchTrack);
+
+  switchEl.addEventListener("click", () => {
+    const newEnabled = !switchEl.classList.contains("is-active");
+    setChordIndicatorEnabled(newEnabled);
+
+    if (newEnabled) {
+      switchEl.classList.add("is-active");
+      switchEl.setAttribute("aria-checked", "true");
+    } else {
+      switchEl.classList.remove("is-active");
+      switchEl.setAttribute("aria-checked", "false");
+    }
+    onChange?.(newEnabled);
+  });
+
+  container.appendChild(labelContainer);
+  container.appendChild(switchEl);
+
+  return container;
 }
 
 /**

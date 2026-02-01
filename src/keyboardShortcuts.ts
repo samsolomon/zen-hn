@@ -34,6 +34,7 @@ import { fetchNewestItemId, resolveRandomStoryHref } from "./random";
 import { toggleCommentCollapse } from "./commentCollapse";
 import { renderIcon } from "./icons";
 import { createModal, isModalOpen, closeModal } from "./modal";
+import { getChordIndicatorEnabled } from "./colorMode";
 
 const FOCUS_CLASS = "is-keyboard-focused";
 const MODAL_ID = "zen-hn-shortcuts-modal";
@@ -42,6 +43,7 @@ const SEARCH_PALETTE_ID = "zen-hn-search-palette";
 const SEARCH_TITLE_ID = "zen-hn-search-title";
 const CHORD_INDICATOR_ID = "zen-hn-chord-indicator";
 const CHORD_TIMEOUT_MS = 500;
+const CHORD_DISPLAY_KEY = "zenHnChordDisplay";
 const LAST_LIST_PAGE_KEY = "zenHnLastListPage";
 
 // Store the element that triggered the search palette for focus restoration
@@ -77,6 +79,8 @@ function getOrCreateChordIndicator(): HTMLElement {
  * Show the chord indicator with the current chord keys
  */
 function showChordIndicator(chord: string): void {
+  if (!getChordIndicatorEnabled()) return;
+
   const indicator = getOrCreateChordIndicator();
   indicator.innerHTML = "";
   for (const key of chord) {
@@ -84,7 +88,10 @@ function showChordIndicator(chord: string): void {
     kbd.textContent = key;
     indicator.appendChild(kbd);
   }
-  requestAnimationFrame(() => indicator.classList.add("is-visible"));
+  // Use requestAnimationFrame to ensure browser renders initial state before transition
+  requestAnimationFrame(() => {
+    indicator.classList.add("is-visible");
+  });
 }
 
 /**
@@ -98,9 +105,51 @@ function hideChordIndicator(): void {
  * Show the complete chord briefly, then hide it
  * Used when a chord completes successfully
  */
-function showChordIndicatorThenHide(chord: string, delay: number = 300): void {
+function showChordIndicatorThenHide(chord: string, delay: number = 500): void {
   showChordIndicator(chord);
   setTimeout(hideChordIndicator, delay);
+}
+
+/**
+ * Store a chord to display on the next page load
+ */
+function storeChordForDisplay(chord: string): void {
+  if (!getChordIndicatorEnabled()) return;
+
+  try {
+    sessionStorage.setItem(CHORD_DISPLAY_KEY, chord);
+  } catch {
+    // sessionStorage might be unavailable
+  }
+}
+
+/**
+ * Clear any stored chord (used when chord is extendable or not recognized)
+ */
+function clearChordForDisplay(): void {
+  try {
+    sessionStorage.removeItem(CHORD_DISPLAY_KEY);
+  } catch {
+    // sessionStorage might be unavailable
+  }
+}
+
+/**
+ * Check for and display a stored chord from navigation
+ */
+function displayStoredChord(): void {
+  try {
+    const chord = sessionStorage.getItem(CHORD_DISPLAY_KEY);
+    if (chord) {
+      sessionStorage.removeItem(CHORD_DISPLAY_KEY);
+      // Delay slightly to ensure page is rendered and styles are loaded
+      requestAnimationFrame(() => {
+        showChordIndicatorThenHide(chord);
+      });
+    }
+  } catch {
+    // sessionStorage might be unavailable
+  }
 }
 
 /**
@@ -875,12 +924,24 @@ function handleKeyDown(event: KeyboardEvent): void {
   if (pendingChord && pendingChord.startsWith("g") && pendingChord.length === 2) {
     event.preventDefault();
     const secondKey = pendingChord[1];
+    const twoKeyChord = pendingChord;
     const fullChord = pendingChord + key;
-    clearPendingChord();
-    // Show complete chord briefly before navigation
-    showChordIndicatorThenHide(fullChord);
-    if (!executeThreeKeyChord(secondKey, key)) {
-      // Third key didn't match, execute the default two-key chord
+
+    // Clear timer but keep indicator visible during navigation
+    if (chordTimer) {
+      clearTimeout(chordTimer);
+      chordTimer = null;
+    }
+    pendingChord = null;
+
+    // Store chord and show indicator while navigating
+    if (executeThreeKeyChord(secondKey, key)) {
+      storeChordForDisplay(fullChord);
+      showChordIndicator(fullChord);
+    } else {
+      // Third key didn't match, store the two-key chord instead and execute default
+      storeChordForDisplay(twoKeyChord);
+      showChordIndicator(twoKeyChord);
       executeExtendableChordDefault(secondKey);
     }
     return;
@@ -889,25 +950,44 @@ function handleKeyDown(event: KeyboardEvent): void {
   // Handle two-key chord shortcuts
   if (pendingChord === "g") {
     event.preventDefault();
+    const fullChord = "g" + key.toLowerCase();
+
+    // Clear timer but keep indicator visible during navigation
+    if (chordTimer) {
+      clearTimeout(chordTimer);
+      chordTimer = null;
+    }
+    pendingChord = null;
+
+    // Store chord BEFORE executing (in case navigation happens)
+    storeChordForDisplay(fullChord);
+
     const result = executeChordShortcut(key);
     if (result === "extendable") {
-      // This chord can be extended with a third key
-      pendingChord = "g" + key.toLowerCase();
-      showChordIndicator(pendingChord);
-      if (chordTimer) clearTimeout(chordTimer);
+      // This chord can be extended with a third key - clear storage and show indicator locally
+      clearChordForDisplay();
+      pendingChord = fullChord;
+      showChordIndicator(fullChord);
       chordTimer = setTimeout(() => {
         const chord = pendingChord;
         clearPendingChord();
         if (chord && chord.length === 2) {
-          showChordIndicatorThenHide(chord);
+          // Store chord to display on destination page
+          storeChordForDisplay(chord);
+          showChordIndicator(chord);
           executeExtendableChordDefault(chord[1]);
         }
       }, CHORD_TIMEOUT_MS);
       return;
     }
-    clearPendingChord();
-    // Show complete chord briefly before navigation
-    showChordIndicatorThenHide("g" + key);
+    if (result === "executed") {
+      // Show full chord while navigating (no flash)
+      showChordIndicator(fullChord);
+    } else {
+      // Chord wasn't recognized, clear storage and hide indicator
+      clearChordForDisplay();
+      hideChordIndicator();
+    }
     return;
   }
 
@@ -1004,6 +1084,8 @@ function handleKeyDown(event: KeyboardEvent): void {
 export function registerKeyboardShortcuts(): void {
   // Store current page if it's a list page (for Escape navigation)
   storeLastListPage();
+  // Display any chord from navigation
+  displayStoredChord();
   document.addEventListener("keydown", handleKeyDown);
 }
 

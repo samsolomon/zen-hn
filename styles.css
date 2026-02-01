@@ -2692,6 +2692,17 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
   text-transform: capitalize;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .zen-hn-chord-indicator {
+    transition: none;
+    transform: none;
+  }
+
+  .zen-hn-chord-indicator.is-visible {
+    transform: none;
+  }
+}
+
 /* ==========================================================================
    Noprocrast Confirmation Modal
    ========================================================================== */
@@ -3380,6 +3391,35 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
 .zen-hn-changepw-form .zen-hn-button-outline {
   margin-top: var(--space-100);
   align-self: flex-start;
+}
+
+/* Delete Confirm Page */
+.zen-hn-delete-confirm-page {
+  max-width: 400px;
+  padding: var(--space-300) var(--space-200);
+}
+
+.zen-hn-delete-confirm-header {
+  margin-bottom: var(--space-200);
+}
+
+.zen-hn-delete-confirm-title {
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.zen-hn-delete-confirm-message {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-300) 0;
+}
+
+.zen-hn-delete-confirm-buttons {
+  display: flex;
+  gap: var(--space-150);
 }
 
 /* Skip to content link */
