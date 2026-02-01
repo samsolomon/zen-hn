@@ -1,5 +1,16 @@
 /* Note: @font-face rules are injected via JavaScript to use extension URLs */
 
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 :root {
   --font-size-base: 16px;
   --font-size-scale: 1;
@@ -2569,6 +2580,22 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
 .zen-hn-about-links a:focus-visible {
   outline: 2px solid var(--color-focus-ring);
   outline-offset: 2px;
+}
+
+.zen-hn-about-links--inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-050) var(--space-150);
+}
+
+.zen-hn-about-links--inline li {
+  margin-bottom: 0;
+}
+
+.zen-hn-about-links--inline li:not(:last-child)::after {
+  content: "·";
+  margin-left: var(--space-150);
+  color: var(--color-text-muted);
 }
 
 /* ==========================================================================

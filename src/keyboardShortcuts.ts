@@ -138,7 +138,8 @@ function setFocus(item: HTMLElement): void {
   clearFocus();
   focusedItem = item;
   focusedItem.classList.add(FOCUS_CLASS);
-  focusedItem.scrollIntoView({ behavior: "smooth", block: "center" });
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  focusedItem.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth", block: "center" });
 }
 
 /**
