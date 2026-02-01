@@ -38,10 +38,13 @@ export type ThemePreference =
   | "gold"
   | "orange";
 
+export type FontSizePreference = "smaller" | "small" | "default" | "large" | "larger";
+
 export const COLOR_MODE_CLASS = "dark-theme";
 export const COLOR_MODE_STORAGE_KEY = "colorMode";
 export const THEME_STORAGE_KEY = "theme";
 export const FONT_FAMILY_STORAGE_KEY = "fontFamily";
+export const FONT_SIZE_STORAGE_KEY = "fontSize";
 
 /**
  * Check if Chrome storage API is available
@@ -468,6 +471,7 @@ export async function appendAppearanceControls(container: HTMLElement): Promise<
   await appendColorModeControl(container);
   await appendThemeButtons(container);
   await appendFontFamilyButtons(container);
+  await appendFontSizeButtons(container);
   await appendExternalEscapeToggle(container);
 }
 
@@ -604,6 +608,139 @@ export async function appendFontFamilyButtons(container: HTMLElement): Promise<v
   const saved = await getSavedFontFamily();
   const current = saved || "system";
   const control = buildFontFamilyButtonsWithStorage(current);
+  container.appendChild(control);
+}
+
+// =============================================================================
+// Font Size controls
+// =============================================================================
+
+interface FontSizeOption {
+  value: FontSizePreference;
+  label: string;
+}
+
+const FONT_SIZE_OPTIONS: FontSizeOption[] = [
+  { value: "smaller", label: "Aa - Smaller" },
+  { value: "small", label: "Aa - Small" },
+  { value: "default", label: "Aa - Medium" },
+  { value: "large", label: "Aa - Large" },
+  { value: "larger", label: "Aa - Larger" },
+];
+
+/**
+ * Get the saved font size preference from storage
+ */
+export async function getSavedFontSize(): Promise<FontSizePreference | undefined> {
+  if (!hasChromeStorage()) return undefined;
+  const result = await chrome.storage.local.get(FONT_SIZE_STORAGE_KEY);
+  return result[FONT_SIZE_STORAGE_KEY] as FontSizePreference | undefined;
+}
+
+/**
+ * Save font size preference to storage
+ */
+export async function saveFontSize(size: FontSizePreference): Promise<void> {
+  if (!hasChromeStorage()) return;
+  await chrome.storage.local.set({ [FONT_SIZE_STORAGE_KEY]: size });
+}
+
+/**
+ * Apply a font size to the document
+ * @param size - The font size to apply
+ */
+export function applyFontSize(size: FontSizePreference): void {
+  const html = document.documentElement;
+  if (size === "default") {
+    html.removeAttribute("data-font-size");
+  } else {
+    html.setAttribute("data-font-size", size);
+  }
+}
+
+/**
+ * Initialize font size from saved preference
+ */
+export async function initFontSize(): Promise<void> {
+  const saved = await getSavedFontSize();
+  if (saved) {
+    applyFontSize(saved);
+  }
+}
+
+/**
+ * Build a font size button group control
+ * @param currentSize - The currently selected font size
+ * @param onChange - Callback when font size selection changes
+ */
+export function buildFontSizeButtons(
+  currentSize: FontSizePreference,
+  onChange?: (size: FontSizePreference) => void
+): HTMLElement {
+  const container = document.createElement("div");
+  container.className = "zen-hn-font-size-control";
+
+  const label = document.createElement("div");
+  label.className = "zen-hn-font-size-label";
+  label.textContent = "Font Size";
+
+  const buttonsWrapper = document.createElement("div");
+  buttonsWrapper.className = "zen-hn-font-size-buttons";
+
+  FONT_SIZE_OPTIONS.forEach((option) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "zen-hn-font-size-button";
+    button.setAttribute("data-font-size", option.value);
+    button.setAttribute("aria-label", `Select ${option.value} font size`);
+    button.textContent = option.label;
+
+    if (currentSize === option.value) {
+      button.classList.add("is-active");
+      button.setAttribute("aria-pressed", "true");
+    } else {
+      button.setAttribute("aria-pressed", "false");
+    }
+
+    button.addEventListener("click", () => {
+      const selectedValue = option.value as FontSizePreference;
+      applyFontSize(selectedValue);
+      onChange?.(selectedValue);
+
+      buttonsWrapper.querySelectorAll(".zen-hn-font-size-button").forEach((btn) => {
+        btn.classList.remove("is-active");
+        btn.setAttribute("aria-pressed", "false");
+      });
+      button.classList.add("is-active");
+      button.setAttribute("aria-pressed", "true");
+    });
+
+    buttonsWrapper.appendChild(button);
+  });
+
+  container.appendChild(label);
+  container.appendChild(buttonsWrapper);
+  return container;
+}
+
+/**
+ * Build a font size button group with automatic storage persistence
+ */
+export function buildFontSizeButtonsWithStorage(
+  currentSize: FontSizePreference
+): HTMLElement {
+  return buildFontSizeButtons(currentSize, (size) => {
+    saveFontSize(size);
+  });
+}
+
+/**
+ * Build and append font size buttons to a container, loading the current preference from storage
+ */
+export async function appendFontSizeButtons(container: HTMLElement): Promise<void> {
+  const saved = await getSavedFontSize();
+  const current = saved || "default";
+  const control = buildFontSizeButtonsWithStorage(current);
   container.appendChild(control);
 }
 

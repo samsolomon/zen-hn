@@ -3,7 +3,7 @@
  * This file runs last and initializes the extension.
  */
 
-import { initColorMode, initTheme, initFontFamily, listenForSystemColorModeChanges } from "./colorMode";
+import { initColorMode, initTheme, initFontFamily, initFontSize, listenForSystemColorModeChanges } from "./colorMode";
 import { runSidebarWhenReady } from "./sidebar";
 import { runCommentCollapseWhenReady } from "./commentCollapse";
 import { runUserSubnavWhenReady } from "./pages";
@@ -63,6 +63,7 @@ async function init(): Promise<void> {
   initColorMode();
   initTheme();
   initFontFamily();
+  initFontSize();
 
   // Listen for system color scheme changes
   listenForSystemColorModeChanges();
