@@ -653,6 +653,7 @@ export function restyleAboutPage(): boolean {
       <ul class="zen-hn-about-links">
         <li><a href="https://solomon.io" target="_blank" rel="noopener">Website</a></li>
         <li><a href="https://github.com/samsolomon" target="_blank" rel="noopener">GitHub</a></li>
+        <li><a href="https://news.ycombinator.com/user?id=samsolomon" target="_blank" rel="noopener">Hacker News</a></li>
         <li><a href="https://www.linkedin.com/in/samuelrsolomon" target="_blank" rel="noopener">LinkedIn</a></li>
         <li><a href="https://twitter.com/samuelrsolomon" target="_blank" rel="noopener">Twitter</a></li>
       </ul>
