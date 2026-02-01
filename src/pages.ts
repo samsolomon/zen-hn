@@ -1548,6 +1548,37 @@ export function restyleListsPage(): boolean {
 
   listContainer.appendChild(randomItem);
 
+  // Add main navigation items not on HN's /lists page
+  const navItems = [
+    { href: "/newest", label: "New", description: "The newest submissions to Hacker News." },
+    { href: "/newcomments", label: "Comments", description: "The most recent comments across all stories." },
+    { href: "/ask", label: "Ask", description: "Ask HN posts where users ask questions to the community." },
+    { href: "/show", label: "Show", description: "Show HN posts where users share their projects." },
+  ];
+
+  for (const navItem of navItems) {
+    const item = document.createElement("li");
+    item.className = "zen-hn-lists-item";
+
+    const itemLink = document.createElement("a");
+    itemLink.className = "zen-hn-lists-link";
+    itemLink.href = navItem.href;
+    itemLink.textContent = navItem.label;
+    item.appendChild(itemLink);
+
+    const description = document.createElement("p");
+    description.className = "zen-hn-lists-description";
+    description.textContent = navItem.description;
+    item.appendChild(description);
+
+    item.addEventListener("click", (e) => {
+      if ((e.target as HTMLElement).closest("a")) return;
+      itemLink.click();
+    });
+
+    listContainer.appendChild(item);
+  }
+
   // Extract rows from the table - each row has link in first td, description in second
   const rows = bigbox.querySelectorAll("tr");
   for (const row of rows) {
@@ -1559,6 +1590,9 @@ export function restyleListsPage(): boolean {
     const link = linkCell.querySelector("a");
 
     if (!link) continue;
+
+    // Skip topcolors - not useful for most users
+    if (link.href.includes("/topcolors") || link.textContent?.toLowerCase() === "topcolors") continue;
 
     const item = document.createElement("li");
     item.className = "zen-hn-lists-item";
