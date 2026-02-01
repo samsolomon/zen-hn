@@ -22,6 +22,6 @@ Zen HN is a Chrome extension that restyles Hacker News for a calm, more readable
 ⚠️ Warning: This a work in progress.
 
 - Download or and unzip this repo.
-- Open `chrome://extensions` in Chrome.
+- Open `chrome://extensions` in Chrome or go to manage extensions.
 - Enable Developer mode.
 - Click "Load unpacked" and select the repo folder.
