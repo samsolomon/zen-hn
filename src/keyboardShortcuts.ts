@@ -17,6 +17,7 @@
  * - g+b: Go to Best
  * - g+s: Go to Ask
  * - g+r: Random story
+ * - g+l: Go to Lists
  * - g+p: My Profile (when logged in)
  * - g+f: My Favorites (when logged in)
  * - g+f+c: My Favorite Comments (when logged in)
@@ -343,6 +344,7 @@ function executeChordShortcut(key: string): "executed" | "extendable" | "none" {
     a: "/front", // "Active" is now "front" on HN
     b: "/best",
     s: "/ask",
+    l: "/lists",
   };
 
   const lowerKey = key.toLowerCase();
@@ -607,6 +609,7 @@ function showHelpModal(): void {
     { key: "g b", action: "Go to best" },
     { key: "g s", action: "Go to ask" },
     { key: "g r", action: "Random story" },
+    { key: "g l", action: "Go to lists" },
     { key: "g p", action: "My profile" },
     { key: "g f", action: "My favorites" },
     { key: "g f c", action: "My favorite comments" },
