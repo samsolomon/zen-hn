@@ -1603,21 +1603,17 @@ export function restyleDeleteConfirmPage(): boolean {
     return false;
   }
 
-  // Find the Yes/No links - they're typically anchor tags
-  const allLinks = hnmain.querySelectorAll<HTMLAnchorElement>("a");
-  let yesLink: HTMLAnchorElement | null = null;
-  let noLink: HTMLAnchorElement | null = null;
+  // Find the delete form - it posts to /xdelete
+  const originalForm = hnmain.querySelector<HTMLFormElement>('form[action="/xdelete"]');
+  if (!originalForm) {
+    return false;
+  }
 
-  allLinks.forEach((link) => {
-    const text = link.textContent?.trim().toLowerCase();
-    if (text === "yes") {
-      yesLink = link;
-    } else if (text === "no") {
-      noLink = link;
-    }
-  });
+  // Find the Yes/No submit inputs
+  const yesInput = originalForm.querySelector<HTMLInputElement>('input[type="submit"][value="Yes"]');
+  const noInput = originalForm.querySelector<HTMLInputElement>('input[type="submit"][value="No"]');
 
-  if (!yesLink && !noLink) {
+  if (!yesInput && !noInput) {
     return false;
   }
 
@@ -1642,27 +1638,44 @@ export function restyleDeleteConfirmPage(): boolean {
   message.textContent = "Do you want this to be deleted?";
   wrapper.appendChild(message);
 
+  // Create new form with hidden inputs preserved
+  const form = document.createElement("form");
+  form.action = originalForm.action;
+  form.method = originalForm.method;
+
+  // Copy hidden inputs
+  const hiddenInputs = originalForm.querySelectorAll<HTMLInputElement>('input[type="hidden"]');
+  hiddenInputs.forEach((input) => {
+    const clone = input.cloneNode(true) as HTMLInputElement;
+    form.appendChild(clone);
+  });
+
   // Button group
   const buttonGroup = document.createElement("div");
   buttonGroup.className = "zen-hn-delete-confirm-buttons";
 
-  if (yesLink) {
-    const yesButton = document.createElement("a");
-    yesButton.href = yesLink.href;
+  if (yesInput) {
+    const yesButton = document.createElement("button");
+    yesButton.type = "submit";
+    yesButton.name = "d";
+    yesButton.value = "Yes";
     yesButton.className = "zen-hn-button-outline";
     yesButton.textContent = "Yes";
     buttonGroup.appendChild(yesButton);
   }
 
-  if (noLink) {
-    const noButton = document.createElement("a");
-    noButton.href = noLink.href;
+  if (noInput) {
+    const noButton = document.createElement("button");
+    noButton.type = "submit";
+    noButton.name = "d";
+    noButton.value = "No";
     noButton.className = "zen-hn-button-ghost";
     noButton.textContent = "No";
     buttonGroup.appendChild(noButton);
   }
 
-  wrapper.appendChild(buttonGroup);
+  form.appendChild(buttonGroup);
+  wrapper.appendChild(form);
 
   hnmain.dataset[ZEN_HN_RESTYLE_KEY] = "true";
   getOrCreateZenHnMain().appendChild(wrapper);
