@@ -31,6 +31,7 @@ import { runCommentCollapseWhenReady } from "./commentCollapse";
 import { runUserSubnavWhenReady } from "./pages";
 import { initRestyle } from "./initRestyle";
 import { registerKeyboardShortcuts } from "./keyboardShortcuts";
+import { createAnnouncer } from "./announcer";
 
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
 const ENABLED_STORAGE_KEY = "zenHnEnabled";
@@ -151,6 +152,9 @@ async function init(): Promise<void> {
 
   // Listen for system color scheme changes
   listenForSystemColorModeChanges();
+
+  // Create live region for screen reader announcements
+  createAnnouncer();
 
   // Run comment collapse early on item pages
   if (window.location.pathname === "/item") {

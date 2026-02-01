@@ -34,9 +34,15 @@ import { renderIcon } from "./icons";
 
 const FOCUS_CLASS = "is-keyboard-focused";
 const MODAL_ID = "zen-hn-shortcuts-modal";
+const MODAL_TITLE_ID = "zen-hn-shortcuts-title";
 const SEARCH_PALETTE_ID = "zen-hn-search-palette";
+const SEARCH_TITLE_ID = "zen-hn-search-title";
 const CHORD_TIMEOUT_MS = 500;
 const LAST_LIST_PAGE_KEY = "zenHnLastListPage";
+
+// Store the element that triggered the modal for focus restoration
+let helpModalTrigger: HTMLElement | null = null;
+let searchPaletteTrigger: HTMLElement | null = null;
 
 // List pages that we track for Escape navigation
 const LIST_PAGE_PATHS = ["/", "/news", "/newest", "/front", "/best", "/active", "/ask", "/show", "/jobs"];
@@ -386,12 +392,17 @@ function isHelpModalOpen(): boolean {
 }
 
 /**
- * Close the help modal
+ * Close the help modal and restore focus
  */
 function closeHelpModal(): void {
   const modal = document.getElementById(MODAL_ID);
   if (modal) {
     modal.remove();
+    // Restore focus to the element that triggered the modal
+    if (helpModalTrigger && document.body.contains(helpModalTrigger)) {
+      helpModalTrigger.focus();
+    }
+    helpModalTrigger = null;
   }
 }
 
@@ -403,12 +414,17 @@ function isSearchPaletteOpen(): boolean {
 }
 
 /**
- * Close the search palette
+ * Close the search palette and restore focus
  */
 function closeSearchPalette(): void {
   const palette = document.getElementById(SEARCH_PALETTE_ID);
   if (palette) {
     palette.remove();
+    // Restore focus to the element that triggered the palette
+    if (searchPaletteTrigger && document.body.contains(searchPaletteTrigger)) {
+      searchPaletteTrigger.focus();
+    }
+    searchPaletteTrigger = null;
   }
 }
 
@@ -422,6 +438,46 @@ function handleSearchSubmit(query: string): void {
 }
 
 /**
+ * Get all focusable elements within a container
+ */
+function getFocusableElements(container: HTMLElement): HTMLElement[] {
+  const focusableSelectors = [
+    'button:not([disabled])',
+    'input:not([disabled])',
+    'textarea:not([disabled])',
+    'select:not([disabled])',
+    'a[href]',
+    '[tabindex]:not([tabindex="-1"])',
+  ].join(', ');
+  return Array.from(container.querySelectorAll<HTMLElement>(focusableSelectors));
+}
+
+/**
+ * Create a focus trap for modal dialogs
+ */
+function trapFocus(container: HTMLElement, event: KeyboardEvent): void {
+  if (event.key !== "Tab") {
+    return;
+  }
+
+  const focusable = getFocusableElements(container);
+  if (!focusable.length) {
+    return;
+  }
+
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
+}
+
+/**
  * Show the search palette
  */
 function showSearchPalette(): void {
@@ -430,11 +486,15 @@ function showSearchPalette(): void {
     return;
   }
 
+  // Store the trigger element for focus restoration
+  searchPaletteTrigger = document.activeElement as HTMLElement | null;
+
   const palette = document.createElement("div");
   palette.id = SEARCH_PALETTE_ID;
   palette.className = "zen-hn-search-palette";
   palette.setAttribute("role", "dialog");
-  palette.setAttribute("aria-label", "Search Hacker News");
+  palette.setAttribute("aria-modal", "true");
+  palette.setAttribute("aria-labelledby", SEARCH_TITLE_ID);
 
   const backdrop = document.createElement("div");
   backdrop.className = "zen-hn-search-backdrop";
@@ -443,8 +503,15 @@ function showSearchPalette(): void {
   const content = document.createElement("div");
   content.className = "zen-hn-search-content";
 
+  // Add visually hidden title for screen readers
+  const title = document.createElement("h2");
+  title.id = SEARCH_TITLE_ID;
+  title.className = "sr-only";
+  title.textContent = "Search Hacker News";
+  content.appendChild(title);
+
   const input = document.createElement("input");
-  input.type = "text";
+  input.type = "search";
   input.className = "zen-hn-search-input";
   input.placeholder = "Search Hacker News...";
   input.setAttribute("aria-label", "Search query");
@@ -457,6 +524,11 @@ function showSearchPalette(): void {
       e.preventDefault();
       closeSearchPalette();
     }
+  });
+
+  // Add focus trap
+  palette.addEventListener("keydown", (e: KeyboardEvent) => {
+    trapFocus(palette, e);
   });
 
   content.appendChild(input);
@@ -477,6 +549,9 @@ function showHelpModal(): void {
     closeHelpModal();
     return;
   }
+
+  // Store the trigger element for focus restoration
+  helpModalTrigger = document.activeElement as HTMLElement | null;
 
   const shortcuts = [
     { key: "j / k / ↓ / ↑", action: "Move focus down / up" },
@@ -508,7 +583,8 @@ function showHelpModal(): void {
   modal.id = MODAL_ID;
   modal.className = "zen-hn-shortcuts-modal";
   modal.setAttribute("role", "dialog");
-  modal.setAttribute("aria-label", "Keyboard shortcuts");
+  modal.setAttribute("aria-modal", "true");
+  modal.setAttribute("aria-labelledby", MODAL_TITLE_ID);
 
   const backdrop = document.createElement("div");
   backdrop.className = "zen-hn-shortcuts-backdrop";
@@ -521,6 +597,7 @@ function showHelpModal(): void {
   header.className = "zen-hn-shortcuts-header";
 
   const title = document.createElement("h2");
+  title.id = MODAL_TITLE_ID;
   title.className = "zen-hn-shortcuts-title";
   title.textContent = "Keyboard Shortcuts";
 
@@ -607,6 +684,11 @@ function showHelpModal(): void {
         closeHelpModal();
       }
     }
+  });
+
+  // Add focus trap
+  modal.addEventListener("keydown", (e: KeyboardEvent) => {
+    trapFocus(modal, e);
   });
 
   content.appendChild(list);

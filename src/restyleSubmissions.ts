@@ -11,6 +11,7 @@ import {
 import { resolveStoryFavoriteLink } from "./favorites";
 import { getStoredAction, updateStoredAction } from "./actionStore";
 import { getOrCreateZenHnMain } from "./getOrCreateZenHnMain";
+import { announce } from "./announcer";
 import {
   buildVoteHref,
   buildMenuItems,
@@ -229,6 +230,7 @@ export function restyleSubmissions(): void {
         upvoteButton.classList.toggle("is-active", isUpvotedState);
         upvoteButton.setAttribute("aria-pressed", isUpvotedState ? "true" : "false");
         upvoteButton.innerHTML = renderIcon(isUpvotedState ? "arrow-fat-up-fill" : "arrow-fat-up");
+        announce(isUpvotedState ? "Upvoted" : "Vote removed");
       });
     } else {
       upvoteButton.hidden = true;
@@ -312,6 +314,7 @@ export function restyleSubmissions(): void {
         updateStoredAction("stories", effectiveItemId, { favorite: isFavorited });
       }
       favoriteHref = buildNextFavoriteHref(favoriteHref, !isFavorited);
+      announce(isFavorited ? "Added to favorites" : "Removed from favorites");
     });
 
     const linkButton = document.createElement("button");
@@ -342,6 +345,7 @@ export function restyleSubmissions(): void {
         }
         linkButton.classList.add("is-copied");
         linkButton.classList.add("is-active");
+        announce("Link copied to clipboard");
         copyResetTimer = globalThis.setTimeout(() => {
           linkButton.classList.remove("is-copied");
           linkButton.classList.remove("is-active");

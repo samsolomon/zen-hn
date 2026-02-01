@@ -4,6 +4,8 @@ export function getOrCreateZenHnMain(): HTMLElement {
 
   main = document.createElement("main");
   main.id = "zen-hn-main";
+  main.setAttribute("role", "main");
+  main.setAttribute("aria-label", "Content");
 
   const hnmain = document.getElementById("hnmain");
   const centerWrapper = hnmain?.closest("center");

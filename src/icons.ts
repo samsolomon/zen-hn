@@ -113,12 +113,22 @@ export type IconName = keyof typeof PHOSPHOR_SVGS | "hn-home";
 
 /**
  * Render an icon by name
+ * Icons are decorative by default (aria-hidden="true") since buttons have aria-labels.
  * @param name - The icon name to render
- * @returns The SVG string for the icon, or empty string if not found
+ * @returns The SVG string for the icon with aria-hidden, or empty string if not found
  */
 export function renderIcon(name: IconName): string {
-  if (name === "hn-home") return HN_HOME_SVG;
-  return PHOSPHOR_SVGS[name] ?? "";
+  let svg = "";
+  if (name === "hn-home") {
+    svg = HN_HOME_SVG;
+  } else {
+    svg = PHOSPHOR_SVGS[name] ?? "";
+  }
+  // Add aria-hidden to decorative SVGs if not already present
+  if (svg && !svg.includes('aria-hidden')) {
+    svg = svg.replace('<svg ', '<svg aria-hidden="true" ');
+  }
+  return svg;
 }
 
 /**

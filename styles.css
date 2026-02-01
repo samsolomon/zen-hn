@@ -878,16 +878,7 @@ html[data-zen-hn-enabled="true"] .comhead {
 
 /* Reply cancel overrides (extends .zen-hn-button-ghost) */
 .hn-reply-cancel {
-  border-radius: var(--radius-150);
   font-size: var(--font-size-base);
-}
-
-.hn-reply-cancel:hover {
-  background-color: var(--color-bg-hover);
-}
-
-.hn-reply-cancel:active {
-  transform: translateY(1px) scale(0.98);
 }
 
 .hn-comment-actions {
