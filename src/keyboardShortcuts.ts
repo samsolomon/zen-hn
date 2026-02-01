@@ -20,7 +20,9 @@
  * - g+r: Random story
  * - g+p: My Profile (when logged in)
  * - g+f: My Favorites (when logged in)
+ * - g+f+c: My Favorite Comments (when logged in)
  * - g+u: My Upvoted (when logged in)
+ * - g+u+c: My Upvoted Comments (when logged in)
  * - g+m: My Submissions (when logged in)
  * - g+c: My Comments (when logged in)
  * - /: Search (opens Algolia search palette)
@@ -31,6 +33,7 @@
 import { fetchNewestItemId, resolveRandomStoryHref } from "./random";
 import { toggleCommentCollapse } from "./commentCollapse";
 import { renderIcon } from "./icons";
+import { createModal, isModalOpen, closeModal } from "./modal";
 
 const FOCUS_CLASS = "is-keyboard-focused";
 const MODAL_ID = "zen-hn-shortcuts-modal";
@@ -40,8 +43,7 @@ const SEARCH_TITLE_ID = "zen-hn-search-title";
 const CHORD_TIMEOUT_MS = 500;
 const LAST_LIST_PAGE_KEY = "zenHnLastListPage";
 
-// Store the element that triggered the modal for focus restoration
-let helpModalTrigger: HTMLElement | null = null;
+// Store the element that triggered the search palette for focus restoration
 let searchPaletteTrigger: HTMLElement | null = null;
 
 // List pages that we track for Escape navigation
@@ -50,6 +52,9 @@ const LIST_PAGE_PATHS = ["/", "/news", "/newest", "/front", "/best", "/active", 
 let focusedItem: HTMLElement | null = null;
 let pendingChord: string | null = null;
 let chordTimer: ReturnType<typeof setTimeout> | null = null;
+
+// Chords that can be extended with a third key (e.g., g+f can become g+f+c)
+const EXTENDABLE_CHORDS = ["f", "u"];
 
 /**
  * Check if current page is a list page
@@ -330,8 +335,9 @@ function getLoggedInUsername(): string | null {
 
 /**
  * Execute a chord shortcut (g+X)
+ * Returns "executed" if the chord was executed, "extendable" if it can be extended with a third key, or "none" if not recognized
  */
-function executeChordShortcut(key: string): boolean {
+function executeChordShortcut(key: string): "executed" | "extendable" | "none" {
   const routes: Record<string, string> = {
     h: "/",
     n: "/newest",
@@ -346,30 +352,75 @@ function executeChordShortcut(key: string): boolean {
   // Random story
   if (lowerKey === "r") {
     goToRandomStory();
-    return true;
+    return "executed";
   }
 
   // User page shortcuts (require logged-in user)
   const username = getLoggedInUsername();
   if (username) {
+    // Check if this is an extendable chord (f or u)
+    if (EXTENDABLE_CHORDS.includes(lowerKey)) {
+      return "extendable";
+    }
+
     const userRoutes: Record<string, string> = {
       p: `/user?id=${username}`,
-      f: `/favorites?id=${username}`,
-      u: `/upvoted?id=${username}`,
       m: `/submitted?id=${username}`,
       c: `/threads?id=${username}`,
     };
     const userRoute = userRoutes[lowerKey];
     if (userRoute) {
       window.location.href = userRoute;
-      return true;
+      return "executed";
     }
   }
 
   const route = routes[lowerKey];
   if (route) {
     window.location.href = route;
-    return true;
+    return "executed";
+  }
+  return "none";
+}
+
+/**
+ * Execute the default action for an extendable chord (when no third key is pressed)
+ */
+function executeExtendableChordDefault(chord: string): void {
+  const username = getLoggedInUsername();
+  if (!username) return;
+
+  const routes: Record<string, string> = {
+    f: `/favorites?id=${username}`,
+    u: `/upvoted?id=${username}`,
+  };
+  const route = routes[chord];
+  if (route) {
+    window.location.href = route;
+  }
+}
+
+/**
+ * Execute a three-key chord (g+X+Y)
+ */
+function executeThreeKeyChord(secondKey: string, thirdKey: string): boolean {
+  const username = getLoggedInUsername();
+  if (!username) return false;
+
+  const lowerSecond = secondKey.toLowerCase();
+  const lowerThird = thirdKey.toLowerCase();
+
+  // g+f+c -> Favorite Comments, g+u+c -> Upvoted Comments
+  if (lowerThird === "c") {
+    const routes: Record<string, string> = {
+      f: `/favorites?id=${username}&comments=t`,
+      u: `/upvoted?id=${username}&comments=t`,
+    };
+    const route = routes[lowerSecond];
+    if (route) {
+      window.location.href = route;
+      return true;
+    }
   }
   return false;
 }
@@ -389,22 +440,14 @@ function clearPendingChord(): void {
  * Check if help modal is open
  */
 function isHelpModalOpen(): boolean {
-  return document.getElementById(MODAL_ID) !== null;
+  return isModalOpen(MODAL_ID);
 }
 
 /**
- * Close the help modal and restore focus
+ * Close the help modal
  */
 function closeHelpModal(): void {
-  const modal = document.getElementById(MODAL_ID);
-  if (modal) {
-    modal.remove();
-    // Restore focus to the element that triggered the modal
-    if (helpModalTrigger && document.body.contains(helpModalTrigger)) {
-      helpModalTrigger.focus();
-    }
-    helpModalTrigger = null;
-  }
+  closeModal(MODAL_ID);
 }
 
 /**
@@ -551,9 +594,6 @@ function showHelpModal(): void {
     return;
   }
 
-  // Store the trigger element for focus restoration
-  helpModalTrigger = document.activeElement as HTMLElement | null;
-
   const shortcuts = [
     { key: "j / k / ↓ / ↑", action: "Move focus down / up" },
     { key: "Enter", action: "Open comments" },
@@ -572,7 +612,9 @@ function showHelpModal(): void {
     { key: "g r", action: "Random story" },
     { key: "g p", action: "My Profile" },
     { key: "g f", action: "My Favorites" },
+    { key: "g f c", action: "My Favorite Comments" },
     { key: "g u", action: "My Upvoted" },
+    { key: "g u c", action: "My Upvoted Comments" },
     { key: "g m", action: "My Submissions" },
     { key: "g c", action: "My Comments" },
     { key: "/", action: "Search" },
@@ -580,20 +622,18 @@ function showHelpModal(): void {
     { key: "Esc", action: "Back / clear focus / close" },
   ];
 
-  const modal = document.createElement("div");
-  modal.id = MODAL_ID;
-  modal.className = "zen-hn-shortcuts-modal";
-  modal.setAttribute("role", "dialog");
-  modal.setAttribute("aria-modal", "true");
-  modal.setAttribute("aria-labelledby", MODAL_TITLE_ID);
+  // Create modal using generic modal component
+  const { content, close } = createModal({
+    id: MODAL_ID,
+    className: "zen-hn-shortcuts-modal",
+    titleId: MODAL_TITLE_ID,
+    closeOnBackdrop: true,
+    closeOnEscape: true,
+    focusTrap: true,
+    restoreFocus: true,
+  });
 
-  const backdrop = document.createElement("div");
-  backdrop.className = "zen-hn-shortcuts-backdrop";
-  backdrop.addEventListener("click", closeHelpModal);
-
-  const content = document.createElement("div");
-  content.className = "zen-hn-shortcuts-content";
-
+  // Build modal content
   const header = document.createElement("div");
   header.className = "zen-hn-shortcuts-header";
 
@@ -607,7 +647,7 @@ function showHelpModal(): void {
   closeButton.type = "button";
   closeButton.setAttribute("aria-label", "Close");
   closeButton.innerHTML = renderIcon("x");
-  closeButton.addEventListener("click", closeHelpModal);
+  closeButton.addEventListener("click", close);
 
   header.appendChild(title);
   header.appendChild(closeButton);
@@ -682,21 +722,12 @@ function showHelpModal(): void {
         searchInput.value = "";
         searchInput.dispatchEvent(new Event("input"));
       } else {
-        closeHelpModal();
+        close();
       }
     }
   });
 
-  // Add focus trap
-  modal.addEventListener("keydown", (e: KeyboardEvent) => {
-    trapFocus(modal, e);
-  });
-
   content.appendChild(list);
-  modal.appendChild(backdrop);
-  modal.appendChild(content);
-  if (!document.body) return;
-  document.body.appendChild(modal);
 
   // Focus the search input for immediate filtering (use rAF to ensure DOM is ready)
   requestAnimationFrame(() => {
@@ -762,11 +793,36 @@ function handleKeyDown(event: KeyboardEvent): void {
     return;
   }
 
-  // Handle chord shortcuts
+  // Handle three-key chord shortcuts (g+f+c, g+u+c)
+  if (pendingChord && pendingChord.startsWith("g") && pendingChord.length === 2) {
+    event.preventDefault();
+    const secondKey = pendingChord[1];
+    clearPendingChord();
+    if (!executeThreeKeyChord(secondKey, key)) {
+      // Third key didn't match, execute the default two-key chord
+      executeExtendableChordDefault(secondKey);
+    }
+    return;
+  }
+
+  // Handle two-key chord shortcuts
   if (pendingChord === "g") {
     event.preventDefault();
+    const result = executeChordShortcut(key);
+    if (result === "extendable") {
+      // This chord can be extended with a third key
+      pendingChord = "g" + key.toLowerCase();
+      if (chordTimer) clearTimeout(chordTimer);
+      chordTimer = setTimeout(() => {
+        const chord = pendingChord;
+        clearPendingChord();
+        if (chord && chord.length === 2) {
+          executeExtendableChordDefault(chord[1]);
+        }
+      }, CHORD_TIMEOUT_MS);
+      return;
+    }
     clearPendingChord();
-    executeChordShortcut(key);
     return;
   }
 

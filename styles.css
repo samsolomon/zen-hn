@@ -2351,27 +2351,17 @@ html[data-zen-hn-enabled="true"] .zen-hn-subnav {
 }
 
 /* Edit Profile Modal */
+/* Edit profile modal - extends .zen-hn-modal */
 .zen-hn-edit-profile-modal {
-  position: fixed;
-  inset: 0;
   z-index: 10000;
-  display: flex;
   align-items: center;
-  justify-content: center;
 }
 
-.zen-hn-edit-profile-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-}
-
-.zen-hn-edit-profile-content {
-  position: relative;
+/* Edit profile content - extends .zen-hn-modal-content */
+.zen-hn-edit-profile-modal .zen-hn-modal-content {
   background: var(--color-bg);
   border-radius: 12px;
   padding: 24px;
-  width: 100%;
   max-width: 480px;
   max-height: 90vh;
   overflow-y: auto;
@@ -2461,6 +2451,34 @@ html[data-zen-hn-enabled="false"] .zen-hn-subnav {
 }
 
 /* ==========================================================================
+   Generic Modal Base Styles
+   ========================================================================== */
+
+.zen-hn-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.zen-hn-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.zen-hn-modal-content {
+  position: relative;
+  width: 100%;
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-200);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15);
+}
+
+/* ==========================================================================
    Keyboard Navigation - Focus indicator and help modal
    ========================================================================== */
 
@@ -2481,33 +2499,17 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
 }
 
 /* Keyboard shortcuts help modal */
+/* Keyboard shortcuts modal - extends .zen-hn-modal */
 .zen-hn-shortcuts-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
   padding-top: 10vh;
 }
 
-.zen-hn-shortcuts-backdrop {
-  position: absolute;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-.zen-hn-shortcuts-content {
-  position: relative;
-  width: 100%;
+/* Keyboard shortcuts content - extends .zen-hn-modal-content */
+.zen-hn-shortcuts-modal .zen-hn-modal-content {
   max-width: 420px;
   max-height: 80vh;
   margin: var(--space-200);
   padding: var(--space-200);
-  background-color: var(--color-bg-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-200);
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15);
   overflow-y: auto;
 }
 
@@ -2656,32 +2658,16 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
    Noprocrast Confirmation Modal
    ========================================================================== */
 
+/* Noprocrast confirmation modal - extends .zen-hn-modal */
 .zen-hn-noprocrast-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
   padding-top: 15vh;
 }
 
-.zen-hn-noprocrast-backdrop {
-  position: absolute;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-.zen-hn-noprocrast-content {
-  position: relative;
-  width: 100%;
+/* Noprocrast content - extends .zen-hn-modal-content */
+.zen-hn-noprocrast-modal .zen-hn-modal-content {
   max-width: 400px;
   margin: var(--space-200);
   padding: var(--space-250);
-  background-color: var(--color-bg-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-200);
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15);
   text-align: center;
 }
 

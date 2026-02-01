@@ -6,6 +6,7 @@ import { getOrCreateZenHnMain } from "./getOrCreateZenHnMain";
 import { isUserProfilePage } from "./logic";
 import { appendAppearanceControls, replaceHnSettingsWithToggles } from "./colorMode";
 import { initSubnavOverflow } from "./subnavOverflow";
+import { createModal, closeModal } from "./modal";
 
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
 const LOGGED_IN_USERNAME_KEY = "zenHnLoggedInUsername";
@@ -190,21 +191,11 @@ function formatHnAbout(text: string): string {
 const EDIT_PROFILE_MODAL_ID = "zen-hn-edit-profile-modal";
 
 /**
- * Close the edit profile modal
- */
-function closeEditProfileModal(): void {
-  const modal = document.getElementById(EDIT_PROFILE_MODAL_ID);
-  if (modal) {
-    modal.remove();
-  }
-}
-
-/**
  * Show the edit profile modal
  */
 function showEditProfileModal(data: UserProfileData): void {
   // Close any existing modal
-  closeEditProfileModal();
+  closeModal(EDIT_PROFILE_MODAL_ID);
 
   // Get current values from the HN form
   const hnForm = document.querySelector<HTMLFormElement>(".hn-user-page form, .hn-form-page form");
@@ -214,19 +205,15 @@ function showEditProfileModal(data: UserProfileData): void {
   const currentAbout = aboutTextarea?.value || data.about.replace(/<br\s*\/?>/gi, "\n");
   const currentEmail = emailInput?.value || data.email;
 
-  const modal = document.createElement("div");
-  modal.id = EDIT_PROFILE_MODAL_ID;
-  modal.className = "zen-hn-edit-profile-modal";
-  modal.setAttribute("role", "dialog");
-  modal.setAttribute("aria-modal", "true");
-  modal.setAttribute("aria-labelledby", "edit-profile-modal-title");
-
-  const backdrop = document.createElement("div");
-  backdrop.className = "zen-hn-edit-profile-backdrop";
-  backdrop.addEventListener("click", closeEditProfileModal);
-
-  const content = document.createElement("div");
-  content.className = "zen-hn-edit-profile-content";
+  // Create modal using generic modal component
+  const { content, close } = createModal({
+    id: EDIT_PROFILE_MODAL_ID,
+    className: "zen-hn-edit-profile-modal",
+    titleId: "edit-profile-modal-title",
+    closeOnBackdrop: true,
+    closeOnEscape: true,
+    restoreFocus: true,
+  });
 
   // Title
   const title = document.createElement("h2");
@@ -285,7 +272,7 @@ function showEditProfileModal(data: UserProfileData): void {
   cancelButton.type = "button";
   cancelButton.className = "zen-hn-button-ghost";
   cancelButton.textContent = "Cancel";
-  cancelButton.addEventListener("click", closeEditProfileModal);
+  cancelButton.addEventListener("click", close);
 
   const saveButton = document.createElement("button");
   saveButton.type = "button";
@@ -315,7 +302,7 @@ function showEditProfileModal(data: UserProfileData): void {
       }
     }
 
-    closeEditProfileModal();
+    close();
   });
 
   buttonGroup.appendChild(cancelButton);
@@ -324,20 +311,6 @@ function showEditProfileModal(data: UserProfileData): void {
   content.appendChild(title);
   content.appendChild(form);
   content.appendChild(buttonGroup);
-
-  modal.appendChild(backdrop);
-  modal.appendChild(content);
-
-  document.body.appendChild(modal);
-
-  // Handle escape key
-  const handleEscape = (e: KeyboardEvent): void => {
-    if (e.key === "Escape") {
-      closeEditProfileModal();
-      document.removeEventListener("keydown", handleEscape);
-    }
-  };
-  document.addEventListener("keydown", handleEscape);
 
   // Focus the about textarea
   requestAnimationFrame(() => {
