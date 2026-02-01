@@ -156,7 +156,11 @@ export function buildSidebarNavigation(): boolean {
   }
 
   const pagetops = Array.from(document.querySelectorAll("span.pagetop"));
-  if (!pagetops.length && !document.getElementById("hnmain")) {
+  const isAboutPage = getCurrentPath() === "/about";
+
+  // About page may not have pagetops or hnmain initially (error page structure)
+  // so we only require document.body to exist
+  if (!isAboutPage && !pagetops.length && !document.getElementById("hnmain")) {
     return false;
   }
 

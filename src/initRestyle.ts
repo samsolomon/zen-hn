@@ -2,13 +2,14 @@ import { loadActionStore } from "./actionStore";
 import { buildSidebarNavigation } from "./sidebar";
 import { isUserProfilePage } from "./logic";
 import { restyleSubmissions } from "./restyleSubmissions";
-import { restyleSubmitPage, restyleUserPage, restyleChangePwPage, restyleUserListPage, restyleAboutPage, restyleNoprocrastPage } from "./pages";
+import { restyleSubmitPage, restyleUserPage, restyleChangePwPage, restyleUserListPage, restyleAboutPage, restyleNoprocrastPage, cacheLoggedInUsername } from "./pages";
 import { restyleFatItem } from "./restyleFatItem";
 import { runRestyleWhenReady } from "./restyleComments";
 
 export async function initRestyle(): Promise<void> {
   await loadActionStore();
   buildSidebarNavigation();
+  cacheLoggedInUsername();
   if (isUserProfilePage()) {
     document.documentElement.dataset.zenHnUserPage = "true";
   }

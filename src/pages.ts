@@ -7,6 +7,7 @@ import { isUserProfilePage } from "./logic";
 import { appendAppearanceControls, replaceHnSettingsWithToggles } from "./colorMode";
 
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
+const LOGGED_IN_USERNAME_KEY = "zenHnLoggedInUsername";
 
 // =============================================================================
 // User Profile Header
@@ -152,6 +153,58 @@ function isUserSubnavPage(): boolean {
 function getUsernameFromUrl(): string | null {
   const params = new URLSearchParams(window.location.search);
   return params.get("id");
+}
+
+/**
+ * Cache the logged-in user's username if available on the current page.
+ * Should be called early on page load to populate the cache for later use.
+ */
+export function cacheLoggedInUsername(): void {
+  const profileLink = document.querySelector<HTMLAnchorElement>("a#me");
+  if (profileLink) {
+    const href = profileLink.getAttribute("href");
+    if (href) {
+      const match = href.match(/user\?id=([^&]+)/);
+      if (match) {
+        try {
+          localStorage.setItem(LOGGED_IN_USERNAME_KEY, match[1]);
+        } catch {
+          // Ignore storage errors
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Get the logged-in user's username from the page header.
+ * Caches the username in localStorage for pages without the header (like error pages).
+ */
+function getLoggedInUsername(): string | null {
+  const profileLink = document.querySelector<HTMLAnchorElement>("a#me");
+  if (profileLink) {
+    const href = profileLink.getAttribute("href");
+    if (href) {
+      const match = href.match(/user\?id=([^&]+)/);
+      if (match) {
+        const username = match[1];
+        // Cache the username for pages without the header
+        try {
+          localStorage.setItem(LOGGED_IN_USERNAME_KEY, username);
+        } catch {
+          // Ignore storage errors
+        }
+        return username;
+      }
+    }
+  }
+
+  // Fallback to cached username (useful for error pages like /about)
+  try {
+    return localStorage.getItem(LOGGED_IN_USERNAME_KEY);
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -454,10 +507,13 @@ export function addUserSubnav(): boolean {
   }
 
   const pathname = window.location.pathname;
-  const username = getUsernameFromUrl();
+  let username = getUsernameFromUrl();
 
-  // Allow About page without username, but require username for other pages
-  if (!username && pathname !== "/about") {
+  // For About page, use logged-in user for user-specific links
+  if (pathname === "/about") {
+    username = getLoggedInUsername();
+  } else if (!username) {
+    // Require username for other pages
     return false;
   }
 
@@ -586,6 +642,14 @@ export function restyleAboutPage(): boolean {
   hnmain.dataset[ZEN_HN_RESTYLE_KEY] = "true";
   getOrCreateZenHnMain().appendChild(wrapper);
 
+  // Add subnav for About page (use logged-in user for user-specific links)
+  if (!document.querySelector(".zen-hn-subnav")) {
+    const loggedInUser = getLoggedInUsername();
+    const subnav = createUserSubnav(loggedInUser);
+    document.body.appendChild(subnav);
+    document.documentElement.setAttribute("data-zen-hn-subnav", "true");
+  }
+
   return true;
 }
 
@@ -658,4 +722,5 @@ export function restyleNoprocrastPage(): boolean {
   runUserSubnavWhenReady,
   restyleAboutPage,
   restyleNoprocrastPage,
+  cacheLoggedInUsername,
 };
