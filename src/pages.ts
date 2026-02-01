@@ -145,7 +145,7 @@ interface SubnavItem {
 /**
  * Pages that should show the user subnav
  */
-const USER_SUBNAV_PAGES = ["/user", "/favorites", "/upvoted", "/hidden", "/submitted", "/threads", "/about"];
+const USER_SUBNAV_PAGES = ["/user", "/favorites", "/upvoted", "/hidden", "/flagged", "/submitted", "/threads", "/about"];
 
 /**
  * Check if the current page should show the user subnav
@@ -223,6 +223,7 @@ function getCurrentPageType(): string {
   if (pathname === "/threads") return "comments";
   if (pathname === "/favorites") return "favorites";
   if (pathname === "/upvoted") return "upvoted";
+  if (pathname === "/flagged") return "flagged";
   if (pathname === "/hidden") return "hidden";
   if (pathname === "/about") return "about";
   if (pathname === "/user") return "profile";
@@ -264,6 +265,11 @@ function buildSubnavItems(username: string | null): SubnavItem[] {
         label: "Comments",
         href: `/threads?id=${username}`,
         isActive: currentPage === "comments",
+      },
+      {
+        label: "Flagged",
+        href: `/flagged?id=${username}`,
+        isActive: currentPage === "flagged",
       },
       {
         label: "Hidden",
@@ -447,7 +453,7 @@ export function restyleUserPage(): boolean {
  * Pages that are user list pages (not the profile page itself)
  * Note: /threads is handled by restyleComments() instead
  */
-const USER_LIST_PAGES = ["/favorites", "/upvoted", "/hidden", "/submitted"];
+const USER_LIST_PAGES = ["/favorites", "/upvoted", "/flagged", "/hidden", "/submitted"];
 
 /**
  * Check if the current page is a user list page
