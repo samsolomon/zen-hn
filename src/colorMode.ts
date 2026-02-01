@@ -1196,7 +1196,7 @@ function showNoprocrastConfirmation(): Promise<boolean> {
 
     const confirmButton = document.createElement("button");
     confirmButton.type = "button";
-    confirmButton.className = "zen-hn-noprocrast-button zen-hn-noprocrast-button-confirm";
+    confirmButton.className = "zen-hn-button-outline";
     confirmButton.textContent = "Enable Noprocrast";
     confirmButton.addEventListener("click", () => {
       closeNoprocrastModal();
