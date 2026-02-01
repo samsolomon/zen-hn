@@ -41,7 +41,9 @@ function extractUserProfileData(container: HTMLElement): UserProfileData | null 
       // For about, check for textarea (own profile) or just innerHTML (other users)
       if (label === "about") {
         const textarea = value.querySelector("textarea");
-        data.about = textarea ? textarea.value : value.innerHTML || "";
+        data.about = textarea
+          ? textarea.value.replace(/\n/g, "<br>")
+          : value.innerHTML || "";
       }
     }
   }
@@ -684,11 +686,9 @@ export function restyleAboutPage(): boolean {
       <section class="zen-hn-about-section">
         <h2 class="zen-hn-about-section-title">HN</h2>
         <ul class="zen-hn-about-links">
-          <li><a href="https://news.ycombinator.com/newsguidelines.html" target="_blank" rel="noopener">Guidelines</a></li>
-          <li><a href="https://news.ycombinator.com/newsfaq.html" target="_blank" rel="noopener">FAQ</a></li>
+          <li><a href="https://news.ycombinator.com/newsguidelines.html" target="_blank" rel="noopener">Guidelines</a> / <a href="https://news.ycombinator.com/newsfaq.html" target="_blank" rel="noopener">FAQ</a></li>
+          <li><a href="https://news.ycombinator.com/security.html" target="_blank" rel="noopener">Security</a> / <a href="https://www.ycombinator.com/legal/" target="_blank" rel="noopener">Legal</a></li>
           <li><a href="https://github.com/HackerNews/API" target="_blank" rel="noopener">API</a></li>
-          <li><a href="https://news.ycombinator.com/security.html" target="_blank" rel="noopener">Security</a></li>
-          <li><a href="https://www.ycombinator.com/legal/" target="_blank" rel="noopener">Legal</a></li>
           <li><a href="https://www.ycombinator.com/apply/" target="_blank" rel="noopener">Apply to YC</a></li>
           <li><a href="mailto:hn@ycombinator.com">Contact</a></li>
         </ul>
