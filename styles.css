@@ -823,6 +823,18 @@ html[data-zen-hn-enabled="true"] .comhead {
   line-height: 1.5;
   color: var(--color-text);
   margin-left: 44px;
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 150ms ease-out, opacity 150ms ease-out;
+}
+
+.hn-comment-text-inner {
+  overflow: hidden;
+}
+
+.hn-comment[data-collapsed="true"] .hn-comment-text {
+  grid-template-rows: 0fr;
+  opacity: 0;
 }
 
 .hn-comment-text a:link {
@@ -835,10 +847,6 @@ html[data-zen-hn-enabled="true"] .comhead {
 
 .hn-comment-text a:hover {
   text-decoration: underline;
-}
-
-.hn-comment[data-collapsed="true"] .hn-comment-text {
-  display: none;
 }
 
 .hn-reply {

@@ -375,7 +375,10 @@ export function buildCommentItem(
 
   const text = document.createElement("div");
   text.className = "hn-comment-text";
-  text.innerHTML = textHtml;
+  const textInner = document.createElement("div");
+  textInner.className = "hn-comment-text-inner";
+  textInner.innerHTML = textHtml;
+  text.appendChild(textInner);
 
   replyContainer = document.createElement("div");
   replyContainer.className = "hn-reply is-hidden";
