@@ -651,9 +651,10 @@ export function restyleAboutPage(): boolean {
     <section class="zen-hn-about-section">
       <h2 class="zen-hn-about-section-title">Connect</h2>
       <ul class="zen-hn-about-links">
-        <li><a href="https://twitter.com/username" target="_blank" rel="noopener">Twitter</a></li>
+        <li><a href="https://solomon.io" target="_blank" rel="noopener">Website</a></li>
         <li><a href="https://github.com/samsolomon" target="_blank" rel="noopener">GitHub</a></li>
-        <li><a href="https://example.com" target="_blank" rel="noopener">Website</a></li>
+        <li><a href="https://www.linkedin.com/in/samuelrsolomon" target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a href="https://twitter.com/samuelrsolomon" target="_blank" rel="noopener">Twitter</a></li>
       </ul>
     </section>
 
