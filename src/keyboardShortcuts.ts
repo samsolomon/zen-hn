@@ -95,6 +95,15 @@ function hideChordIndicator(): void {
 }
 
 /**
+ * Show the complete chord briefly, then hide it
+ * Used when a chord completes successfully
+ */
+function showChordIndicatorThenHide(chord: string, delay: number = 300): void {
+  showChordIndicator(chord);
+  setTimeout(hideChordIndicator, delay);
+}
+
+/**
  * Check if current page is a list page
  */
 function isListPage(): boolean {
@@ -866,7 +875,10 @@ function handleKeyDown(event: KeyboardEvent): void {
   if (pendingChord && pendingChord.startsWith("g") && pendingChord.length === 2) {
     event.preventDefault();
     const secondKey = pendingChord[1];
+    const fullChord = pendingChord + key;
     clearPendingChord();
+    // Show complete chord briefly before navigation
+    showChordIndicatorThenHide(fullChord);
     if (!executeThreeKeyChord(secondKey, key)) {
       // Third key didn't match, execute the default two-key chord
       executeExtendableChordDefault(secondKey);
@@ -887,12 +899,15 @@ function handleKeyDown(event: KeyboardEvent): void {
         const chord = pendingChord;
         clearPendingChord();
         if (chord && chord.length === 2) {
+          showChordIndicatorThenHide(chord);
           executeExtendableChordDefault(chord[1]);
         }
       }, CHORD_TIMEOUT_MS);
       return;
     }
     clearPendingChord();
+    // Show complete chord briefly before navigation
+    showChordIndicatorThenHide("g" + key);
     return;
   }
 
