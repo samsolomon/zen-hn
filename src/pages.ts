@@ -278,6 +278,26 @@ Urls become links, except in the text field of a submission. If your url gets li
   emailHint.textContent = "Only admins see your email. To share publicly, add to About.";
   emailGroup.appendChild(emailHint);
 
+  // Email error message (hidden by default)
+  const emailError = document.createElement("div");
+  emailError.className = "zen-hn-edit-profile-error";
+  emailError.textContent = "Please enter a valid email address.";
+  emailError.style.display = "none";
+  emailGroup.appendChild(emailError);
+
+  // Email validation function
+  const isValidEmail = (email: string): boolean => {
+    if (!email.trim()) return true; // Empty is allowed
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email.trim());
+  };
+
+  // Clear error on input
+  emailInput.addEventListener("input", () => {
+    emailInput.classList.remove("is-invalid");
+    emailError.style.display = "none";
+  });
+
   form.appendChild(emailGroup);
   content.appendChild(form);
 
@@ -297,6 +317,14 @@ Urls become links, except in the text field of a submission. If your url gets li
   saveButton.textContent = "Save";
   saveButton.addEventListener("click", () => {
     console.log("[Edit Profile] Save clicked");
+
+    // Validate email
+    if (!isValidEmail(emailInput.value)) {
+      emailInput.classList.add("is-invalid");
+      emailError.style.display = "block";
+      emailInput.focus();
+      return;
+    }
 
     // Debug: log all forms on the page
     const allForms = document.querySelectorAll("form");
