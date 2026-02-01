@@ -133,6 +133,10 @@ html[data-zen-hn-enabled="true"] a:link {
   color: var(--color-text-muted);
 }
 
+html[data-zen-hn-enabled="true"] a:visited {
+  color: var(--color-text-faint) !important;
+}
+
 html[data-zen-hn-enabled="true"][data-zen-hn-sidebar="true"] body {
   padding-left: var(--sidebar-width);
 }
