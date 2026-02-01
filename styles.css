@@ -2355,14 +2355,70 @@ html[data-zen-hn-enabled="true"] .zen-hn-subnav {
   padding: 4px 12px;
 }
 
-/* Edit Profile Modal */
-/* Edit profile modal - extends .zen-hn-modal */
+/* Muted text - only when enabled */
+html[data-zen-hn-enabled="true"] .sitestr,
+html[data-zen-hn-enabled="true"] .sitebit,
+html[data-zen-hn-enabled="true"] .age,
+html[data-zen-hn-enabled="true"] .hn-fatitem-site {
+  color: var(--color-text-muted);
+}
+
+/* Faint text - only when enabled */
+html[data-zen-hn-enabled="true"] a:visited:not(.zen-hn-sidebar-icon-link):not(.zen-hn-subnav-link):not(.zen-hn-button-outline),
+html[data-zen-hn-enabled="true"] .hnmore a:link,
+html[data-zen-hn-enabled="true"] .hnmore a:visited,
+html[data-zen-hn-enabled="true"] .age a:visited,
+html[data-zen-hn-enabled="true"] .hn-fatitem-comments:visited {
+  color: var(--color-text-faint) !important;
+}
+
+/* ==========================================================================
+   Disabled state - fallback to hide zen-hn elements if somehow present
+   ========================================================================== */
+
+html[data-zen-hn-enabled="false"] #zen-hn-sidebar,
+html[data-zen-hn-enabled="false"] #zen-hn-main,
+html[data-zen-hn-enabled="false"] .zen-hn-subnav {
+  display: none !important;
+}
+
+/* ==========================================================================
+   Generic Modal Base Styles
+   ========================================================================== */
+
+.zen-hn-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.zen-hn-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.zen-hn-modal-content {
+  position: relative;
+  width: 100%;
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-200);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15);
+}
+
+/* ==========================================================================
+   Edit Profile Modal
+   ========================================================================== */
+
 .zen-hn-edit-profile-modal {
   z-index: 10000;
   align-items: center;
 }
 
-/* Edit profile content - extends .zen-hn-modal-content */
 .zen-hn-edit-profile-modal .zen-hn-modal-content {
   background: var(--color-bg);
   border-radius: 12px;
@@ -2426,61 +2482,6 @@ html[data-zen-hn-enabled="true"] .zen-hn-subnav {
   justify-content: flex-end;
   gap: 8px;
   margin-top: 8px;
-}
-
-/* Muted text - only when enabled */
-html[data-zen-hn-enabled="true"] .sitestr,
-html[data-zen-hn-enabled="true"] .sitebit,
-html[data-zen-hn-enabled="true"] .age,
-html[data-zen-hn-enabled="true"] .hn-fatitem-site {
-  color: var(--color-text-muted);
-}
-
-/* Faint text - only when enabled */
-html[data-zen-hn-enabled="true"] a:visited:not(.zen-hn-sidebar-icon-link):not(.zen-hn-subnav-link):not(.zen-hn-button-outline),
-html[data-zen-hn-enabled="true"] .hnmore a:link,
-html[data-zen-hn-enabled="true"] .hnmore a:visited,
-html[data-zen-hn-enabled="true"] .age a:visited,
-html[data-zen-hn-enabled="true"] .hn-fatitem-comments:visited {
-  color: var(--color-text-faint) !important;
-}
-
-/* ==========================================================================
-   Disabled state - fallback to hide zen-hn elements if somehow present
-   ========================================================================== */
-
-html[data-zen-hn-enabled="false"] #zen-hn-sidebar,
-html[data-zen-hn-enabled="false"] #zen-hn-main,
-html[data-zen-hn-enabled="false"] .zen-hn-subnav {
-  display: none !important;
-}
-
-/* ==========================================================================
-   Generic Modal Base Styles
-   ========================================================================== */
-
-.zen-hn-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-}
-
-.zen-hn-modal-backdrop {
-  position: absolute;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-.zen-hn-modal-content {
-  position: relative;
-  width: 100%;
-  background-color: var(--color-bg-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-200);
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15);
 }
 
 /* ==========================================================================

@@ -8,7 +8,7 @@
  * - O: Open in new tab
  * - u: Upvote
  * - f: Favorite/bookmark
- * - c: Create/submit
+ * - c: Create/submit (when item focused)
  * - Space: Expand/collapse comment
  * - l: Copy link
  * - g+h: Go to Home
@@ -16,7 +16,6 @@
  * - g+a: Go to Active (now called "front" on HN)
  * - g+b: Go to Best
  * - g+s: Go to Ask
- * - g+t: Go to Submit
  * - g+r: Random story
  * - g+p: My Profile (when logged in)
  * - g+f: My Favorites (when logged in)
@@ -344,7 +343,6 @@ function executeChordShortcut(key: string): "executed" | "extendable" | "none" {
     a: "/front", // "Active" is now "front" on HN
     b: "/best",
     s: "/ask",
-    t: "/submit",
   };
 
   const lowerKey = key.toLowerCase();
@@ -600,23 +598,22 @@ function showHelpModal(): void {
     { key: "o / Shift + Enter", action: "Open story link" },
     { key: "u", action: "Upvote" },
     { key: "f", action: "Favorite / bookmark" },
-    { key: "c", action: "Create / submit" },
+    { key: "c", action: "Create / submit (requires focus)" },
     { key: "Space", action: "Expand / collapse comment" },
     { key: "l", action: "Copy link" },
-    { key: "g h", action: "Go to Home" },
-    { key: "g n", action: "Go to Newest" },
-    { key: "g a", action: "Go to Active" },
-    { key: "g b", action: "Go to Best" },
-    { key: "g s", action: "Go to Ask" },
-    { key: "g t", action: "Go to Submit" },
+    { key: "g h", action: "Go to home" },
+    { key: "g n", action: "Go to newest" },
+    { key: "g a", action: "Go to active" },
+    { key: "g b", action: "Go to best" },
+    { key: "g s", action: "Go to ask" },
     { key: "g r", action: "Random story" },
-    { key: "g p", action: "My Profile" },
-    { key: "g f", action: "My Favorites" },
-    { key: "g f c", action: "My Favorite Comments" },
-    { key: "g u", action: "My Upvoted" },
-    { key: "g u c", action: "My Upvoted Comments" },
-    { key: "g m", action: "My Submissions" },
-    { key: "g c", action: "My Comments" },
+    { key: "g p", action: "My profile" },
+    { key: "g f", action: "My favorites" },
+    { key: "g f c", action: "My favorite comments" },
+    { key: "g u", action: "My upvoted" },
+    { key: "g u c", action: "My upvoted comments" },
+    { key: "g m", action: "My submissions" },
+    { key: "g c", action: "My comments" },
     { key: "/", action: "Search" },
     { key: "?", action: "Show this help" },
     { key: "Esc", action: "Back / clear focus / close" },
@@ -886,10 +883,12 @@ function handleKeyDown(event: KeyboardEvent): void {
     return;
   }
 
-  // c to go to submit page
+  // c to go to submit page (only when an item is focused)
   if (key === "c") {
-    event.preventDefault();
-    window.location.href = "/submit";
+    if (focusedItem) {
+      event.preventDefault();
+      window.location.href = "/submit";
+    }
     return;
   }
 
