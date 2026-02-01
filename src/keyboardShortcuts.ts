@@ -105,7 +105,7 @@ function hideChordIndicator(): void {
  * Show the complete chord briefly, then hide it
  * Used when a chord completes successfully (with matched visual feedback)
  */
-function showChordIndicatorThenHide(chord: string, delay: number = 500): void {
+function showChordIndicatorThenHide(chord: string, delay: number = 300): void {
   showChordIndicator(chord);
   const indicator = document.getElementById(CHORD_INDICATOR_ID);
   indicator?.classList.add("is-matched");
