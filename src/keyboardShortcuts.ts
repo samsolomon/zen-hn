@@ -123,7 +123,10 @@ function getFocusableItems(): HTMLElement[] {
   const comments = Array.from(
     document.querySelectorAll<HTMLElement>(".hn-comment:not([hidden])")
   );
-  return [...submissions, ...comments];
+  const listItems = Array.from(
+    document.querySelectorAll<HTMLElement>(".zen-hn-lists-item")
+  );
+  return [...submissions, ...comments, ...listItems];
 }
 
 /**
@@ -191,6 +194,12 @@ function openStoryLink(newTab: boolean): void {
     titleLink = focusedItem.querySelector<HTMLAnchorElement>(
       ".hn-submission-title"
     );
+    // For list items, the main link is the target
+    if (!titleLink) {
+      titleLink = focusedItem.querySelector<HTMLAnchorElement>(
+        ".zen-hn-lists-link"
+      );
+    }
   }
 
   // If no focused item or no link found, try the fatitem title (item pages)
@@ -237,6 +246,19 @@ function openFocusedItem(newTab: boolean): void {
       window.open(ageLink.href, "_blank");
     } else {
       window.location.href = ageLink.href;
+    }
+    return;
+  }
+
+  // For list items, find the main link
+  const listLink = focusedItem.querySelector<HTMLAnchorElement>(
+    ".zen-hn-lists-link"
+  );
+  if (listLink) {
+    if (newTab) {
+      window.open(listLink.href, "_blank");
+    } else {
+      window.location.href = listLink.href;
     }
   }
 }

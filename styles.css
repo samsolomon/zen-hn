@@ -2476,7 +2476,8 @@ html[data-zen-hn-enabled="false"] .zen-hn-subnav {
 
 /* Focus indicator for keyboard navigation */
 html[data-zen-hn-enabled="true"] .hn-submission.is-keyboard-focused,
-html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused {
+html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused,
+html[data-zen-hn-enabled="true"] .zen-hn-lists-item.is-keyboard-focused {
   background-color: var(--color-bg-element);
   outline: 2px solid var(--color-border);
   outline-offset: -2px;
@@ -3134,6 +3135,9 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
   display: flex;
   flex-direction: column;
   gap: var(--space-050);
+  padding: var(--space-100);
+  margin: calc(-1 * var(--space-100));
+  border-radius: var(--radius-md);
 }
 
 .zen-hn-lists-link {
