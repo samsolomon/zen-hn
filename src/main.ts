@@ -46,6 +46,9 @@ function injectFontFaces(): void {
   const plexRegularUrl = chrome.runtime.getURL("dist/fonts/IBMPlexSans-Regular.woff2");
   const plexMediumUrl = chrome.runtime.getURL("dist/fonts/IBMPlexSans-Medium.woff2");
   const literataUrl = chrome.runtime.getURL("dist/fonts/Literata-Variable.woff2");
+  const frauncesUrl = chrome.runtime.getURL("dist/fonts/Fraunces-Variable.woff2");
+  const recursiveUrl = chrome.runtime.getURL("dist/fonts/Recursive-Variable.woff2");
+  const outfitUrl = chrome.runtime.getURL("dist/fonts/Outfit-Variable.woff2");
 
   const style = document.createElement("style");
   style.textContent = `
@@ -73,8 +76,26 @@ function injectFontFaces(): void {
       font-weight: 200 900;
       font-display: swap;
     }
+    @font-face {
+      font-family: 'Fraunces';
+      src: url('${frauncesUrl}') format('woff2');
+      font-weight: 100 900;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Recursive';
+      src: url('${recursiveUrl}') format('woff2');
+      font-weight: 300 1000;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Outfit';
+      src: url('${outfitUrl}') format('woff2');
+      font-weight: 100 900;
+      font-display: swap;
+    }
   `;
-  document.head.appendChild(style);
+  (document.head || document.documentElement).appendChild(style);
 }
 
 async function getEnabled(): Promise<boolean> {

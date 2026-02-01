@@ -50,6 +50,9 @@ html[data-font-size="larger"] {
   --font-stack-inter: 'Inter', system-ui, sans-serif;
   --font-stack-ibm-plex: 'IBM Plex Sans', system-ui, sans-serif;
   --font-stack-literata: 'Literata', Charter, "Bitstream Charter", serif;
+  --font-stack-fraunces: 'Fraunces', Charter, "Bitstream Charter", serif;
+  --font-stack-recursive: 'Recursive', system-ui, sans-serif;
+  --font-stack-outfit: 'Outfit', system-ui, sans-serif;
   --font-stack: var(--font-stack-system);
 }
 
@@ -83,6 +86,18 @@ html[data-font-family="ibm-plex"] {
 
 html[data-font-family="literata"] {
   --font-stack: var(--font-stack-literata);
+}
+
+html[data-font-family="fraunces"] {
+  --font-stack: var(--font-stack-fraunces);
+}
+
+html[data-font-family="recursive"] {
+  --font-stack: var(--font-stack-recursive);
+}
+
+html[data-font-family="outfit"] {
+  --font-stack: var(--font-stack-outfit);
 }
 
 /* Base typography - only apply when extension is enabled */
