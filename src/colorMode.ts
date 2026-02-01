@@ -15,7 +15,6 @@ export type FontFamilyPreference =
   | "inter"
   | "ibm-plex"
   | "literata"
-  | "fraunces"
   | "recursive"
   | "outfit";
 export type ThemePreference =
@@ -497,7 +496,6 @@ const FONT_FAMILY_OPTIONS: FontFamilyOption[] = [
   { value: "inter", label: "Inter" },
   { value: "ibm-plex", label: "IBM Plex" },
   { value: "literata", label: "Literata" },
-  { value: "fraunces", label: "Fraunces" },
   { value: "recursive", label: "Recursive" },
   { value: "outfit", label: "Outfit" },
 ];
