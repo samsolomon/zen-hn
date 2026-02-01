@@ -3,6 +3,28 @@
  * This file runs last and initializes the extension.
  */
 
+// Inject critical styles synchronously at module load (before any async)
+// This prevents FOUC by applying system preference immediately and hiding body
+(function injectCriticalStyles() {
+  const style = document.createElement("style");
+  style.id = "zen-hn-critical";
+
+  // Detect system dark mode preference synchronously
+  const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+  if (prefersDark) {
+    document.documentElement.classList.add("dark-theme");
+  }
+
+  // Hide body until extension is ready (prevents FOUC)
+  style.textContent = `
+    html:not([data-zen-hn-ready="true"]) body {
+      visibility: hidden !important;
+    }
+  `;
+  // Append to documentElement since head may not exist yet at document_start
+  (document.head || document.documentElement).appendChild(style);
+})();
+
 import { initColorMode, initTheme, initFontFamily, initFontSize, listenForSystemColorModeChanges } from "./colorMode";
 import { runSidebarWhenReady } from "./sidebar";
 import { runCommentCollapseWhenReady } from "./commentCollapse";
@@ -79,6 +101,9 @@ async function init(): Promise<void> {
 
   // EXIT EARLY if disabled - do not modify the DOM at all
   if (!enabled) {
+    // Unhide body and clean up critical styles
+    document.documentElement.dataset.zenHnReady = "true";
+    document.getElementById("zen-hn-critical")?.remove();
     return;
   }
 
@@ -123,6 +148,10 @@ async function init(): Promise<void> {
   } else {
     initRestyle();
   }
+
+  // Mark as ready (unhides body) and clean up critical styles
+  document.documentElement.dataset.zenHnReady = "true";
+  document.getElementById("zen-hn-critical")?.remove();
 }
 
 // Register keyboard shortcuts immediately (no need to wait for async init)
