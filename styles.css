@@ -1468,9 +1468,9 @@ html[data-zen-hn-enabled="true"] .comhead {
 }
 
 /* ==========================================================================
-   Responsive Design - Mobile (≤720px)
+   Responsive Design - Mobile (≤750px)
    ========================================================================== */
-@media (max-width: 720px) {
+@media (max-width: 750px) {
   /* Main content padding */
   #zen-hn-main {
     padding: 0 var(--space-150);
@@ -1530,6 +1530,31 @@ html[data-zen-hn-enabled="true"] .comhead {
   /* Settings section adjustments */
   .zen-hn-color-mode-options {
     flex-wrap: wrap;
+  }
+
+  /* Settings toggle controls - stack vertically */
+  .zen-hn-setting-toggle-control {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .zen-hn-setting-toggle-control .zen-hn-setting-toggle-label-container {
+    width: 100%;
+  }
+
+  .zen-hn-setting-toggle-control .zen-hn-switch {
+    align-self: flex-start;
+  }
+
+  .zen-hn-setting-input-control {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .zen-hn-setting-input-control .zen-hn-setting-toggle-label-container {
+    width: 100%;
   }
 }
 
@@ -1737,6 +1762,7 @@ html[data-zen-hn-enabled="true"] .comhead {
 
 .hn-form-page.hn-user-page {
   max-width: none;
+  overflow-x: hidden;
 }
 
 .hn-form-page table {
@@ -2300,6 +2326,7 @@ html[data-zen-hn-enabled="true"] .comhead {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
 .zen-hn-setting-toggle-label {
@@ -2310,6 +2337,8 @@ html[data-zen-hn-enabled="true"] .comhead {
 .zen-hn-setting-toggle-description {
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 /* Setting input control */
