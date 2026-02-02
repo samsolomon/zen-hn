@@ -69,7 +69,8 @@ export function shouldMarkAsInteracted(key: string): boolean {
 // =============================================================================
 
 // Guard against running in non-browser environments (e.g., Node.js tests)
-if (typeof document !== "undefined" && typeof chrome !== "undefined") {
+// Also check for chrome.runtime since it may be undefined on chrome:// pages
+if (typeof document !== "undefined" && typeof chrome !== "undefined" && chrome.runtime) {
   // Track whether user has interacted with the page
   let hasInteracted = false;
 
