@@ -25,7 +25,7 @@
   (document.head || document.documentElement).appendChild(style);
 })();
 
-import { initColorMode, initTheme, initFontFamily, initFontSize, listenForSystemColorModeChanges } from "./colorMode";
+import { initColorMode, initTheme, initFontFamily, initFontSize, initContrastMode, listenForSystemColorModeChanges, listenForSystemContrastModeChanges } from "./colorMode";
 import { runSidebarWhenReady } from "./sidebar";
 import { runCommentCollapseWhenReady } from "./commentCollapse";
 import { runUserSubnavWhenReady } from "./pages";
@@ -145,14 +145,16 @@ async function init(): Promise<void> {
     document.documentElement.dataset[ZEN_HN_RESTYLE_KEY] = "loading";
   }
 
-  // Initialize color mode, theme, and font family from storage on startup
+  // Initialize color mode, theme, contrast mode, and font family from storage on startup
   initColorMode();
   initTheme();
+  initContrastMode();
   initFontFamily();
   initFontSize();
 
-  // Listen for system color scheme changes
+  // Listen for system color scheme and contrast changes
   listenForSystemColorModeChanges();
+  listenForSystemContrastModeChanges();
 
   // Create live region for screen reader announcements
   createAnnouncer();
@@ -169,18 +171,18 @@ async function init(): Promise<void> {
   runSidebarWhenReady();
   runUserSubnavWhenReady();
 
-  // Initialize restyling when DOM is ready
+  // Initialize restyling when DOM is ready, then show body
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => {
-      initRestyle();
+    document.addEventListener("DOMContentLoaded", async () => {
+      await initRestyle();
+      document.documentElement.dataset.zenHnReady = "true";
+      document.getElementById("zen-hn-critical")?.remove();
     });
   } else {
-    initRestyle();
+    await initRestyle();
+    document.documentElement.dataset.zenHnReady = "true";
+    document.getElementById("zen-hn-critical")?.remove();
   }
-
-  // Mark as ready (unhides body) and clean up critical styles
-  document.documentElement.dataset.zenHnReady = "true";
-  document.getElementById("zen-hn-critical")?.remove();
 }
 
 // Register keyboard shortcuts immediately (no need to wait for async init)

@@ -766,6 +766,48 @@ html.dark-theme {
   --color-overlay-pressed: var(--white-a3);
 }
 
+/* =============================================================================
+   High Contrast Mode
+   Orthogonal to light/dark mode - can be combined with any theme.
+   Increases contrast by using more extreme steps of the theme's gray scale.
+   ============================================================================= */
+
+/* High Contrast Mode - Light */
+html.high-contrast {
+  --color-bg-surface: var(--gray-1);
+  --color-bg-app: var(--gray-1);
+  --color-bg-subtle: var(--gray-2);
+  --color-bg-element: var(--gray-4);
+  --color-bg-hover: var(--gray-5);
+  --color-bg-active: var(--gray-6);
+  --color-text-faint: var(--gray-11);
+  --color-text-muted: var(--gray-12);
+  --color-text: var(--gray-12);
+  --color-border-subtle: var(--gray-8);
+  --color-border: var(--gray-9);
+  --color-border-strong: var(--gray-12);
+  --color-accent: var(--gray-12);
+  --color-focus-ring: color-mix(in srgb, var(--gray-9) 50%, transparent);
+}
+
+/* High Contrast Mode - Dark */
+html.dark-theme.high-contrast {
+  --color-bg-surface: var(--gray-1);
+  --color-bg-app: var(--gray-1);
+  --color-bg-subtle: var(--gray-2);
+  --color-bg-element: var(--gray-4);
+  --color-bg-hover: var(--gray-5);
+  --color-bg-active: var(--gray-6);
+  --color-text-faint: var(--gray-11);
+  --color-text-muted: var(--gray-12);
+  --color-text: var(--gray-12);
+  --color-border-subtle: var(--gray-9);
+  --color-border: var(--gray-10);
+  --color-border-strong: var(--gray-12);
+  --color-accent: var(--gray-12);
+  --color-focus-ring: color-mix(in srgb, var(--gray-10) 50%, transparent);
+}
+
 /* Spacing scale (4px base) */
 :root {
   --space-25: 0.125rem;  /* 2px */

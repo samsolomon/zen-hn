@@ -6,6 +6,7 @@ import { renderIcon } from "./icons";
 import { createModal, closeModal } from "./modal";
 
 export type ColorModePreference = "light" | "dark" | "system";
+export type ContrastModePreference = "normal" | "high" | "system";
 export type FontFamilyPreference =
   | "system"
   | "humanist"
@@ -45,7 +46,9 @@ export type ThemePreference =
 export type FontSizePreference = "smaller" | "small" | "default" | "large" | "larger";
 
 export const COLOR_MODE_CLASS = "dark-theme";
+export const HIGH_CONTRAST_CLASS = "high-contrast";
 export const COLOR_MODE_STORAGE_KEY = "colorMode";
+export const CONTRAST_MODE_STORAGE_KEY = "contrastMode";
 export const THEME_STORAGE_KEY = "theme";
 export const FONT_FAMILY_STORAGE_KEY = "fontFamily";
 export const FONT_SIZE_STORAGE_KEY = "fontSize";
@@ -182,6 +185,178 @@ export function applyColorMode(preference: ColorModePreference): void {
   } else {
     html.classList.remove(COLOR_MODE_CLASS);
   }
+}
+
+// =============================================================================
+// Contrast Mode
+// =============================================================================
+
+/**
+ * Get the saved contrast mode preference from storage
+ * @returns Promise resolving to the saved preference, or undefined if not set
+ */
+export async function getSavedContrastMode(): Promise<ContrastModePreference | undefined> {
+  if (!hasChromeStorage()) return undefined;
+  const result = await chrome.storage.local.get(CONTRAST_MODE_STORAGE_KEY);
+  return result[CONTRAST_MODE_STORAGE_KEY] as ContrastModePreference | undefined;
+}
+
+/**
+ * Save contrast mode preference to storage
+ * @param preference - The preference to save
+ */
+export async function saveContrastMode(preference: ContrastModePreference): Promise<void> {
+  if (!hasChromeStorage()) return;
+  await chrome.storage.local.set({ [CONTRAST_MODE_STORAGE_KEY]: preference });
+}
+
+/**
+ * Check if system prefers high contrast
+ */
+export function getSystemPrefersHighContrast(): boolean {
+  return window.matchMedia?.("(prefers-contrast: more)").matches ?? false;
+}
+
+/**
+ * Apply a contrast mode preference to the document
+ * @param preference - The contrast mode preference to apply
+ */
+export function applyContrastMode(preference: ContrastModePreference): void {
+  const html = document.documentElement;
+  let shouldBeHighContrast = false;
+
+  if (preference === "system") {
+    shouldBeHighContrast = getSystemPrefersHighContrast();
+  } else if (preference === "high") {
+    shouldBeHighContrast = true;
+  }
+
+  if (shouldBeHighContrast) {
+    html.classList.add(HIGH_CONTRAST_CLASS);
+  } else {
+    html.classList.remove(HIGH_CONTRAST_CLASS);
+  }
+}
+
+/**
+ * Initialize contrast mode from saved preference
+ * Loads the saved preference from storage and applies it
+ */
+export async function initContrastMode(): Promise<void> {
+  const saved = await getSavedContrastMode();
+  if (saved) {
+    applyContrastMode(saved);
+  }
+}
+
+/**
+ * Listen for system contrast preference changes and update when in "system" mode
+ */
+export function listenForSystemContrastModeChanges(): void {
+  if (!window.matchMedia) return;
+
+  window.matchMedia("(prefers-contrast: more)").addEventListener("change", async () => {
+    const saved = await getSavedContrastMode();
+    if (saved === "system") {
+      applyContrastMode("system");
+    }
+  });
+}
+
+interface ContrastModeOption {
+  value: ContrastModePreference;
+  label: string;
+  icon: "sun" | "circle-half" | "monitor";
+}
+
+const CONTRAST_MODE_OPTIONS: ContrastModeOption[] = [
+  { value: "normal", label: "Normal", icon: "sun" },
+  { value: "high", label: "High", icon: "circle-half" },
+  { value: "system", label: "System", icon: "monitor" },
+];
+
+/**
+ * Build a contrast mode control UI element
+ * @param currentPreference - The currently selected contrast mode preference
+ * @param onChange - Callback when contrast mode selection changes
+ * @returns The contrast mode control container element
+ */
+export function buildContrastModeControl(
+  currentPreference: ContrastModePreference,
+  onChange?: (preference: ContrastModePreference) => void
+): HTMLElement {
+  const container = document.createElement("div");
+  container.className = "zen-hn-contrast-mode-control";
+
+  const label = document.createElement("span");
+  label.className = "zen-hn-contrast-mode-label";
+  label.textContent = "Contrast";
+
+  const options = document.createElement("div");
+  options.className = "zen-hn-contrast-mode-options";
+
+  CONTRAST_MODE_OPTIONS.forEach((option) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "zen-hn-contrast-mode-option";
+    if (currentPreference === option.value) {
+      button.classList.add("is-active");
+      button.setAttribute("aria-pressed", "true");
+    } else {
+      button.setAttribute("aria-pressed", "false");
+    }
+    button.setAttribute("data-contrast-mode", option.value);
+    button.setAttribute("aria-label", `${option.label} contrast`);
+    button.innerHTML = `${renderIcon(option.icon)}<span>${option.label}</span>`;
+
+    button.addEventListener("click", (e) => {
+      // Stop propagation to prevent HN's click handler from
+      // choking on SVG elements (SVGAnimatedString vs string)
+      e.stopPropagation();
+
+      // Update active state
+      options.querySelectorAll(".zen-hn-contrast-mode-option").forEach((btn) => {
+        btn.classList.remove("is-active");
+        btn.setAttribute("aria-pressed", "false");
+      });
+      button.classList.add("is-active");
+      button.setAttribute("aria-pressed", "true");
+
+      // Apply contrast mode and notify
+      applyContrastMode(option.value);
+      onChange?.(option.value);
+    });
+
+    options.appendChild(button);
+  });
+
+  container.appendChild(label);
+  container.appendChild(options);
+  return container;
+}
+
+/**
+ * Build a contrast mode control with automatic storage persistence
+ * @param currentPreference - The currently selected contrast mode preference
+ * @returns The contrast mode control container element
+ */
+export function buildContrastModeControlWithStorage(
+  currentPreference: ContrastModePreference
+): HTMLElement {
+  return buildContrastModeControl(currentPreference, (preference) => {
+    saveContrastMode(preference);
+  });
+}
+
+/**
+ * Build and append a contrast mode control to a container, loading the current preference from storage
+ * @param container - The container element to append the control to
+ */
+export async function appendContrastModeControl(container: HTMLElement): Promise<void> {
+  const saved = await getSavedContrastMode();
+  const current = saved || "normal";
+  const control = buildContrastModeControlWithStorage(current);
+  container.appendChild(control);
 }
 
 interface ColorModeOption {
@@ -469,11 +644,12 @@ export async function appendThemeButtons(container: HTMLElement): Promise<void> 
 }
 
 /**
- * Append all appearance controls (color mode + theme + font) to a container
+ * Append all appearance controls (color mode + theme + contrast + font) to a container
  */
 export async function appendAppearanceControls(container: HTMLElement): Promise<void> {
   await appendColorModeControl(container);
   await appendThemeButtons(container);
+  await appendContrastModeControl(container);
   await appendFontFamilyButtons(container);
   await appendFontSizeButtons(container);
 }
