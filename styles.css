@@ -1402,6 +1402,11 @@ html[data-zen-hn-enabled="true"] .comhead {
     margin-left: 0;
   }
 
+  /* Stack comment header meta and actions */
+  .hn-comment-header {
+    flex-wrap: wrap;
+  }
+
   /* Comment list spacing */
   #hn-comment-list {
     margin: var(--space-200) 0;
