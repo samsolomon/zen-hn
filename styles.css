@@ -348,9 +348,14 @@ html[data-zen-hn-enabled="true"][data-zen-hn-sidebar="loading"] body {
   display: flex;
 }
 
-#zen-hn-sidebar .zen-hn-user-menu-item {
+#zen-hn-sidebar .zen-hn-user-menu-dropdown li {
   width: 100%;
-  display: inline-flex;
+}
+
+#zen-hn-sidebar .zen-hn-user-menu-item {
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-200);
@@ -394,6 +399,7 @@ html[data-zen-hn-enabled="true"][data-zen-hn-sidebar="loading"] body {
 
 #zen-hn-sidebar .zen-hn-user-menu-item-label {
   flex: 1;
+  font-size: var(--font-size-base);
 }
 
 #zen-hn-sidebar .zen-hn-user-menu-item-shortcut {
@@ -3550,7 +3556,7 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
 }
 
 .zen-hn-lists-link:visited {
-  color: var(--color-text-muted);
+  color: var(--color-text);
 }
 
 .zen-hn-lists-link:hover {
