@@ -1758,6 +1758,7 @@ html[data-zen-hn-enabled="true"] .comhead {
   padding: var(--space-200);
   max-width: 800px;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .hn-form-page.hn-user-page {
@@ -1785,6 +1786,7 @@ html[data-zen-hn-enabled="true"] .comhead {
   color: var(--color-text);
   font-size: var(--font-size-base);
   font-family: inherit;
+  box-sizing: border-box;
 }
 
 .hn-form-page input[type="text"]:focus,
