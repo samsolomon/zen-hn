@@ -83,6 +83,12 @@ export function loadActionStore(): Promise<ActionStore> {
       return;
     }
     chrome.storage.local.get({ [ACTION_STORE_KEY]: null }, (result) => {
+      if (chrome.runtime?.lastError) {
+        // Extension context invalidated (e.g., extension reloaded/disabled)
+        actionStore = getDefaultActionStore();
+        resolve(actionStore);
+        return;
+      }
       const raw = result ? result[ACTION_STORE_KEY] : null;
       actionStore = normalizeActionStore(raw);
       resolve(actionStore);

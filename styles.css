@@ -26,7 +26,7 @@
   --sidebar-padding-y: 18px;
   --sidebar-bg: #f7f5ef;
   --sidebar-border: var(--color-border-subtle);
-  --sidebar-link-color: var(--gray-9);
+  --sidebar-link-color: var(--gray-10);
   --sidebar-link-hover: var(--color-text);
 }
 
@@ -154,7 +154,7 @@ html[data-zen-hn-enabled="true"] a:link {
   color: var(--color-text-muted);
 }
 
-html[data-zen-hn-enabled="true"] a:visited:not(.zen-hn-subnav-link) {
+html[data-zen-hn-enabled="true"] a:visited:not(.zen-hn-subnav-link):not(.zen-hn-sidebar-link):not(.zen-hn-sidebar-icon-link) {
   color: var(--color-text-faint) !important;
 }
 
@@ -271,12 +271,12 @@ html[data-zen-hn-enabled="true"][data-zen-hn-sidebar="loading"] body {
 }
 
 #zen-hn-sidebar .zen-hn-sidebar-icon-link.is-active {
-  color: var(--color-accent);
+  color: var(--color-text);
 }
 
 #zen-hn-sidebar .zen-hn-sidebar-icon-link.is-active:hover {
   background-color: var(--color-overlay-hover);
-  color: var(--color-accent);
+  color: var(--color-text);
 }
 
 #zen-hn-sidebar .zen-hn-home-button {
@@ -2538,7 +2538,7 @@ html[data-zen-hn-enabled="true"] .hn-fatitem-site {
 }
 
 /* Faint text - only when enabled */
-html[data-zen-hn-enabled="true"] a:visited:not(.zen-hn-sidebar-icon-link):not(.zen-hn-subnav-link):not(.zen-hn-button-outline),
+html[data-zen-hn-enabled="true"] a:visited:not(.zen-hn-sidebar-icon-link):not(.zen-hn-sidebar-link):not(.zen-hn-subnav-link):not(.zen-hn-button-outline),
 html[data-zen-hn-enabled="true"] .hnmore a:link,
 html[data-zen-hn-enabled="true"] .hnmore a:visited,
 html[data-zen-hn-enabled="true"] .age a:visited,
