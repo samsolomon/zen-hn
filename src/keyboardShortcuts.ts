@@ -105,7 +105,7 @@ function hideChordIndicator(): void {
  * Show the complete chord briefly, then hide it
  * Used when a chord completes successfully (with matched visual feedback)
  */
-function showChordIndicatorThenHide(chord: string, delay: number = 300): void {
+function showChordIndicatorThenHide(chord: string, delay: number = 500): void {
   showChordIndicator(chord);
   const indicator = document.getElementById(CHORD_INDICATOR_ID);
   indicator?.classList.add("is-matched");
@@ -147,9 +147,11 @@ function displayStoredChord(): void {
     const chord = sessionStorage.getItem(CHORD_DISPLAY_KEY);
     if (chord) {
       sessionStorage.removeItem(CHORD_DISPLAY_KEY);
-      // Delay slightly to ensure page is rendered and styles are loaded
+      // Double rAF ensures browser paints the hidden state before showing
       requestAnimationFrame(() => {
-        showChordIndicatorThenHide(chord);
+        requestAnimationFrame(() => {
+          showChordIndicatorThenHide(chord);
+        });
       });
     }
   } catch {
