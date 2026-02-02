@@ -1322,18 +1322,22 @@ export function restyleAboutPage(): boolean {
 
     <section class="zen-hn-about-story">
       <p>
-        I'm Sam Solomon, and I've been a Hacker News reader for over a decade. It's been
-        an invaluable resource throughout my career, and for a long time I've wanted to
-        build an extension for it. So I finally did.
+        Hello! I'm Sam Solomon, and I've been a Hacker News regular for over a decade.
+        It's one of my favorite places on the internet and has been an incredible resource
+        in my life. I have a lot of gratitude for the community.
       </p>
 
       <p>
-        This started as a weekend project to see what could be vibe coded. The initial
-        goal was simple: better typography, a cleaner layout, and an optional dark mode.
-        It grew from there into something with keyboard shortcuts, multiple themes, and
-        a bunch of other features. The codebase certainly isn't the prettiest ever written,
-        but this is an experiment, and the process gave me a real feel for how these tools
-        work and where they shine.
+        I've had building a Chrome extension for HN on my backlog for a while now. As much
+        as I love the site, as a designer, I find the interface leaves much to be desired.
+        I figured this might be a good chance to experiment vibe coding.
+      </p>
+
+      <p>
+        My initial goal was better layout, better typography, and dark mode. But then I
+        kind of just kept thinking about improvements to make. The codebase certainly isn't
+        the prettiest, but this is an experiment, and the process gave me a real feel for
+        how these tools work and where they shine.
       </p>
 
       <p>
