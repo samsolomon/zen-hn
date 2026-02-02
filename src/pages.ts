@@ -1622,6 +1622,7 @@ export function restyleListsPage(): boolean {
     { href: "/newcomments", label: "New comments", description: "The most recent comments across all stories." },
     { href: "/ask", label: "Ask", description: "Ask HN posts where users ask questions to the community." },
     { href: "/show", label: "Show", description: "Show HN posts where users share their projects." },
+    { href: "/jobs", label: "Jobs", description: "Job postings from YC-funded companies." },
   ];
 
   for (const navItem of navItems) {
