@@ -863,36 +863,56 @@ function showHelpModal(): void {
     return;
   }
 
-  const shortcuts = [
-    { key: "↓ / ↑", action: "Move focus down / up" },
-    { key: "Shift + ↓ / ↑", action: "Jump to sibling comment" },
-    { key: "Enter", action: "Open comments" },
-    { key: "o / Shift + Enter", action: "Open story link" },
-    { key: "u", action: "Upvote" },
-    { key: "f", action: "Favorite / bookmark" },
-    { key: "l", action: "Copy link" },
-    { key: "Shift + u", action: "Upvote submission" },
-    { key: "Shift + f", action: "Favorite submission" },
-    { key: "Shift + l", action: "Copy submission link" },
-    { key: "c", action: "Submit" },
-    { key: "Space", action: "Expand / collapse comment" },
-    { key: "g h", action: "Go to home" },
-    { key: "g n", action: "Go to newest" },
-    { key: "g a", action: "Go to active" },
-    { key: "g b", action: "Go to best" },
-    { key: "g s", action: "Go to ask" },
-    { key: "g r", action: "Random story" },
-    { key: "g l", action: "Go to lists" },
-    { key: "g p", action: "My profile" },
-    { key: "g f", action: "My favorites" },
-    { key: "g f c", action: "My favorite comments" },
-    { key: "g u", action: "My upvoted" },
-    { key: "g u c", action: "My upvoted comments" },
-    { key: "g m", action: "My submissions" },
-    { key: "g c", action: "My comments" },
-    { key: "/", action: "Search" },
-    { key: "?", action: "Show this help" },
-    { key: "Esc", action: "Back / clear focus / close" },
+  const shortcutSections = [
+    {
+      title: "Navigation",
+      shortcuts: [
+        { key: "↓ / ↑", action: "Move focus down / up" },
+        { key: "Shift + ↓ / ↑", action: "Jump to sibling comment" },
+      ],
+    },
+    {
+      title: "Actions",
+      shortcuts: [
+        { key: "Enter", action: "Open comments" },
+        { key: "o / Shift + Enter", action: "Open story link" },
+        { key: "u", action: "Upvote" },
+        { key: "f", action: "Favorite / bookmark" },
+        { key: "l", action: "Copy link" },
+        { key: "Shift + u", action: "Upvote submission" },
+        { key: "Shift + f", action: "Favorite submission" },
+        { key: "Shift + l", action: "Copy submission link" },
+        { key: "c", action: "Submit" },
+        { key: "Space", action: "Expand / collapse comment" },
+      ],
+    },
+    {
+      title: "Go to",
+      shortcuts: [
+        { key: "g h", action: "Go to home" },
+        { key: "g n", action: "Go to newest" },
+        { key: "g a", action: "Go to active" },
+        { key: "g b", action: "Go to best" },
+        { key: "g s", action: "Go to ask" },
+        { key: "g r", action: "Go to random story" },
+        { key: "g l", action: "Go to lists" },
+        { key: "g p", action: "Go to my profile" },
+        { key: "g f", action: "Go to my favorites" },
+        { key: "g f c", action: "Go to my favorite comments" },
+        { key: "g u", action: "Go to my upvoted" },
+        { key: "g u c", action: "Go to my upvoted comments" },
+        { key: "g m", action: "Go to my submissions" },
+        { key: "g c", action: "Go to my comments" },
+      ],
+    },
+    {
+      title: "Other",
+      shortcuts: [
+        { key: "/", action: "Search" },
+        { key: "?", action: "Show this help" },
+        { key: "Esc", action: "Back / clear focus / close" },
+      ],
+    },
   ];
 
   // Create modal using generic modal component
@@ -936,54 +956,74 @@ function showHelpModal(): void {
   const list = document.createElement("div");
   list.className = "zen-hn-shortcuts-list";
 
-  const rows: { element: HTMLElement; key: string; action: string }[] = [];
+  const sections: {
+    header: HTMLElement;
+    rows: { element: HTMLElement; key: string; action: string }[];
+  }[] = [];
 
-  shortcuts.forEach(({ key, action }) => {
-    const row = document.createElement("div");
-    row.className = "zen-hn-shortcuts-row";
+  shortcutSections.forEach((section) => {
+    const sectionHeader = document.createElement("div");
+    sectionHeader.className = "zen-hn-shortcuts-section-title";
+    sectionHeader.textContent = section.title;
+    list.appendChild(sectionHeader);
 
-    const keyEl = document.createElement("div");
-    keyEl.className = "zen-hn-shortcuts-key";
+    const sectionRows: { element: HTMLElement; key: string; action: string }[] = [];
 
-    // Split keys and wrap each in a kbd element
-    const keys = key.split(" / ");
-    keys.forEach((k, i) => {
-      if (i > 0) {
-        keyEl.appendChild(document.createTextNode(" / "));
-      }
-      // Handle chord shortcuts (e.g., "g h") and modifier combos (e.g., "Shift + Enter")
-      const parts = k.trim().split(" ");
-      parts.forEach((part, j) => {
-        if (j > 0) {
-          keyEl.appendChild(document.createTextNode(" "));
+    section.shortcuts.forEach(({ key, action }) => {
+      const row = document.createElement("div");
+      row.className = "zen-hn-shortcuts-row";
+
+      const keyEl = document.createElement("div");
+      keyEl.className = "zen-hn-shortcuts-key";
+
+      // Split keys and wrap each in a kbd element
+      const keys = key.split(" / ");
+      keys.forEach((k, i) => {
+        if (i > 0) {
+          keyEl.appendChild(document.createTextNode(" / "));
         }
-        // Don't wrap "+" in kbd
-        if (part === "+") {
-          keyEl.appendChild(document.createTextNode("+"));
-        } else {
-          const kbd = document.createElement("kbd");
-          kbd.textContent = part;
-          keyEl.appendChild(kbd);
-        }
+        // Handle chord shortcuts (e.g., "g h") and modifier combos (e.g., "Shift + Enter")
+        const parts = k.trim().split(" ");
+        parts.forEach((part, j) => {
+          if (j > 0) {
+            keyEl.appendChild(document.createTextNode(" "));
+          }
+          // Don't wrap "+" in kbd
+          if (part === "+") {
+            keyEl.appendChild(document.createTextNode("+"));
+          } else {
+            const kbd = document.createElement("kbd");
+            kbd.textContent = part;
+            keyEl.appendChild(kbd);
+          }
+        });
       });
+
+      const actionEl = document.createElement("div");
+      actionEl.className = "zen-hn-shortcuts-action";
+      actionEl.textContent = action;
+
+      row.appendChild(keyEl);
+      row.appendChild(actionEl);
+      list.appendChild(row);
+      sectionRows.push({ element: row, key: key.toLowerCase(), action: action.toLowerCase() });
     });
 
-    const actionEl = document.createElement("div");
-    actionEl.className = "zen-hn-shortcuts-action";
-    actionEl.textContent = action;
-
-    row.appendChild(keyEl);
-    row.appendChild(actionEl);
-    list.appendChild(row);
-    rows.push({ element: row, key: key.toLowerCase(), action: action.toLowerCase() });
+    sections.push({ header: sectionHeader, rows: sectionRows });
   });
 
   // Filter shortcuts based on search input
   searchInput.addEventListener("input", () => {
     const query = searchInput.value.toLowerCase().trim();
-    rows.forEach(({ element, key, action }) => {
-      const matches = query === "" || key.includes(query) || action.includes(query);
-      element.style.display = matches ? "" : "none";
+    sections.forEach(({ header, rows }) => {
+      let anyVisible = false;
+      rows.forEach(({ element, key, action }) => {
+        const matches = query === "" || key.includes(query) || action.includes(query);
+        element.style.display = matches ? "" : "none";
+        if (matches) anyVisible = true;
+      });
+      // Hide section header if no shortcuts in that section match
+      header.style.display = anyVisible ? "" : "none";
     });
   });
 

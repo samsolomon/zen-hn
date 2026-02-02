@@ -1391,6 +1391,17 @@ html[data-zen-hn-enabled="true"] .comhead {
     padding: var(--space-150);
   }
 
+  /* Stack fatitem meta and actions */
+  .hn-fatitem-sub {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-75);
+  }
+
+  .hn-fatitem-actions {
+    margin-left: 0;
+  }
+
   /* Comment list spacing */
   #hn-comment-list {
     margin: var(--space-200) 0;
@@ -2668,6 +2679,19 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
   display: flex;
   flex-direction: column;
   gap: var(--space-75);
+}
+
+.zen-hn-shortcuts-section-title {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: var(--space-200) 0 var(--space-100) 0;
+}
+
+.zen-hn-shortcuts-section-title:first-child {
+  margin-top: 0;
 }
 
 .zen-hn-shortcuts-row {
