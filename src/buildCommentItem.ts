@@ -125,9 +125,13 @@ export function buildCommentItem(
     collapseButton.setAttribute("aria-controls", `comment-${commentId}`);
   }
   setCollapseButtonState(collapseButton, false, hasChildren);
+  const collapseTooltip = initTooltip(collapseButton, "Collapse", { shortcut: "Space" });
   collapseButton.addEventListener("click", (event) => {
     event.stopPropagation();
     toggleCommentCollapse(item);
+    // Update tooltip text based on new collapsed state
+    const isNowCollapsed = item.dataset.collapsed === "true";
+    collapseTooltip.updateText(isNowCollapsed ? "Expand" : "Collapse");
   });
 
   const meta = document.createElement("div");
@@ -175,7 +179,7 @@ export function buildCommentItem(
   upvoteButton.setAttribute("aria-label", "Upvote");
   upvoteButton.setAttribute("aria-pressed", isUpvoted ? "true" : "false");
   upvoteButton.innerHTML = renderIcon(isUpvoted ? "arrow-fat-up-fill" : "arrow-fat-up");
-  initTooltip(upvoteButton, "Upvote");
+  initTooltip(upvoteButton, "Upvote", { shortcut: "u" });
   if (isUpvoted) {
     upvoteButton.classList.add("is-active");
   }
@@ -188,7 +192,7 @@ export function buildCommentItem(
   downvoteButton.innerHTML = renderIcon(
     isDownvoted ? "arrow-fat-down-fill" : "arrow-fat-down"
   );
-  initTooltip(downvoteButton, "Downvote");
+  initTooltip(downvoteButton, "Downvote", { shortcut: "d" });
   if (isDownvoted) {
     downvoteButton.classList.add("is-active");
   }
@@ -268,7 +272,7 @@ export function buildCommentItem(
   bookmarkButton.innerHTML = renderIcon(
     isFavorited ? "bookmark-simple-fill" : "bookmark-simple"
   );
-  initTooltip(bookmarkButton, "Favorite");
+  initTooltip(bookmarkButton, "Favorite", { shortcut: "f" });
   if (isFavorited) {
     bookmarkButton.classList.add("is-active");
   }
@@ -321,7 +325,7 @@ export function buildCommentItem(
   shareButton.type = "button";
   shareButton.setAttribute("aria-label", "Reply");
   shareButton.innerHTML = renderIcon("share-fat");
-  initTooltip(shareButton, "Reply");
+  initTooltip(shareButton, "Reply", { shortcut: "r" });
   let replyContainer: HTMLDivElement | null = null;
   shareButton.addEventListener("click", (event) => {
     event.stopPropagation();
@@ -337,7 +341,7 @@ export function buildCommentItem(
   linkButton.className = "icon-button";
   linkButton.type = "button";
   linkButton.setAttribute("aria-label", "Copy link");
-  initTooltip(linkButton, "Copy link");
+  initTooltip(linkButton, "Copy link", { shortcut: "l" });
   const linkIconSwap = document.createElement("span");
   linkIconSwap.className = "icon-swap";
   linkIconSwap.innerHTML = `

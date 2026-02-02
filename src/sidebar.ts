@@ -10,6 +10,7 @@ interface IconLinkConfig {
   icon: IconName;
   iconFill?: IconName;
   label: string;
+  shortcut?: string;
 }
 
 function getCurrentPath(): string {
@@ -77,7 +78,7 @@ function createIconLink(item: IconLinkConfig): HTMLAnchorElement {
   link.className = "zen-hn-sidebar-icon-link";
   link.href = item.href;
   link.setAttribute("aria-label", item.label);
-  initTooltip(link, item.label, { position: "right" });
+  initTooltip(link, item.label, { position: "right", shortcut: item.shortcut });
 
   const isActive = isActiveRoute(item.href);
 
@@ -99,7 +100,7 @@ function createHomeButton(): HTMLLIElement {
   button.className = "zen-hn-sidebar-icon-link zen-hn-home-button";
   button.href = "/";
   button.setAttribute("aria-label", "Home");
-  initTooltip(button, "Home", { position: "right" });
+  initTooltip(button, "Home", { position: "right", shortcut: "g+h" });
   button.innerHTML = HN_HOME_SVG;
   item.appendChild(button);
   return item;
@@ -107,12 +108,12 @@ function createHomeButton(): HTMLLIElement {
 
 function createIconGroup(): HTMLLIElement {
   const iconLinks: IconLinkConfig[] = [
-    { href: "/news", icon: "house-simple", iconFill: "house-simple-fill", label: "News" },
-    { href: "/newest", icon: "seal", iconFill: "seal-fill", label: "New" },
-    { href: "/active", icon: "lightning", iconFill: "lightning-fill", label: "Active" },
-    { href: "/best", icon: "crown-simple", iconFill: "crown-simple-fill", label: "Best" },
-    { href: "/ask", icon: "chat-circle", iconFill: "chat-circle-fill", label: "Ask" },
-    { href: "https://news.ycombinator.com/lists", icon: "list-bullets", label: "Lists" },
+    { href: "/news", icon: "house-simple", iconFill: "house-simple-fill", label: "News", shortcut: "g+h" },
+    { href: "/newest", icon: "seal", iconFill: "seal-fill", label: "New", shortcut: "g+n" },
+    { href: "/active", icon: "lightning", iconFill: "lightning-fill", label: "Active", shortcut: "g+a" },
+    { href: "/best", icon: "crown-simple", iconFill: "crown-simple-fill", label: "Best", shortcut: "g+b" },
+    { href: "/ask", icon: "chat-circle", iconFill: "chat-circle-fill", label: "Ask", shortcut: "g+s" },
+    { href: "https://news.ycombinator.com/lists", icon: "list-bullets", label: "Lists", shortcut: "g+l" },
   ];
 
   const group = document.createElement("li");
@@ -136,7 +137,7 @@ function createBottomGroup(): HTMLLIElement {
   submitLink.className = "zen-hn-sidebar-icon-link";
   submitLink.href = "/submit";
   submitLink.setAttribute("aria-label", "Submit");
-  initTooltip(submitLink, "Submit", { position: "right" });
+  initTooltip(submitLink, "Submit", { position: "right", shortcut: "c" });
   if (currentPath === "/submit") {
     submitLink.innerHTML = renderIcon("pencil-simple-fill");
     submitLink.classList.add("is-active");
@@ -150,7 +151,7 @@ function createBottomGroup(): HTMLLIElement {
   userLink.className = "zen-hn-sidebar-icon-link";
   userLink.href = userInfo.href;
   userLink.setAttribute("aria-label", userInfo.label);
-  initTooltip(userLink, userInfo.label, { position: "right" });
+  initTooltip(userLink, userInfo.label, { position: "right", shortcut: "g+p" });
   const isUserActive = currentPath === "/user";
   if (isUserActive) {
     userLink.innerHTML = renderIcon("user-fill");

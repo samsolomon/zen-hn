@@ -222,7 +222,7 @@ export function restyleSubmissions(): void {
     upvoteButton.setAttribute("aria-label", "Upvote");
     upvoteButton.setAttribute("aria-pressed", isUpvotedState ? "true" : "false");
     upvoteButton.innerHTML = renderIcon(isUpvotedState ? "arrow-fat-up-fill" : "arrow-fat-up");
-    initTooltip(upvoteButton, "Upvote");
+    initTooltip(upvoteButton, "Upvote", { shortcut: "u" });
     if (isUpvotedState) {
       upvoteButton.classList.add("is-active");
     }
@@ -276,7 +276,7 @@ export function restyleSubmissions(): void {
     bookmarkButton.setAttribute("aria-label", "Favorite");
     bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
     bookmarkButton.innerHTML = renderIcon(isFavorited ? "bookmark-simple-fill" : "bookmark-simple");
-    initTooltip(bookmarkButton, "Favorite");
+    initTooltip(bookmarkButton, "Favorite", { shortcut: "f" });
     if (isFavorited) {
       bookmarkButton.classList.add("is-active");
     }
@@ -336,7 +336,7 @@ export function restyleSubmissions(): void {
     linkButton.className = "icon-button";
     linkButton.type = "button";
     linkButton.setAttribute("aria-label", "Copy link");
-    initTooltip(linkButton, "Copy link");
+    initTooltip(linkButton, "Copy link", { shortcut: "l" });
     const linkIconSwap = document.createElement("span");
     linkIconSwap.className = "icon-swap";
     linkIconSwap.innerHTML = `

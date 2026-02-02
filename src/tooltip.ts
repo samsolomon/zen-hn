@@ -23,6 +23,8 @@ export interface TooltipOptions {
   showDelay?: number;
   /** Delay before hiding tooltip (ms) */
   hideDelay?: number;
+  /** Keyboard shortcut hint, e.g. "u", "g+h", "Space" */
+  shortcut?: string;
 }
 
 export interface TooltipController {
@@ -44,6 +46,7 @@ const DEFAULT_OPTIONS: Required<TooltipOptions> = {
   position: "top",
   showDelay: 400,
   hideDelay: 0,
+  shortcut: "",
 };
 
 let tooltipContainer: HTMLElement | null = null;
@@ -156,12 +159,29 @@ function showTooltip(
   showTimeoutId = window.setTimeout(() => {
     const container = getTooltipContainer();
 
-    // Set content (before arrow element)
-    const textNode = container.firstChild;
-    if (textNode && textNode.nodeType === Node.TEXT_NODE) {
-      textNode.textContent = text;
-    } else {
-      container.insertBefore(document.createTextNode(text), tooltipArrow);
+    // Clear existing content (except arrow)
+    while (container.firstChild !== tooltipArrow) {
+      container.removeChild(container.firstChild!);
+    }
+
+    // Add text span
+    const textSpan = document.createElement("span");
+    textSpan.textContent = text;
+    container.insertBefore(textSpan, tooltipArrow);
+
+    // Add shortcut if provided
+    if (options.shortcut) {
+      const shortcutSpan = document.createElement("span");
+      shortcutSpan.className = "zen-tooltip-shortcut";
+      // Parse "g+h" into ["g", "h"]
+      const keys = options.shortcut.split("+");
+      keys.forEach((key, i) => {
+        if (i > 0) shortcutSpan.appendChild(document.createTextNode("+"));
+        const kbd = document.createElement("kbd");
+        kbd.textContent = key;
+        shortcutSpan.appendChild(kbd);
+      });
+      container.insertBefore(shortcutSpan, tooltipArrow);
     }
 
     activeTooltip = { target, text };
@@ -270,9 +290,9 @@ export function initTooltip(
       currentText = newText;
       if (activeTooltip?.target === element) {
         const container = getTooltipContainer();
-        const textNode = container.firstChild;
-        if (textNode && textNode.nodeType === Node.TEXT_NODE) {
-          textNode.textContent = newText;
+        const textSpan = container.firstChild;
+        if (textSpan && textSpan.nodeType === Node.ELEMENT_NODE) {
+          textSpan.textContent = newText;
         }
       }
     },
