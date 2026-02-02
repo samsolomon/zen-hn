@@ -596,11 +596,6 @@ html[data-zen-hn-enabled="true"] .hn-submission-title:hover {
   font-weight: 500;
 }
 
-.hn-submission-meta .hnuser:link,
-.hn-submission-meta .hn-submission-user:link {
-  color: var(--color-text);
-}
-
 .hn-submission-meta .hnuser:visited,
 .hn-submission-meta .hn-submission-user:visited {
   color: var(--color-text-muted);
