@@ -205,6 +205,8 @@ describe("sidebar tab order insertion", () => {
         }
         return null;
       }),
+      addEventListener: mock.fn(),
+      removeEventListener: mock.fn(),
       body: {
         appendChild: appendChildMock,
         insertBefore: insertBeforeMock,
@@ -216,6 +218,7 @@ describe("sidebar tab order insertion", () => {
         id: "",
         appendChild: mock.fn(),
         setAttribute: setAttributeMock,
+        addEventListener: mock.fn(),
         innerHTML: "",
         href: "",
         childNodes: { length: 3 },
@@ -283,6 +286,8 @@ describe("sidebar tab order insertion", () => {
         }
         return null;
       }),
+      addEventListener: mock.fn(),
+      removeEventListener: mock.fn(),
       body: {
         appendChild: appendChildMock,
         insertBefore: insertBeforeMock,
@@ -294,6 +299,7 @@ describe("sidebar tab order insertion", () => {
         id: "",
         appendChild: mock.fn(),
         setAttribute: setAttributeMock,
+        addEventListener: mock.fn(),
         innerHTML: "",
         href: "",
         childNodes: { length: 3 },

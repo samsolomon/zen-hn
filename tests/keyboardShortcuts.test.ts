@@ -95,6 +95,11 @@ describe("registerKeyboardShortcuts", () => {
         textContent: "",
         innerHTML: "",
         style: { display: "" },
+        classList: {
+          add: mock.fn(),
+          remove: mock.fn(),
+          contains: mock.fn(() => false),
+        },
         appendChild: mock.fn(),
         setAttribute: mock.fn(),
         addEventListener: mock.fn(),

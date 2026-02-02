@@ -234,6 +234,7 @@ describe("replaceHnSettingsWithToggles", () => {
           addEventListener: mock.fn(),
           querySelector: mock.fn(() => null),
           prepend: mock.fn(),
+          after: mock.fn(),
           classList: {
             add: mock.fn(),
             remove: mock.fn(),
@@ -301,6 +302,7 @@ describe("replaceHnSettingsWithToggles", () => {
           addEventListener: mock.fn(),
           querySelector: mock.fn(() => null),
           prepend: mock.fn(),
+          after: mock.fn(),
           classList: {
             add: mock.fn(),
             remove: mock.fn(),
@@ -371,6 +373,7 @@ describe("replaceHnSettingsWithToggles", () => {
           addEventListener: mock.fn(),
           querySelector: mock.fn(() => null),
           prepend: mock.fn(),
+          after: mock.fn(),
           classList: {
             add: mock.fn(),
             remove: mock.fn(),
@@ -444,6 +447,7 @@ describe("replaceHnSettingsWithToggles", () => {
           addEventListener: mock.fn(),
           querySelector: mock.fn(() => null),
           prepend: mock.fn(),
+          after: mock.fn(),
           classList: {
             add: mock.fn(),
             remove: mock.fn(),

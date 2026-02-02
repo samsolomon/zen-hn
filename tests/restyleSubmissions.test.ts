@@ -37,6 +37,13 @@ function setupGlobalMocks(mockDocument: ReturnType<typeof createMockDocument>) {
     configurable: true,
   });
 
+  Object.defineProperty(globalThis, "window", {
+    value: {
+      location: { pathname: "/", href: "https://news.ycombinator.com/" },
+    },
+    configurable: true,
+  });
+
   Object.defineProperty(globalThis, "location", {
     value: { href: "https://news.ycombinator.com/", pathname: "/" },
     configurable: true,
