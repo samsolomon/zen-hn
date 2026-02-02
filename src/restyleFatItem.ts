@@ -15,6 +15,7 @@ import { buildCommentItem } from "./buildCommentItem";
 import { getOrCreateZenHnMain } from "./getOrCreateZenHnMain";
 import { copyTextToClipboard, stripParenTextNodes } from "./utils";
 import { announce } from "./announcer";
+import { initTooltip } from "./tooltip";
 
 function getFatItemCommentRow(fatitem: Element | null): HTMLTableRowElement | null {
   if (!fatitem) {
@@ -146,6 +147,7 @@ export function restyleFatItem(): void {
   upvoteButton.setAttribute("aria-label", "Upvote");
   upvoteButton.setAttribute("aria-pressed", isUpvotedState ? "true" : "false");
   upvoteButton.innerHTML = renderIcon(isUpvotedState ? "arrow-fat-up-fill" : "arrow-fat-up");
+  initTooltip(upvoteButton, "Upvote");
   if (isUpvotedState) {
     upvoteButton.classList.add("is-active");
   }
@@ -200,6 +202,7 @@ export function restyleFatItem(): void {
   bookmarkButton.setAttribute("aria-label", "Favorite");
   bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
   bookmarkButton.innerHTML = renderIcon(isFavorited ? "bookmark-simple-fill" : "bookmark-simple");
+  initTooltip(bookmarkButton, "Favorite");
   if (isFavorited) {
     bookmarkButton.classList.add("is-active");
   }
@@ -259,6 +262,7 @@ export function restyleFatItem(): void {
   linkButton.className = "icon-button";
   linkButton.type = "button";
   linkButton.setAttribute("aria-label", "Copy link");
+  initTooltip(linkButton, "Copy link");
   const linkIconSwap = document.createElement("span");
   linkIconSwap.className = "icon-swap";
   linkIconSwap.innerHTML = `
@@ -293,6 +297,7 @@ export function restyleFatItem(): void {
   replyButton.type = "button";
   replyButton.setAttribute("aria-label", "Reply");
   replyButton.innerHTML = renderIcon("share-fat");
+  initTooltip(replyButton, "Reply");
   const replyForm = document.querySelector("form textarea[name='text']")?.closest("form");
   const replyLink = document.querySelector("a[href^='reply?id='], a[href^='addcomment?id=']");
   const replyResolved = resolveReplyFormFromElement(replyForm as HTMLFormElement | null);

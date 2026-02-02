@@ -3,6 +3,7 @@
  */
 
 import { renderIcon, HN_HOME_SVG, type IconName } from "./icons";
+import { initTooltip } from "./tooltip";
 
 interface IconLinkConfig {
   href: string;
@@ -76,7 +77,7 @@ function createIconLink(item: IconLinkConfig): HTMLAnchorElement {
   link.className = "zen-hn-sidebar-icon-link";
   link.href = item.href;
   link.setAttribute("aria-label", item.label);
-  link.setAttribute("title", item.label);
+  initTooltip(link, item.label, { position: "right" });
 
   const isActive = isActiveRoute(item.href);
 
@@ -98,7 +99,7 @@ function createHomeButton(): HTMLLIElement {
   button.className = "zen-hn-sidebar-icon-link zen-hn-home-button";
   button.href = "/";
   button.setAttribute("aria-label", "Home");
-  button.setAttribute("title", "Home");
+  initTooltip(button, "Home", { position: "right" });
   button.innerHTML = HN_HOME_SVG;
   item.appendChild(button);
   return item;
@@ -135,7 +136,7 @@ function createBottomGroup(): HTMLLIElement {
   submitLink.className = "zen-hn-sidebar-icon-link";
   submitLink.href = "/submit";
   submitLink.setAttribute("aria-label", "Submit");
-  submitLink.setAttribute("title", "Submit");
+  initTooltip(submitLink, "Submit", { position: "right" });
   if (currentPath === "/submit") {
     submitLink.innerHTML = renderIcon("pencil-simple-fill");
     submitLink.classList.add("is-active");
@@ -149,7 +150,7 @@ function createBottomGroup(): HTMLLIElement {
   userLink.className = "zen-hn-sidebar-icon-link";
   userLink.href = userInfo.href;
   userLink.setAttribute("aria-label", userInfo.label);
-  userLink.setAttribute("title", userInfo.label);
+  initTooltip(userLink, userInfo.label, { position: "right" });
   const isUserActive = currentPath === "/user";
   if (isUserActive) {
     userLink.innerHTML = renderIcon("user-fill");

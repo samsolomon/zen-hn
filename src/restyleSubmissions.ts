@@ -25,6 +25,7 @@ import {
   type VoteState,
   type MenuItem,
 } from "./logic";
+import { initTooltip } from "./tooltip";
 
 const ZEN_HN_RESTYLE_KEY = "zenHnRestyled";
 const ZEN_HN_SUBMISSIONS_KEY = "zenHnSubmissions";
@@ -221,6 +222,7 @@ export function restyleSubmissions(): void {
     upvoteButton.setAttribute("aria-label", "Upvote");
     upvoteButton.setAttribute("aria-pressed", isUpvotedState ? "true" : "false");
     upvoteButton.innerHTML = renderIcon(isUpvotedState ? "arrow-fat-up-fill" : "arrow-fat-up");
+    initTooltip(upvoteButton, "Upvote");
     if (isUpvotedState) {
       upvoteButton.classList.add("is-active");
     }
@@ -274,6 +276,7 @@ export function restyleSubmissions(): void {
     bookmarkButton.setAttribute("aria-label", "Favorite");
     bookmarkButton.setAttribute("aria-pressed", isFavorited ? "true" : "false");
     bookmarkButton.innerHTML = renderIcon(isFavorited ? "bookmark-simple-fill" : "bookmark-simple");
+    initTooltip(bookmarkButton, "Favorite");
     if (isFavorited) {
       bookmarkButton.classList.add("is-active");
     }
@@ -333,6 +336,7 @@ export function restyleSubmissions(): void {
     linkButton.className = "icon-button";
     linkButton.type = "button";
     linkButton.setAttribute("aria-label", "Copy link");
+    initTooltip(linkButton, "Copy link");
     const linkIconSwap = document.createElement("span");
     linkIconSwap.className = "icon-swap";
     linkIconSwap.innerHTML = `
@@ -442,6 +446,7 @@ export function restyleSubmissions(): void {
     menuButton.setAttribute("aria-haspopup", "menu");
     menuButton.setAttribute("aria-expanded", "false");
     menuButton.innerHTML = renderIcon("dots-three");
+    initTooltip(menuButton, "More actions");
 
     const menuDropdown = document.createElement("div");
     menuDropdown.className = "hn-submission-menu-dropdown";

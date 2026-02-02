@@ -17,6 +17,7 @@ import { resolveFavoriteLink } from "./favorites";
 import { submitReply, submitReplyWithResolved, type ResolvedReplyForm } from "./replyForm";
 import { copyTextToClipboard } from "./utils";
 import { announce } from "./announcer";
+import { initTooltip } from "./tooltip";
 
 export interface BuildCommentItemOptions {
   indentLevel?: number;
@@ -174,6 +175,7 @@ export function buildCommentItem(
   upvoteButton.setAttribute("aria-label", "Upvote");
   upvoteButton.setAttribute("aria-pressed", isUpvoted ? "true" : "false");
   upvoteButton.innerHTML = renderIcon(isUpvoted ? "arrow-fat-up-fill" : "arrow-fat-up");
+  initTooltip(upvoteButton, "Upvote");
   if (isUpvoted) {
     upvoteButton.classList.add("is-active");
   }
@@ -186,6 +188,7 @@ export function buildCommentItem(
   downvoteButton.innerHTML = renderIcon(
     isDownvoted ? "arrow-fat-down-fill" : "arrow-fat-down"
   );
+  initTooltip(downvoteButton, "Downvote");
   if (isDownvoted) {
     downvoteButton.classList.add("is-active");
   }
@@ -265,6 +268,7 @@ export function buildCommentItem(
   bookmarkButton.innerHTML = renderIcon(
     isFavorited ? "bookmark-simple-fill" : "bookmark-simple"
   );
+  initTooltip(bookmarkButton, "Favorite");
   if (isFavorited) {
     bookmarkButton.classList.add("is-active");
   }
@@ -317,6 +321,7 @@ export function buildCommentItem(
   shareButton.type = "button";
   shareButton.setAttribute("aria-label", "Reply");
   shareButton.innerHTML = renderIcon("share-fat");
+  initTooltip(shareButton, "Reply");
   let replyContainer: HTMLDivElement | null = null;
   shareButton.addEventListener("click", (event) => {
     event.stopPropagation();
@@ -332,6 +337,7 @@ export function buildCommentItem(
   linkButton.className = "icon-button";
   linkButton.type = "button";
   linkButton.setAttribute("aria-label", "Copy link");
+  initTooltip(linkButton, "Copy link");
   const linkIconSwap = document.createElement("span");
   linkIconSwap.className = "icon-swap";
   linkIconSwap.innerHTML = `
