@@ -2,7 +2,6 @@
  * Keyboard Shortcuts - Vim-style navigation for Zen HN
  *
  * Shortcuts:
- * - j/k: Move focus down/up through items
  * - Enter: Open comments
  * - Shift+Enter: Open story link
  * - O: Open in new tab
@@ -729,7 +728,7 @@ function showHelpModal(): void {
   }
 
   const shortcuts = [
-    { key: "j / k / ↓ / ↑", action: "Move focus down / up" },
+    { key: "↓ / ↑", action: "Move focus down / up" },
     { key: "Enter", action: "Open comments" },
     { key: "o / Shift + Enter", action: "Open story link" },
     { key: "u", action: "Upvote" },
@@ -1014,13 +1013,13 @@ function handleKeyDown(event: KeyboardEvent): void {
   }
 
   // Navigation
-  if (key === "j" || key === "ArrowDown") {
+  if (key === "ArrowDown") {
     event.preventDefault();
     moveFocus("down");
     return;
   }
 
-  if (key === "k" || key === "ArrowUp") {
+  if (key === "ArrowUp") {
     event.preventDefault();
     moveFocus("up");
     return;

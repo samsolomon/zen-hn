@@ -164,9 +164,9 @@ describe("registerKeyboardShortcuts", () => {
 
     registerKeyboardShortcuts();
 
-    // j key should not activate when typing in input
-    const prevented = dispatchKeydown("j");
-    assert.equal(prevented, false, "j should not be prevented when typing in input");
+    // ArrowDown should not activate when typing in input
+    const prevented = dispatchKeydown("ArrowDown");
+    assert.equal(prevented, false, "ArrowDown should not be prevented when typing in input");
   });
 
   test("does not activate shortcuts when typing in textarea", () => {
@@ -176,8 +176,8 @@ describe("registerKeyboardShortcuts", () => {
 
     registerKeyboardShortcuts();
 
-    const prevented = dispatchKeydown("k");
-    assert.equal(prevented, false, "k should not be prevented when typing in textarea");
+    const prevented = dispatchKeydown("ArrowUp");
+    assert.equal(prevented, false, "ArrowUp should not be prevented when typing in textarea");
   });
 
   test("does not activate shortcuts when typing in select", () => {
@@ -187,8 +187,8 @@ describe("registerKeyboardShortcuts", () => {
 
     registerKeyboardShortcuts();
 
-    const prevented = dispatchKeydown("j");
-    assert.equal(prevented, false, "j should not be prevented when in select");
+    const prevented = dispatchKeydown("ArrowDown");
+    assert.equal(prevented, false, "ArrowDown should not be prevented when in select");
   });
 
   test("does not activate shortcuts when in contenteditable", () => {
@@ -198,8 +198,8 @@ describe("registerKeyboardShortcuts", () => {
 
     registerKeyboardShortcuts();
 
-    const prevented = dispatchKeydown("j");
-    assert.equal(prevented, false, "j should not be prevented when in contenteditable");
+    const prevented = dispatchKeydown("ArrowDown");
+    assert.equal(prevented, false, "ArrowDown should not be prevented when in contenteditable");
   });
 
   test("does not activate shortcuts when modifier keys are pressed", () => {
@@ -217,56 +217,7 @@ describe("registerKeyboardShortcuts", () => {
     assert.equal(prevented, false, "Alt+R should not be prevented");
   });
 
-  test("j navigates down through items", () => {
-    const mockSubmission1 = {
-      classList: {
-        add: mock.fn(),
-        remove: mock.fn(),
-        contains: mock.fn(() => false),
-      },
-      scrollIntoView: mock.fn(),
-    };
-    const mockSubmission2 = {
-      classList: {
-        add: mock.fn(),
-        remove: mock.fn(),
-        contains: mock.fn(() => false),
-      },
-      scrollIntoView: mock.fn(),
-    };
-
-    setupMockDocument({
-      submissions: [mockSubmission1, mockSubmission2] as unknown as HTMLElement[],
-    });
-
-    registerKeyboardShortcuts();
-
-    const prevented = dispatchKeydown("j");
-    assert.equal(prevented, true, "j should be prevented");
-    assert.equal(mockSubmission1.classList.add.mock.callCount(), 1);
-  });
-
-  test("k navigates up through items", () => {
-    const mockSubmission = {
-      classList: {
-        add: mock.fn(),
-        remove: mock.fn(),
-        contains: mock.fn(() => false),
-      },
-      scrollIntoView: mock.fn(),
-    };
-
-    setupMockDocument({
-      submissions: [mockSubmission] as unknown as HTMLElement[],
-    });
-
-    registerKeyboardShortcuts();
-
-    const prevented = dispatchKeydown("k");
-    assert.equal(prevented, true, "k should be prevented");
-  });
-
-  test("arrow keys also navigate (ArrowDown/ArrowUp)", () => {
+  test("arrow keys navigate (ArrowDown/ArrowUp)", () => {
     const mockSubmission = {
       classList: {
         add: mock.fn(),
@@ -388,7 +339,7 @@ describe("registerKeyboardShortcuts", () => {
     registerKeyboardShortcuts();
 
     // Focus an item first
-    dispatchKeydown("j");
+    dispatchKeydown("ArrowDown");
     assert.equal(mockSubmission.classList.add.mock.callCount(), 1);
 
     // Now escape should clear focus
