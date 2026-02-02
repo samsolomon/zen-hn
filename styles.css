@@ -1732,6 +1732,7 @@ html[data-zen-hn-enabled="true"] .comhead {
 .hn-form-page {
   padding: var(--space-200);
   max-width: 800px;
+  margin: 0 auto;
 }
 
 .hn-form-page table {
@@ -2582,6 +2583,7 @@ html[data-zen-hn-enabled="true"] .zen-hn-subnav {
   height: var(--space-800);
   display: flex;
   align-items: center;
+  justify-content: center;
   padding: 0 var(--space-300);
   z-index: 100;
   pointer-events: none;
@@ -3449,6 +3451,7 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
 
 .zen-hn-about-page {
   max-width: 600px;
+  margin: 0 auto;
   padding: var(--space-300) var(--space-200);
 }
 
