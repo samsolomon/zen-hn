@@ -2155,6 +2155,18 @@ html[data-zen-hn-enabled="true"] .comhead {
   font-family: var(--font-stack-ibm-plex);
 }
 
+.zen-hn-font-family-button[data-font-family="literata"] {
+  font-family: var(--font-stack-literata);
+}
+
+.zen-hn-font-family-button[data-font-family="recursive"] {
+  font-family: var(--font-stack-recursive);
+}
+
+.zen-hn-font-family-button[data-font-family="outfit"] {
+  font-family: var(--font-stack-outfit);
+}
+
 /* Font size control */
 .zen-hn-font-size-control {
   display: flex;
