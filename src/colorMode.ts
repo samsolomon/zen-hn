@@ -45,6 +45,8 @@ export type ThemePreference =
 
 export type FontSizePreference = "smaller" | "small" | "default" | "large" | "larger";
 
+export type ContentWidthPreference = "narrow" | "medium" | "wide" | "extra-wide" | "full";
+
 export const COLOR_MODE_CLASS = "dark-theme";
 export const HIGH_CONTRAST_CLASS = "high-contrast";
 export const COLOR_MODE_STORAGE_KEY = "colorMode";
@@ -52,6 +54,7 @@ export const CONTRAST_MODE_STORAGE_KEY = "contrastMode";
 export const THEME_STORAGE_KEY = "theme";
 export const FONT_FAMILY_STORAGE_KEY = "fontFamily";
 export const FONT_SIZE_STORAGE_KEY = "fontSize";
+export const CONTENT_WIDTH_STORAGE_KEY = "contentWidth";
 
 /**
  * Check if Chrome storage API is available
@@ -652,6 +655,7 @@ export async function appendAppearanceControls(container: HTMLElement): Promise<
   await appendContrastModeControl(container);
   await appendFontFamilyButtons(container);
   await appendFontSizeButtons(container);
+  await appendContentWidthButtons(container);
 }
 
 // =============================================================================
@@ -923,6 +927,150 @@ export async function appendFontSizeButtons(container: HTMLElement): Promise<voi
   const saved = await getSavedFontSize();
   const current = saved || "default";
   const control = buildFontSizeButtonsWithStorage(current);
+  container.appendChild(control);
+}
+
+// =============================================================================
+// Content Width controls
+// =============================================================================
+
+interface ContentWidthOption {
+  value: ContentWidthPreference;
+  label: string;
+  subLabel: string;
+}
+
+const CONTENT_WIDTH_OPTIONS: ContentWidthOption[] = [
+  { value: "narrow", label: "Narrow", subLabel: "720px" },
+  { value: "medium", label: "Medium", subLabel: "960px" },
+  { value: "wide", label: "Wide", subLabel: "1200px" },
+  { value: "extra-wide", label: "Extra Wide", subLabel: "1680px" },
+  { value: "full", label: "Full", subLabel: "No limit" },
+];
+
+/**
+ * Get the saved content width preference from storage
+ */
+export async function getSavedContentWidth(): Promise<ContentWidthPreference | undefined> {
+  if (!hasChromeStorage()) return undefined;
+  const result = await chrome.storage.local.get(CONTENT_WIDTH_STORAGE_KEY);
+  return result[CONTENT_WIDTH_STORAGE_KEY] as ContentWidthPreference | undefined;
+}
+
+/**
+ * Save content width preference to storage
+ */
+export async function saveContentWidth(width: ContentWidthPreference): Promise<void> {
+  if (!hasChromeStorage()) return;
+  await chrome.storage.local.set({ [CONTENT_WIDTH_STORAGE_KEY]: width });
+}
+
+/**
+ * Apply a content width to the document
+ * @param width - The content width to apply
+ */
+export function applyContentWidth(width: ContentWidthPreference): void {
+  const html = document.documentElement;
+  if (width === "full") {
+    html.removeAttribute("data-content-width");
+  } else {
+    html.setAttribute("data-content-width", width);
+  }
+}
+
+/**
+ * Initialize content width from saved preference
+ */
+export async function initContentWidth(): Promise<void> {
+  const saved = await getSavedContentWidth();
+  if (saved) {
+    applyContentWidth(saved);
+  }
+}
+
+/**
+ * Build a content width button group control
+ * @param currentWidth - The currently selected content width
+ * @param onChange - Callback when content width selection changes
+ */
+export function buildContentWidthButtons(
+  currentWidth: ContentWidthPreference,
+  onChange?: (width: ContentWidthPreference) => void
+): HTMLElement {
+  const container = document.createElement("div");
+  container.className = "zen-hn-content-width-control";
+
+  const label = document.createElement("div");
+  label.className = "zen-hn-content-width-label";
+  label.textContent = "Content Width";
+
+  const buttonsWrapper = document.createElement("div");
+  buttonsWrapper.className = "zen-hn-content-width-buttons";
+
+  CONTENT_WIDTH_OPTIONS.forEach((option) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "zen-hn-content-width-button";
+    button.setAttribute("data-content-width", option.value);
+    button.setAttribute("aria-label", `Select ${option.label} content width (${option.subLabel})`);
+
+    const labelSpan = document.createElement("span");
+    labelSpan.className = "zen-hn-content-width-button-label";
+    labelSpan.textContent = option.label;
+
+    const subLabelSpan = document.createElement("span");
+    subLabelSpan.className = "zen-hn-content-width-button-sublabel";
+    subLabelSpan.textContent = option.subLabel;
+
+    button.appendChild(labelSpan);
+    button.appendChild(subLabelSpan);
+
+    if (currentWidth === option.value) {
+      button.classList.add("is-active");
+      button.setAttribute("aria-pressed", "true");
+    } else {
+      button.setAttribute("aria-pressed", "false");
+    }
+
+    button.addEventListener("click", () => {
+      const selectedValue = option.value as ContentWidthPreference;
+      applyContentWidth(selectedValue);
+      onChange?.(selectedValue);
+
+      buttonsWrapper.querySelectorAll(".zen-hn-content-width-button").forEach((btn) => {
+        btn.classList.remove("is-active");
+        btn.setAttribute("aria-pressed", "false");
+      });
+      button.classList.add("is-active");
+      button.setAttribute("aria-pressed", "true");
+    });
+
+    buttonsWrapper.appendChild(button);
+  });
+
+  container.appendChild(label);
+  container.appendChild(buttonsWrapper);
+  return container;
+}
+
+/**
+ * Build a content width button group with automatic storage persistence
+ */
+export function buildContentWidthButtonsWithStorage(
+  currentWidth: ContentWidthPreference
+): HTMLElement {
+  return buildContentWidthButtons(currentWidth, (width) => {
+    saveContentWidth(width);
+  });
+}
+
+/**
+ * Build and append content width buttons to a container, loading the current preference from storage
+ */
+export async function appendContentWidthButtons(container: HTMLElement): Promise<void> {
+  const saved = await getSavedContentWidth();
+  const current = saved || "full";
+  const control = buildContentWidthButtonsWithStorage(current);
   container.appendChild(control);
 }
 

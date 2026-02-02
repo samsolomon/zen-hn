@@ -28,6 +28,7 @@
   --sidebar-border: var(--color-border-subtle);
   --sidebar-link-color: var(--gray-10);
   --sidebar-link-hover: var(--color-text);
+  --content-max-width: none;
 }
 
 html[data-font-size="smaller"] {
@@ -48,6 +49,23 @@ html[data-font-size="large"] {
 
 html[data-font-size="larger"] {
   --font-size-scale: 1.15;
+}
+
+/* Content width */
+html[data-content-width="narrow"] {
+  --content-max-width: 720px;
+}
+
+html[data-content-width="medium"] {
+  --content-max-width: 960px;
+}
+
+html[data-content-width="wide"] {
+  --content-max-width: 1200px;
+}
+
+html[data-content-width="extra-wide"] {
+  --content-max-width: 1680px;
 }
 
 /* Font family stacks */
@@ -498,6 +516,10 @@ html[data-zen-hn-enabled="true"][data-zen-hn-sidebar="loading"] body {
   flex-direction: column;
   min-height: 100vh;
   padding: 0 var(--space-300);
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 html[data-zen-hn-enabled="true"] td {
@@ -2179,6 +2201,76 @@ html[data-zen-hn-enabled="true"] .comhead {
   font-size: calc(16px * 1.15);
 }
 
+/* Content Width control */
+.zen-hn-content-width-control {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-100);
+  margin-top: 12px;
+}
+
+.zen-hn-content-width-label {
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+}
+
+.zen-hn-content-width-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-75);
+}
+
+.zen-hn-content-width-button {
+  appearance: none;
+  -webkit-appearance: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-75) var(--space-100);
+  border-radius: var(--radius-100);
+  border: 1px solid var(--color-border);
+  background-color: transparent;
+  color: var(--color-text);
+  font-family: var(--font-stack);
+  font-size: var(--font-size-sm);
+  font-weight: 400;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, transform 80ms ease;
+}
+
+.zen-hn-content-width-button-label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.zen-hn-content-width-button-sublabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  line-height: 1.2;
+}
+
+.zen-hn-content-width-button:hover {
+  background-color: var(--color-overlay-hover);
+  border-color: var(--color-border-strong);
+}
+
+.zen-hn-content-width-button:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.zen-hn-content-width-button.is-active {
+  background-color: var(--color-bg-element) !important;
+  border-color: var(--color-border-strong) !important;
+  border-width: 2px !important;
+}
+
+.zen-hn-content-width-button:focus-visible {
+  outline: 2px solid var(--color-border);
+  outline-offset: 2px;
+}
+
 /* HN Settings Section */
 .zen-hn-hn-settings-section {
   margin-top: 32px;
@@ -2398,15 +2490,15 @@ html[data-zen-hn-enabled="true"] .hn-form-page select:focus {
 html[data-zen-hn-enabled="true"][op="user"] input[type="submit"],
 html[data-zen-hn-enabled="true"][op="user"] input[type="button"],
 html[data-zen-hn-enabled="true"][op="user"] button[type="submit"],
-html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-button-ghost):not(.zen-hn-button-outline):not(.zen-hn-button-icon-ghost):not(.zen-dropdown-button),
+html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-content-width-button):not(.zen-hn-button-ghost):not(.zen-hn-button-outline):not(.zen-hn-button-icon-ghost):not(.zen-dropdown-button),
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="submit"],
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="button"],
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="submit"],
-html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-button-ghost):not(.zen-hn-button-outline):not(.zen-hn-button-icon-ghost):not(.zen-dropdown-button),
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-content-width-button):not(.zen-hn-button-ghost):not(.zen-hn-button-outline):not(.zen-hn-button-icon-ghost):not(.zen-dropdown-button),
 html[data-zen-hn-enabled="true"] .hn-form-page input[type="submit"],
 html[data-zen-hn-enabled="true"] .hn-form-page input[type="button"],
 html[data-zen-hn-enabled="true"] .hn-form-page button[type="submit"],
-html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-button-ghost):not(.zen-hn-button-outline):not(.zen-hn-button-icon-ghost):not(.zen-dropdown-button) {
+html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-content-width-button):not(.zen-hn-button-ghost):not(.zen-hn-button-outline):not(.zen-hn-button-icon-ghost):not(.zen-dropdown-button) {
   appearance: none;
   -webkit-appearance: none;
   padding: var(--space-100) var(--space-200);
@@ -2425,15 +2517,15 @@ html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn
 html[data-zen-hn-enabled="true"][op="user"] input[type="submit"]:hover,
 html[data-zen-hn-enabled="true"][op="user"] input[type="button"]:hover,
 html[data-zen-hn-enabled="true"][op="user"] button[type="submit"]:hover,
-html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-button-ghost):not(.zen-hn-button-outline):not(.zen-hn-button-icon-ghost):not(.zen-dropdown-button):hover,
+html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-content-width-button):not(.zen-hn-button-ghost):not(.zen-hn-button-outline):not(.zen-hn-button-icon-ghost):not(.zen-dropdown-button):hover,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="submit"]:hover,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="button"]:hover,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="submit"]:hover,
-html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-button-ghost):not(.zen-hn-button-outline):not(.zen-hn-button-icon-ghost):not(.zen-dropdown-button):hover,
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-content-width-button):not(.zen-hn-button-ghost):not(.zen-hn-button-outline):not(.zen-hn-button-icon-ghost):not(.zen-dropdown-button):hover,
 html[data-zen-hn-enabled="true"] .hn-form-page input[type="submit"]:hover,
 html[data-zen-hn-enabled="true"] .hn-form-page input[type="button"]:hover,
 html[data-zen-hn-enabled="true"] .hn-form-page button[type="submit"]:hover,
-html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-button-ghost):not(.zen-hn-button-outline):not(.zen-hn-button-icon-ghost):not(.zen-dropdown-button):hover {
+html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-content-width-button):not(.zen-hn-button-ghost):not(.zen-hn-button-outline):not(.zen-hn-button-icon-ghost):not(.zen-dropdown-button):hover {
   background-color: var(--color-bg-subtle);
   border-color: var(--color-border-strong);
   color: var(--color-text);
@@ -2442,30 +2534,30 @@ html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn
 html[data-zen-hn-enabled="true"][op="user"] input[type="submit"]:active,
 html[data-zen-hn-enabled="true"][op="user"] input[type="button"]:active,
 html[data-zen-hn-enabled="true"][op="user"] button[type="submit"]:active,
-html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-button-ghost):not(.zen-hn-button-outline):not(.zen-hn-button-icon-ghost):not(.zen-dropdown-button):active,
+html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-content-width-button):not(.zen-hn-button-ghost):not(.zen-hn-button-outline):not(.zen-hn-button-icon-ghost):not(.zen-dropdown-button):active,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="submit"]:active,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="button"]:active,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="submit"]:active,
-html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-button-ghost):not(.zen-hn-button-outline):not(.zen-hn-button-icon-ghost):not(.zen-dropdown-button):active,
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-content-width-button):not(.zen-hn-button-ghost):not(.zen-hn-button-outline):not(.zen-hn-button-icon-ghost):not(.zen-dropdown-button):active,
 html[data-zen-hn-enabled="true"] .hn-form-page input[type="submit"]:active,
 html[data-zen-hn-enabled="true"] .hn-form-page input[type="button"]:active,
 html[data-zen-hn-enabled="true"] .hn-form-page button[type="submit"]:active,
-html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-button-ghost):not(.zen-hn-button-outline):not(.zen-hn-button-icon-ghost):not(.zen-dropdown-button):active {
+html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-content-width-button):not(.zen-hn-button-ghost):not(.zen-hn-button-outline):not(.zen-hn-button-icon-ghost):not(.zen-dropdown-button):active {
   transform: translateY(1px) scale(0.98);
 }
 
 html[data-zen-hn-enabled="true"][op="user"] input[type="submit"]:focus-visible,
 html[data-zen-hn-enabled="true"][op="user"] input[type="button"]:focus-visible,
 html[data-zen-hn-enabled="true"][op="user"] button[type="submit"]:focus-visible,
-html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-button-ghost):not(.zen-hn-button-outline):not(.zen-hn-button-icon-ghost):not(.zen-dropdown-button):focus-visible,
+html[data-zen-hn-enabled="true"][op="user"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-content-width-button):not(.zen-hn-button-ghost):not(.zen-hn-button-outline):not(.zen-hn-button-icon-ghost):not(.zen-dropdown-button):focus-visible,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="submit"]:focus-visible,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] input[type="button"]:focus-visible,
 html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="submit"]:focus-visible,
-html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-button-ghost):not(.zen-hn-button-outline):not(.zen-hn-button-icon-ghost):not(.zen-dropdown-button):focus-visible,
+html[data-zen-hn-enabled="true"][data-zen-hn-user-page="true"] button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-content-width-button):not(.zen-hn-button-ghost):not(.zen-hn-button-outline):not(.zen-hn-button-icon-ghost):not(.zen-dropdown-button):focus-visible,
 html[data-zen-hn-enabled="true"] .hn-form-page input[type="submit"]:focus-visible,
 html[data-zen-hn-enabled="true"] .hn-form-page input[type="button"]:focus-visible,
 html[data-zen-hn-enabled="true"] .hn-form-page button[type="submit"]:focus-visible,
-html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-button-ghost):not(.zen-hn-button-outline):not(.zen-hn-button-icon-ghost):not(.zen-dropdown-button):focus-visible {
+html[data-zen-hn-enabled="true"] .hn-form-page button[type="button"]:not(.zen-hn-switch):not(.zen-hn-font-family-button):not(.zen-hn-font-size-button):not(.zen-hn-content-width-button):not(.zen-hn-button-ghost):not(.zen-hn-button-outline):not(.zen-hn-button-icon-ghost):not(.zen-dropdown-button):focus-visible {
   outline: 2px solid var(--color-border);
   outline-offset: 2px;
 }
