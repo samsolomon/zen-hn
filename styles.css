@@ -865,7 +865,9 @@ html[data-zen-hn-enabled="true"][data-zen-hn-restyled="true"] table.comment-tree
 
 .hn-comment-meta.has-comhead {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  gap: 12px;
 }
 
 html[data-zen-hn-enabled="true"] .comhead {
@@ -884,10 +886,6 @@ html[data-zen-hn-enabled="true"] .comhead {
   text-decoration: none;
 }
 
-.hn-comment-meta.has-comhead .hn-comment-age {
-  margin-left: 1rem;
-}
-
 .hn-comment-meta.has-comhead .hn-comment-age .age,
 .hn-comment-meta.has-comhead .hn-comment-age .age a {
   font-size: var(--font-size-base);
@@ -900,7 +898,6 @@ html[data-zen-hn-enabled="true"] .comhead {
   font-size: var(--font-size-base);
   font-weight: 400;
   color: var(--color-text-muted);
-  margin-left: 1rem;
 }
 
 .hn-comment-meta.has-comhead .hn-comment-onstory {
@@ -910,7 +907,6 @@ html[data-zen-hn-enabled="true"] .comhead {
   font-size: var(--font-size-base);
   font-weight: 400;
   color: var(--color-text-muted);
-  margin-left: 1rem;
 }
 
 .hn-comment-meta.has-comhead .hn-comment-onstory a {
@@ -2526,6 +2522,7 @@ html[data-zen-hn-enabled="false"] .zen-hn-subnav {
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-200);
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15);
+  scrollbar-color: #bbbbbb transparent;
 }
 
 /* ==========================================================================
@@ -2562,6 +2559,20 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
   margin: var(--space-200);
   padding: var(--space-200);
   overflow-y: auto;
+  scrollbar-color: #bbbbbb transparent;
+}
+
+.zen-hn-shortcuts-modal .zen-hn-modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.zen-hn-shortcuts-modal .zen-hn-modal-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.zen-hn-shortcuts-modal .zen-hn-modal-content::-webkit-scrollbar-thumb {
+  background: #bbbbbb;
+  border-radius: 4px;
 }
 
 .zen-hn-shortcuts-header {
@@ -2898,6 +2909,20 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
   padding: var(--space-250);
   max-height: calc(100vh - var(--space-400));
   overflow-y: auto;
+  scrollbar-color: #bbbbbb transparent;
+}
+
+.zen-hn-edit-profile-modal .zen-hn-modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.zen-hn-edit-profile-modal .zen-hn-modal-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.zen-hn-edit-profile-modal .zen-hn-modal-content::-webkit-scrollbar-thumb {
+  background: #bbbbbb;
+  border-radius: 4px;
 }
 
 .zen-hn-edit-profile-header {
