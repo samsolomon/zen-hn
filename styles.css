@@ -172,7 +172,7 @@ html[data-zen-hn-enabled="true"] a:link {
   color: var(--color-text-muted);
 }
 
-html[data-zen-hn-enabled="true"] a:visited:not(.zen-hn-subnav-link):not(.zen-hn-sidebar-link):not(.zen-hn-sidebar-icon-link):not(.zen-hn-lists-link):not(.zen-hn-user-menu-item) {
+html[data-zen-hn-enabled="true"] a:visited:not(.zen-hn-subnav-link):not(.zen-hn-sidebar-link):not(.zen-hn-sidebar-icon-link):not(.zen-hn-button-outline):not(.zen-hn-lists-link):not(.zen-hn-user-menu-item) {
   color: var(--color-text-faint) !important;
 }
 
@@ -1406,9 +1406,13 @@ html[data-zen-hn-enabled="true"] .comhead {
   font-size: var(--font-size-sm);
   font-weight: 500;
   font-family: inherit;
-  color: var(--color-text);
   cursor: pointer;
   transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.zen-hn-button-outline,
+.zen-hn-button-outline:visited {
+  color: var(--color-text);
 }
 
 .zen-hn-button-outline:hover {
