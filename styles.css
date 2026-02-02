@@ -531,7 +531,7 @@ html[data-zen-hn-enabled="true"][data-zen-hn-restyled="true"] table.comment-tree
 .hn-fatitem-title {
   display: block;
   width: 100%;
-  font-size: 32px;
+  font-size: var(--font-size-3xl);
   font-weight: 400;
   line-height: 1.35;
   text-decoration: none;
@@ -550,7 +550,7 @@ html[data-zen-hn-enabled="true"] .hn-fatitem-title:hover {
 }
 
 .hn-fatitem-toptext {
-  font-size: 14px;
+  font-size: var(--font-size-md);
   font-weight: 400;
   color: var(--color-text);
   margin-top: -2px;
@@ -653,7 +653,7 @@ html[data-zen-hn-enabled="true"] .hn-fatitem-title:hover {
 }
 
 .hn-submission-title {
-  font-size: 22px;
+  font-size: var(--font-size-2xl);
   font-weight: 400;
   line-height: 1.4;
   text-decoration: none;
@@ -672,7 +672,7 @@ html[data-zen-hn-enabled="true"] .hn-submission-title:hover {
 }
 
 .hn-submission-site {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-muted);
 }
 
@@ -930,7 +930,7 @@ html[data-zen-hn-enabled="true"] .hn-submission-title:hover {
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-faint);
 }
 
@@ -959,7 +959,7 @@ html[data-zen-hn-enabled="true"] .hn-submission-title:hover {
   border: 1px solid var(--color-bg-hover);
   background-color: var(--color-bg-surface);
   color: var(--color-text);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   font-weight: 500;
   text-decoration: none;
   transition: background-color 120ms ease, border-color 120ms ease,
@@ -997,7 +997,7 @@ html[data-zen-hn-enabled="true"] .hn-submission-title:hover {
   border: 1px solid var(--color-bg-hover);
   background-color: var(--color-bg-surface);
   color: var(--color-text);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   font-weight: 500;
   text-decoration: none;
   transition: background-color 120ms ease, border-color 120ms ease,
@@ -1035,7 +1035,7 @@ html[data-zen-hn-enabled="true"] .hn-submission-title:hover {
 }
 
 .hn-comment-meta {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-muted);
   margin-bottom: 6px;
   margin-right: auto;
@@ -1462,7 +1462,7 @@ html[data-zen-hn-enabled="true"] .comhead {
 
   .hn-submission-title,
   .zen-hn-lists-link {
-    font-size: 18px;
+    font-size: var(--font-size-xl);
   }
 
   .hn-submissions-more {
@@ -1508,26 +1508,6 @@ html[data-zen-hn-enabled="true"] .comhead {
   /* Settings section adjustments */
   .zen-hn-color-mode-options {
     flex-wrap: wrap;
-  }
-
-  /* Subnav adjustments for narrow screens */
-  html[data-zen-hn-enabled="true"] .zen-hn-subnav {
-    padding: 0 var(--space-150);
-  }
-
-  .zen-hn-subnav-list {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none; /* Hide scrollbar on Firefox */
-  }
-
-  .zen-hn-subnav-list::-webkit-scrollbar {
-    display: none; /* Hide scrollbar on Chrome/Safari */
-  }
-
-  /* User menu dropdown adjustments */
-  #zen-hn-sidebar .zen-hn-user-menu-dropdown {
-    min-width: 160px;
   }
 }
 
@@ -1677,16 +1657,6 @@ html[data-zen-hn-enabled="true"] .comhead {
     flex: 1;
     justify-content: center;
   }
-
-  /* Further subnav adjustments */
-  html[data-zen-hn-enabled="true"] .zen-hn-subnav {
-    padding: 0 var(--space-100);
-  }
-
-  /* User menu dropdown smaller */
-  #zen-hn-sidebar .zen-hn-user-menu-dropdown {
-    min-width: 140px;
-  }
 }
 
 /* ==========================================================================
@@ -1786,6 +1756,8 @@ html[data-zen-hn-enabled="true"] .comhead {
   margin-top: 32px;
   padding-top: 24px;
   border-top: 1px solid var(--color-border-subtle);
+  overflow: hidden;
+  min-width: 0;
 }
 
 .zen-hn-settings-title {
@@ -2214,6 +2186,8 @@ html[data-zen-hn-enabled="true"] .comhead {
   margin-top: 32px;
   padding-top: 24px;
   border-top: 1px solid var(--color-border-subtle);
+  overflow: hidden;
+  min-width: 0;
 }
 
 /* Setting toggle control (shared by HN settings and Zen HN settings) */
@@ -3559,7 +3533,7 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
 }
 
 .zen-hn-noprocrast-title {
-  font-size: 2rem;
+  font-size: var(--font-size-3xl);
   font-weight: 600;
   color: var(--color-text);
   margin: 0;
@@ -3676,7 +3650,7 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
 }
 
 .zen-hn-lists-link {
-  font-size: 22px;
+  font-size: var(--font-size-2xl);
   font-weight: 400;
   line-height: 1.4;
   text-decoration: none;
