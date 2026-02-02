@@ -2,6 +2,8 @@
  * Keyboard Shortcuts - Vim-style navigation for Zen HN
  *
  * Shortcuts:
+ * - Arrow keys: Navigate through items
+ * - Shift+Arrow: Jump to sibling comment (same level)
  * - Enter: Open comments
  * - Shift+Enter: Open story link
  * - O: Open in new tab
@@ -284,6 +286,73 @@ function moveFocus(direction: "up" | "down"): void {
 
   if (nextIndex !== currentIndex) {
     setFocus(items[nextIndex]);
+  }
+}
+
+/**
+ * Get the indent level of a comment element
+ */
+function getIndentLevel(item: HTMLElement): number {
+  return Number.parseInt(item.dataset?.indentLevel || "0", 10) || 0;
+}
+
+/**
+ * Move focus to the next/previous sibling comment (same indent level)
+ * Skips over child comments to find the next item at the same level
+ */
+function moveFocusToSibling(direction: "up" | "down"): void {
+  // Only works for comments
+  if (!focusedItem?.classList.contains("hn-comment")) {
+    // Fall back to regular navigation for non-comments
+    moveFocus(direction);
+    return;
+  }
+
+  const items = getFocusableItems();
+  const currentIndex = items.indexOf(focusedItem);
+  if (currentIndex === -1) {
+    return;
+  }
+
+  const currentLevel = getIndentLevel(focusedItem);
+
+  if (direction === "down") {
+    // Look for next sibling (same level) or parent level
+    for (let i = currentIndex + 1; i < items.length; i++) {
+      const item = items[i];
+      if (!item.classList.contains("hn-comment")) {
+        continue;
+      }
+      const level = getIndentLevel(item);
+      if (level <= currentLevel) {
+        // Found a sibling (same level) or went up to parent level
+        if (level === currentLevel) {
+          setFocus(item);
+        }
+        // If level < currentLevel, no more siblings in this direction
+        return;
+      }
+      // level > currentLevel means it's a child, skip it
+    }
+  } else {
+    // Look backwards for previous sibling
+    for (let i = currentIndex - 1; i >= 0; i--) {
+      const item = items[i];
+      if (!item.classList.contains("hn-comment")) {
+        continue;
+      }
+      const level = getIndentLevel(item);
+      if (level === currentLevel) {
+        // Found previous sibling
+        setFocus(item);
+        return;
+      }
+      if (level < currentLevel) {
+        // Hit parent level, no previous sibling
+        return;
+      }
+      // level > currentLevel means it's a descendant of a previous sibling, skip it
+    }
   }
 }
 
@@ -796,6 +865,7 @@ function showHelpModal(): void {
 
   const shortcuts = [
     { key: "↓ / ↑", action: "Move focus down / up" },
+    { key: "Shift + ↓ / ↑", action: "Jump to sibling comment" },
     { key: "Enter", action: "Open comments" },
     { key: "o / Shift + Enter", action: "Open story link" },
     { key: "u", action: "Upvote" },
@@ -1085,13 +1155,21 @@ function handleKeyDown(event: KeyboardEvent): void {
   // Navigation
   if (key === "ArrowDown") {
     event.preventDefault();
-    moveFocus("down");
+    if (event.shiftKey) {
+      moveFocusToSibling("down");
+    } else {
+      moveFocus("down");
+    }
     return;
   }
 
   if (key === "ArrowUp") {
     event.preventDefault();
-    moveFocus("up");
+    if (event.shiftKey) {
+      moveFocusToSibling("up");
+    } else {
+      moveFocus("up");
+    }
     return;
   }
 
