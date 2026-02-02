@@ -5,11 +5,14 @@
  * - Enter: Open comments
  * - Shift+Enter: Open story link
  * - O: Open in new tab
- * - u: Upvote
- * - f: Favorite/bookmark
+ * - u: Upvote (focused item)
+ * - f: Favorite/bookmark (focused item)
+ * - l: Copy link (focused item)
+ * - Shift+u: Upvote submission (on item pages)
+ * - Shift+f: Favorite submission (on item pages)
+ * - Shift+l: Copy submission link (on item pages)
  * - c: Create/submit
  * - Space: Expand/collapse comment
- * - l: Copy link
  * - g+h: Go to Home
  * - g+n: Go to Newest
  * - g+a: Go to Active (now called "front" on HN)
@@ -422,6 +425,70 @@ function copyLinkFocusedItem(): void {
 }
 
 /**
+ * Get the submission (fatitem) element on item pages
+ */
+function getSubmission(): HTMLElement | null {
+  return document.querySelector<HTMLElement>(".hn-fatitem");
+}
+
+/**
+ * Trigger upvote on the submission (fatitem)
+ */
+function upvoteSubmission(): boolean {
+  const submission = getSubmission();
+  if (!submission) {
+    return false;
+  }
+
+  const upvoteButton = submission.querySelector<HTMLButtonElement>(
+    '.icon-button[aria-label="Upvote"]'
+  );
+  if (upvoteButton && !upvoteButton.hidden) {
+    upvoteButton.click();
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Trigger bookmark/favorite on the submission (fatitem)
+ */
+function bookmarkSubmission(): boolean {
+  const submission = getSubmission();
+  if (!submission) {
+    return false;
+  }
+
+  const bookmarkButton = submission.querySelector<HTMLButtonElement>(
+    '.icon-button[aria-label="Favorite"]'
+  );
+  if (bookmarkButton) {
+    bookmarkButton.click();
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Copy link for the submission (fatitem)
+ */
+function copyLinkSubmission(): boolean {
+  const submission = getSubmission();
+  if (!submission) {
+    return false;
+  }
+
+  const copyButton = submission.querySelector<HTMLButtonElement>(
+    '.icon-button[aria-label="Copy link"]'
+  );
+  if (copyButton) {
+    copyButton.click();
+    return true;
+  }
+  return false;
+}
+
+/**
  * Navigate to random story
  */
 async function goToRandomStory(): Promise<void> {
@@ -733,9 +800,12 @@ function showHelpModal(): void {
     { key: "o / Shift + Enter", action: "Open story link" },
     { key: "u", action: "Upvote" },
     { key: "f", action: "Favorite / bookmark" },
+    { key: "l", action: "Copy link" },
+    { key: "Shift + u", action: "Upvote submission" },
+    { key: "Shift + f", action: "Favorite submission" },
+    { key: "Shift + l", action: "Copy submission link" },
     { key: "c", action: "Submit" },
     { key: "Space", action: "Expand / collapse comment" },
-    { key: "l", action: "Copy link" },
     { key: "g h", action: "Go to home" },
     { key: "g n", action: "Go to newest" },
     { key: "g a", action: "Go to active" },
@@ -1049,7 +1119,15 @@ function handleKeyDown(event: KeyboardEvent): void {
   }
 
   // Actions
-  if (key === "u") {
+  if (key === "u" || key === "U") {
+    // Shift+U upvotes the submission (fatitem)
+    if (event.shiftKey) {
+      if (upvoteSubmission()) {
+        event.preventDefault();
+        showChordIndicatorThenHide("U");
+      }
+      return;
+    }
     if (focusedItem) {
       event.preventDefault();
       showChordIndicatorThenHide("u");
@@ -1058,7 +1136,15 @@ function handleKeyDown(event: KeyboardEvent): void {
     return;
   }
 
-  if (key === "f") {
+  if (key === "f" || key === "F") {
+    // Shift+F favorites the submission (fatitem)
+    if (event.shiftKey) {
+      if (bookmarkSubmission()) {
+        event.preventDefault();
+        showChordIndicatorThenHide("F");
+      }
+      return;
+    }
     if (focusedItem) {
       event.preventDefault();
       showChordIndicatorThenHide("f");
@@ -1086,7 +1172,15 @@ function handleKeyDown(event: KeyboardEvent): void {
     return;
   }
 
-  if (key === "l") {
+  if (key === "l" || key === "L") {
+    // Shift+L copies the submission link (fatitem)
+    if (event.shiftKey) {
+      if (copyLinkSubmission()) {
+        event.preventDefault();
+        showChordIndicatorThenHide("L");
+      }
+      return;
+    }
     if (focusedItem) {
       event.preventDefault();
       showChordIndicatorThenHide("l");
