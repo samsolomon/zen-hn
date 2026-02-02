@@ -120,6 +120,27 @@ html[data-zen-hn-enabled="true"] body {
   -webkit-font-smoothing: antialiased;
 }
 
+html[data-zen-hn-enabled="true"],
+html[data-zen-hn-enabled="true"] body {
+  scrollbar-color: var(--color-border) transparent;
+}
+
+html[data-zen-hn-enabled="true"]::-webkit-scrollbar,
+html[data-zen-hn-enabled="true"] body::-webkit-scrollbar {
+  width: 8px;
+}
+
+html[data-zen-hn-enabled="true"]::-webkit-scrollbar-track,
+html[data-zen-hn-enabled="true"] body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html[data-zen-hn-enabled="true"]::-webkit-scrollbar-thumb,
+html[data-zen-hn-enabled="true"] body::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+
 /* Form elements don't inherit font by default */
 html[data-zen-hn-enabled="true"] input,
 html[data-zen-hn-enabled="true"] textarea,
@@ -155,7 +176,21 @@ html[data-zen-hn-enabled="true"][data-zen-hn-sidebar="loading"] body {
   background-color: transparent;
   box-shadow: none;
   overflow-y: auto;
+  scrollbar-color: var(--color-border) transparent;
   z-index: 50;
+}
+
+#zen-hn-sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+#zen-hn-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#zen-hn-sidebar::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
 }
 
 #zen-hn-sidebar .zen-hn-sidebar-nav {
@@ -2448,9 +2483,23 @@ html[data-zen-hn-enabled="true"] .zen-hn-subnav {
   padding: 12px 16px;
   border-radius: 6px;
   overflow-x: auto;
+  scrollbar-color: var(--color-border) transparent;
   margin: 0 0 1em 0;
   white-space: pre-wrap;
   word-wrap: break-word;
+}
+
+.zen-hn-user-about pre::-webkit-scrollbar {
+  height: 8px;
+}
+
+.zen-hn-user-about pre::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.zen-hn-user-about pre::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
 }
 
 .zen-hn-user-about pre:last-child {
@@ -2559,7 +2608,7 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
   margin: var(--space-200);
   padding: var(--space-200);
   overflow-y: auto;
-  scrollbar-color: #bbbbbb transparent;
+  scrollbar-color: var(--color-border) transparent;
 }
 
 .zen-hn-shortcuts-modal .zen-hn-modal-content::-webkit-scrollbar {
@@ -2571,7 +2620,7 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
 }
 
 .zen-hn-shortcuts-modal .zen-hn-modal-content::-webkit-scrollbar-thumb {
-  background: #bbbbbb;
+  background: var(--color-border);
   border-radius: 4px;
 }
 
@@ -2909,7 +2958,7 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
   padding: var(--space-250);
   max-height: calc(100vh - var(--space-400));
   overflow-y: auto;
-  scrollbar-color: #bbbbbb transparent;
+  scrollbar-color: var(--color-border) transparent;
 }
 
 .zen-hn-edit-profile-modal .zen-hn-modal-content::-webkit-scrollbar {
@@ -2921,7 +2970,7 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
 }
 
 .zen-hn-edit-profile-modal .zen-hn-modal-content::-webkit-scrollbar-thumb {
-  background: #bbbbbb;
+  background: var(--color-border);
   border-radius: 4px;
 }
 
