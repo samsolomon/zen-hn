@@ -1735,6 +1735,10 @@ html[data-zen-hn-enabled="true"] .comhead {
   margin: 0 auto;
 }
 
+.hn-form-page.hn-user-page {
+  max-width: none;
+}
+
 .hn-form-page table {
   border-collapse: collapse;
 }

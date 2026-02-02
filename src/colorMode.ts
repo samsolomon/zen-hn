@@ -983,9 +983,7 @@ export function applyContentWidth(width: ContentWidthPreference): void {
  */
 export async function initContentWidth(): Promise<void> {
   const saved = await getSavedContentWidth();
-  if (saved) {
-    applyContentWidth(saved);
-  }
+  applyContentWidth(saved || "medium");
 }
 
 /**
@@ -1069,7 +1067,7 @@ export function buildContentWidthButtonsWithStorage(
  */
 export async function appendContentWidthButtons(container: HTMLElement): Promise<void> {
   const saved = await getSavedContentWidth();
-  const current = saved || "full";
+  const current = saved || "medium";
   const control = buildContentWidthButtonsWithStorage(current);
   container.appendChild(control);
 }
