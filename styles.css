@@ -130,7 +130,7 @@ html[data-zen-hn-enabled="true"] body,
 html[data-zen-hn-enabled="true"] td {
   background-color: var(--color-bg-app);
   font-family: var(--font-stack) !important;
-  font-size: var(--font-size-base) !important;
+  font-size: var(--font-size-lg) !important;
 }
 
 html[data-zen-hn-enabled="true"] body {
@@ -591,7 +591,7 @@ html[data-zen-hn-enabled="true"] .hn-fatitem-title:hover {
   flex-wrap: wrap;
   align-items: center;
   gap: 12px;
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-lg);
   color: var(--color-text-muted);
 }
 
@@ -650,7 +650,7 @@ html[data-zen-hn-enabled="true"] .hn-fatitem-title:hover {
 }
 
 .hn-submission-rank {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-lg);
   font-weight: 400;
   color: var(--color-text-muted);
   text-align: right;
@@ -712,7 +712,7 @@ html[data-zen-hn-enabled="true"] .hn-submission-title:hover {
   flex-wrap: wrap;
   align-items: center;
   gap: 12px;
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-lg);
   color: var(--color-text-muted);
 }
 
@@ -1080,7 +1080,7 @@ html[data-zen-hn-enabled="true"] .comhead {
 }
 
 .hn-comment-meta.has-comhead .hn-comment-user .hnuser {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-lg);
   font-weight: 500;
   color: var(--color-text);
   text-decoration: none;
@@ -1088,14 +1088,14 @@ html[data-zen-hn-enabled="true"] .comhead {
 
 .hn-comment-meta.has-comhead .hn-comment-age .age,
 .hn-comment-meta.has-comhead .hn-comment-age .age a {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-lg);
   font-weight: 400;
   color: var(--color-text-muted);
   text-decoration: none;
 }
 
 .hn-comment-meta.has-comhead .hn-comment-score {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-lg);
   font-weight: 400;
   color: var(--color-text-muted);
 }
@@ -1104,7 +1104,7 @@ html[data-zen-hn-enabled="true"] .comhead {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-lg);
   font-weight: 400;
   color: var(--color-text-muted);
 }
@@ -1122,7 +1122,7 @@ html[data-zen-hn-enabled="true"] .comhead {
 
 
 .hn-comment-text {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-lg);
   line-height: 1.5;
   color: var(--color-text);
   margin-left: 44px;
@@ -2855,13 +2855,13 @@ html[data-zen-hn-enabled="true"] .zen-hn-subnav {
 }
 
 .zen-hn-user-meta {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-lg);
   color: var(--color-text-muted);
   margin: 0 0 16px 0;
 }
 
 .zen-hn-user-about {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-lg);
   color: var(--color-text);
   line-height: 1.5;
 }
@@ -3555,7 +3555,7 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
 }
 
 .zen-hn-about-story p {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-lg);
   color: var(--color-text);
   line-height: 1.7;
   margin: 0 0 var(--space-200) 0;
@@ -3607,7 +3607,7 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
   position: relative;
   padding-left: var(--space-200);
   margin-bottom: var(--space-100);
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-lg);
   color: var(--color-text);
   line-height: 1.5;
 }
@@ -3630,7 +3630,7 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
 }
 
 .zen-hn-about-links a {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-lg);
   color: var(--color-accent);
   text-decoration: none;
   transition: color 120ms ease;
@@ -3694,7 +3694,7 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
 }
 
 .zen-hn-noprocrast-note {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-lg);
   color: var(--color-text-muted);
   line-height: 1.6;
   margin: 0 0 var(--space-300) 0;
@@ -4002,7 +4002,7 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
 }
 
 .zen-hn-delete-confirm-message {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-lg);
   color: var(--color-text-secondary);
   margin: 0 0 var(--space-300) 0;
 }
