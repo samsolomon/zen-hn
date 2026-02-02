@@ -266,11 +266,11 @@ export function listenForSystemContrastModeChanges(): void {
 interface ContrastModeOption {
   value: ContrastModePreference;
   label: string;
-  icon: "sun" | "circle-half" | "monitor";
+  icon: "circle" | "circle-half" | "monitor";
 }
 
 const CONTRAST_MODE_OPTIONS: ContrastModeOption[] = [
-  { value: "normal", label: "Normal", icon: "sun" },
+  { value: "normal", label: "Normal", icon: "circle" },
   { value: "high", label: "High", icon: "circle-half" },
   { value: "system", label: "System", icon: "monitor" },
 ];
