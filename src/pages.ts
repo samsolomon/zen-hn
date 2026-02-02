@@ -1321,24 +1321,24 @@ export function restyleAboutPage(): boolean {
     <hr class="zen-hn-about-divider" />
 
     <section class="zen-hn-about-story">
-      <h2 class="zen-hn-about-story-title">Why I Built This</h2>
-
       <p>
-        Hacker News has been part of my daily routine for over a decade. The community
-        is thoughtful, the discussions are substantive, and I always learn something new.
-        But the interface never quite matched the quality of the content.
+        I'm Sam Solomon, and I've been a Hacker News reader for over a decade. It's been
+        an invaluable resource throughout my career, and for a long time I've wanted to
+        build an extension for it. So I finally did.
       </p>
 
       <p>
-        I wanted something that felt more intentional. Something that would let me read
-        without the visual clutter, navigate without reaching for the mouse, and focus
-        on what matters: the ideas and conversations.
+        This started as a weekend project to see what could be vibe coded. The initial
+        goal was simple: better typography, a cleaner layout, and an optional dark mode.
+        It grew from there into something with keyboard shortcuts, multiple themes, and
+        a bunch of other features. The codebase certainly isn't the prettiest ever written,
+        but this is an experiment, and the process gave me a real feel for how these tools
+        work and where they shine.
       </p>
 
       <p>
-        Zen HN is that something. It's not a replacement for Hacker News—it's a lens
-        that brings the experience into sharper focus. I hope it serves you as well
-        as it serves me.
+        Consider this a work in progress. I hope you find it useful, and I'd love to hear
+        your feedback.
       </p>
     </section>
 
