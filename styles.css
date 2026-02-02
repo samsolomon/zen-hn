@@ -1669,14 +1669,13 @@ html[data-zen-hn-enabled="true"] .comhead {
 
 .zen-hn-color-mode-control {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  gap: var(--space-100);
 }
 
 .zen-hn-color-mode-label {
   font-size: var(--font-size-base);
   color: var(--color-text);
-  min-width: 80px;
 }
 
 .zen-hn-color-mode-options {
@@ -1724,15 +1723,14 @@ html[data-zen-hn-enabled="true"] .comhead {
 
 .zen-hn-theme-select-control {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  gap: var(--space-100);
   margin-top: 12px;
 }
 
 .zen-hn-theme-select-label {
   font-size: var(--font-size-base);
   color: var(--color-text);
-  min-width: 80px;
 }
 
 .zen-hn-theme-select-wrapper {
@@ -1859,15 +1857,14 @@ html[data-zen-hn-enabled="true"] .comhead {
 /* Contrast mode control */
 .zen-hn-contrast-mode-control {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  gap: var(--space-100);
   margin-top: 12px;
 }
 
 .zen-hn-contrast-mode-label {
   font-size: var(--font-size-base);
   color: var(--color-text);
-  min-width: 80px;
 }
 
 .zen-hn-contrast-mode-options {
