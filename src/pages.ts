@@ -1584,37 +1584,26 @@ export function restyleListsPage(): boolean {
   const listContainer = document.createElement("ul");
   listContainer.className = "zen-hn-lists-container";
 
-  // Add Random item at the top
-  const randomItem = document.createElement("li");
-  randomItem.className = "zen-hn-lists-item";
+  // Collect all list items for sorting
+  interface ListItem {
+    label: string;
+    href: string;
+    description: string;
+    descriptionHtml?: string;
+    icon: IconName;
+    isRandom?: boolean;
+  }
 
-  randomItem.appendChild(createListIcon("dice-two"));
+  const allItems: ListItem[] = [];
 
-  const randomLink = document.createElement("a");
-  randomLink.className = "zen-hn-lists-link";
-  randomLink.href = "#";
-  randomLink.textContent = "Random";
-  randomLink.addEventListener("click", (e) => {
-    e.preventDefault();
-    if (typeof ZenHnRandom !== "undefined" && ZenHnRandom.handleRandomItemClick) {
-      ZenHnRandom.handleRandomItemClick(e).catch(() => {});
-    }
+  // Add Random item
+  allItems.push({
+    label: "Random",
+    href: "#",
+    description: "Jump to a random story from across HN's history.",
+    icon: "dice-two",
+    isRandom: true,
   });
-  randomItem.appendChild(randomLink);
-
-  const randomDescription = document.createElement("p");
-  randomDescription.className = "zen-hn-lists-description";
-  randomDescription.textContent = "Jump to a random story from across HN's history.";
-  randomItem.appendChild(randomDescription);
-
-  // Make entire item clickable
-  randomItem.addEventListener("click", (e) => {
-    // Don't trigger if clicking on the link itself (it has its own handler)
-    if ((e.target as HTMLElement).closest("a")) return;
-    randomLink.click();
-  });
-
-  listContainer.appendChild(randomItem);
 
   // Add main navigation items not on HN's /lists page
   const navItems = [
@@ -1626,28 +1615,12 @@ export function restyleListsPage(): boolean {
   ];
 
   for (const navItem of navItems) {
-    const item = document.createElement("li");
-    item.className = "zen-hn-lists-item";
-
-    item.appendChild(createListIcon(getListIcon(navItem.href, navItem.label)));
-
-    const itemLink = document.createElement("a");
-    itemLink.className = "zen-hn-lists-link";
-    itemLink.href = navItem.href;
-    itemLink.textContent = navItem.label;
-    item.appendChild(itemLink);
-
-    const description = document.createElement("p");
-    description.className = "zen-hn-lists-description";
-    description.textContent = navItem.description;
-    item.appendChild(description);
-
-    item.addEventListener("click", (e) => {
-      if ((e.target as HTMLElement).closest("a")) return;
-      itemLink.click();
+    allItems.push({
+      label: navItem.label,
+      href: navItem.href,
+      description: navItem.description,
+      icon: getListIcon(navItem.href, navItem.label),
     });
-
-    listContainer.appendChild(item);
   }
 
   // Extract rows from the table - each row has link in first td, description in second
@@ -1665,26 +1638,52 @@ export function restyleListsPage(): boolean {
     // Skip topcolors - not useful for most users
     if (link.href.includes("/topcolors") || link.textContent?.toLowerCase() === "topcolors") continue;
 
+    allItems.push({
+      label: toListSentenceCase(link.textContent || ""),
+      href: link.href,
+      description: "",
+      descriptionHtml: descCell.innerHTML,
+      icon: getListIcon(link.href, link.textContent || ""),
+    });
+  }
+
+  // Sort alphabetically by label
+  allItems.sort((a, b) => a.label.localeCompare(b.label));
+
+  // Render sorted items
+  for (const listItem of allItems) {
     const item = document.createElement("li");
     item.className = "zen-hn-lists-item";
 
-    item.appendChild(createListIcon(getListIcon(link.href, link.textContent || "")));
+    item.appendChild(createListIcon(listItem.icon));
 
     const itemLink = document.createElement("a");
     itemLink.className = "zen-hn-lists-link";
-    itemLink.href = link.href;
-    itemLink.textContent = toListSentenceCase(link.textContent || "");
+    itemLink.href = listItem.href;
+    itemLink.textContent = listItem.label;
+
+    if (listItem.isRandom) {
+      itemLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (typeof ZenHnRandom !== "undefined" && ZenHnRandom.handleRandomItemClick) {
+          ZenHnRandom.handleRandomItemClick(e).catch(() => {});
+        }
+      });
+    }
+
     item.appendChild(itemLink);
 
-    // Description may contain links, so preserve HTML
     const description = document.createElement("p");
     description.className = "zen-hn-lists-description";
-    description.innerHTML = descCell.innerHTML;
+    if (listItem.descriptionHtml) {
+      description.innerHTML = listItem.descriptionHtml;
+    } else {
+      description.textContent = listItem.description;
+    }
     item.appendChild(description);
 
     // Make entire item clickable
     item.addEventListener("click", (e) => {
-      // Don't trigger if clicking on a link (description may have links)
       if ((e.target as HTMLElement).closest("a")) return;
       itemLink.click();
     });

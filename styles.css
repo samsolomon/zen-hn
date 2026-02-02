@@ -3285,13 +3285,13 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
   grid-row: 1 / -1;
   display: flex;
   align-items: flex-start;
-  padding-top: 6px;
-  color: var(--color-text-muted);
+  padding-top: 4px;
+  color: var(--sidebar-link-color);
 }
 
 .zen-hn-lists-icon svg {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
 }
 
 .zen-hn-lists-item:hover {
