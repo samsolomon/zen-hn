@@ -868,7 +868,7 @@ export function buildFontSizeButtons(
 
   const label = document.createElement("div");
   label.className = "zen-hn-font-size-label";
-  label.textContent = "Font Size";
+  label.textContent = "Font size";
 
   const buttonsWrapper = document.createElement("div");
   buttonsWrapper.className = "zen-hn-font-size-buttons";
@@ -1002,7 +1002,7 @@ export function buildContentWidthButtons(
 
   const label = document.createElement("div");
   label.className = "zen-hn-content-width-label";
-  label.textContent = "Content Width";
+  label.textContent = "Content width";
 
   const buttonsWrapper = document.createElement("div");
   buttonsWrapper.className = "zen-hn-content-width-buttons";
