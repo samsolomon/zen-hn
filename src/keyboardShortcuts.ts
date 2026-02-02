@@ -857,7 +857,7 @@ function showSearchPalette(): void {
 /**
  * Show the help modal
  */
-function showHelpModal(): void {
+export function showHelpModal(): void {
   if (isHelpModalOpen()) {
     closeHelpModal();
     return;

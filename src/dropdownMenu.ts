@@ -26,6 +26,8 @@ export interface DropdownMenuItem {
   className?: string;
   /** Whether item is currently active/selected */
   isActive?: boolean;
+  /** Keyboard shortcut to display */
+  shortcut?: string;
 }
 
 const DEFAULT_CLASS_PREFIX = "zen-dropdown";
@@ -97,7 +99,29 @@ export function createDropdownMenu(
       element.classList.add("is-active");
     }
     element.setAttribute("role", "menuitem");
-    element.textContent = item.label;
+
+    // Create label span
+    const labelSpan = document.createElement("span");
+    labelSpan.className = `${prefix}-item-label`;
+    labelSpan.textContent = item.label;
+    element.appendChild(labelSpan);
+
+    // Add shortcut if provided
+    if (item.shortcut) {
+      const shortcutSpan = document.createElement("span");
+      shortcutSpan.className = `${prefix}-item-shortcut`;
+      // Split shortcut into individual keys and wrap in kbd elements
+      const keys = item.shortcut.split("+").map((k) => k.trim());
+      keys.forEach((key, index) => {
+        if (index > 0) {
+          shortcutSpan.appendChild(document.createTextNode(" "));
+        }
+        const kbd = document.createElement("kbd");
+        kbd.textContent = key;
+        shortcutSpan.appendChild(kbd);
+      });
+      element.appendChild(shortcutSpan);
+    }
 
     if (item.href && element instanceof HTMLAnchorElement) {
       element.href = item.href;

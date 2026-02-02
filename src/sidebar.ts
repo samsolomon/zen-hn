@@ -4,6 +4,12 @@
 
 import { renderIcon, HN_HOME_SVG, type IconName } from "./icons";
 import { initTooltip } from "./tooltip";
+import {
+  createDropdownMenu,
+  type DropdownMenuItem,
+  type DropdownMenuOptions,
+} from "./dropdownMenu";
+import { showHelpModal } from "./keyboardShortcuts";
 
 interface IconLinkConfig {
   href: string;
@@ -27,14 +33,24 @@ function isActiveRoute(href: string): boolean {
 
 const LOGGED_IN_USERNAME_KEY = "zenHnLoggedInUsername";
 
-function findUserLink(): { href: string; label: string } {
+interface UserInfo {
+  href: string;
+  label: string;
+  isLoggedIn: boolean;
+  logoutHref?: string;
+}
+
+function findUserLink(): UserInfo {
   const profileLink = document.querySelector<HTMLAnchorElement>("a#me");
   const loginLink = document.querySelector<HTMLAnchorElement>("span.pagetop a[href^='login']");
+  const logoutLink = document.querySelector<HTMLAnchorElement>("span.pagetop a#logout");
 
   // If we have a profile link, extract and validate the username
   if (profileLink) {
     const href = profileLink.getAttribute("href") || "";
     const match = href.match(/user\?id=([^&]+)/);
+    const logoutHref = logoutLink?.getAttribute("href") || undefined;
+
     if (match && match[1]) {
       // Cache username for pages without header
       try {
@@ -43,7 +59,7 @@ function findUserLink(): { href: string; label: string } {
         // Ignore storage errors
       }
       // Return absolute URL to avoid relative URL resolution issues
-      return { href: `/user?id=${match[1]}`, label: "Profile" };
+      return { href: `/user?id=${match[1]}`, label: "Profile", isLoggedIn: true, logoutHref };
     }
 
     // Fallback: try getting username from link text
@@ -54,7 +70,7 @@ function findUserLink(): { href: string; label: string } {
       } catch {
         // Ignore storage errors
       }
-      return { href: `/user?id=${username}`, label: "Profile" };
+      return { href: `/user?id=${username}`, label: "Profile", isLoggedIn: true, logoutHref };
     }
   }
 
@@ -62,7 +78,7 @@ function findUserLink(): { href: string; label: string } {
   try {
     const cachedUsername = localStorage.getItem(LOGGED_IN_USERNAME_KEY);
     if (cachedUsername) {
-      return { href: `/user?id=${cachedUsername}`, label: "Profile" };
+      return { href: `/user?id=${cachedUsername}`, label: "Profile", isLoggedIn: true };
     }
   } catch {
     // Ignore storage errors
@@ -70,7 +86,7 @@ function findUserLink(): { href: string; label: string } {
 
   // Fall back to login link or /login
   const loginHref = loginLink?.getAttribute("href") || "/login";
-  return { href: loginHref, label: "Log in" };
+  return { href: loginHref, label: "Log in", isLoggedIn: false };
 }
 
 function createIconLink(item: IconLinkConfig): HTMLAnchorElement {
@@ -113,7 +129,7 @@ function createIconGroup(): HTMLLIElement {
     { href: "/active", icon: "lightning", iconFill: "lightning-fill", label: "Active", shortcut: "g+a" },
     { href: "/best", icon: "crown-simple", iconFill: "crown-simple-fill", label: "Best", shortcut: "g+b" },
     { href: "/ask", icon: "chat-circle", iconFill: "chat-circle-fill", label: "Ask", shortcut: "g+s" },
-    { href: "https://news.ycombinator.com/lists", icon: "list-bullets", label: "Lists", shortcut: "g+l" },
+    { href: "/lists", icon: "list-dashes", iconFill: "list-dashes-fill", label: "Lists", shortcut: "g+l" },
   ];
 
   const group = document.createElement("li");
@@ -124,6 +140,13 @@ function createIconGroup(): HTMLLIElement {
   });
 
   return group;
+}
+
+function createUserMenuButton(isActive: boolean): HTMLElement {
+  const buttonContent = document.createElement("span");
+  buttonContent.className = "zen-hn-sidebar-icon-link-inner";
+  buttonContent.innerHTML = renderIcon(isActive ? "user-fill" : "user");
+  return buttonContent;
 }
 
 function createBottomGroup(): HTMLLIElement {
@@ -147,20 +170,65 @@ function createBottomGroup(): HTMLLIElement {
   }
   group.appendChild(submitLink);
 
-  const userLink = document.createElement("a");
-  userLink.className = "zen-hn-sidebar-icon-link";
-  userLink.href = userInfo.href;
-  userLink.setAttribute("aria-label", userInfo.label);
-  initTooltip(userLink, userInfo.label, { position: "right", shortcut: "g+p" });
-  const isUserActive = currentPath === "/user";
-  if (isUserActive) {
-    userLink.innerHTML = renderIcon("user-fill");
-    userLink.classList.add("is-active");
-    userLink.setAttribute("aria-current", "page");
-  } else {
-    userLink.innerHTML = renderIcon("user");
+  // If not logged in, show a simple login link
+  if (!userInfo.isLoggedIn) {
+    const loginLink = document.createElement("a");
+    loginLink.className = "zen-hn-sidebar-icon-link";
+    loginLink.href = userInfo.href;
+    loginLink.setAttribute("aria-label", userInfo.label);
+    initTooltip(loginLink, userInfo.label, { position: "right" });
+    loginLink.innerHTML = renderIcon("user");
+    group.appendChild(loginLink);
+    return group;
   }
-  group.appendChild(userLink);
+
+  // Create user menu for logged-in users
+  const isUserActive = currentPath === "/user";
+  const menuItems: DropdownMenuItem[] = [
+    {
+      label: "Profile",
+      href: userInfo.href,
+      shortcut: "g + p",
+      isActive: isUserActive,
+    },
+    {
+      label: "Shortcuts",
+      onClick: (e) => {
+        e.preventDefault();
+        showHelpModal();
+      },
+      shortcut: "?",
+    },
+    {
+      label: "About",
+      href: "/newsguidelines.html",
+    },
+  ];
+
+  // Add logout if we have the link
+  if (userInfo.logoutHref) {
+    menuItems.push({
+      label: "Log out",
+      href: userInfo.logoutHref,
+    });
+  }
+
+  const menuOptions: DropdownMenuOptions = {
+    classPrefix: "zen-hn-user-menu",
+    position: "left",
+  };
+
+  const userMenu = createDropdownMenu(
+    createUserMenuButton(isUserActive),
+    menuItems,
+    menuOptions,
+  );
+  userMenu.classList.add("zen-hn-sidebar-user-menu");
+  if (isUserActive) {
+    userMenu.classList.add("is-active");
+  }
+
+  group.appendChild(userMenu);
 
   return group;
 }
