@@ -389,15 +389,15 @@ html[data-zen-hn-enabled="true"][data-zen-hn-restyled="true"] table.comment-tree
   text-decoration: none;
 }
 
-.hn-fatitem-title:link {
+html[data-zen-hn-enabled="true"] .hn-fatitem-title:link {
   color: var(--color-text);
 }
 
-.hn-fatitem-title:visited {
-  color: var(--color-text-muted);
+html[data-zen-hn-enabled="true"] .hn-fatitem-title:visited {
+  color: var(--color-text-faint);
 }
 
-.hn-fatitem-title:hover {
+html[data-zen-hn-enabled="true"] .hn-fatitem-title:hover {
   text-decoration: underline;
 }
 
@@ -511,15 +511,15 @@ html[data-zen-hn-enabled="true"][data-zen-hn-restyled="true"] table.comment-tree
   text-decoration: none;
 }
 
-.hn-submission-title:link {
+html[data-zen-hn-enabled="true"] .hn-submission-title:link {
   color: var(--color-text);
 }
 
-.hn-submission-title:visited {
-  color: var(--color-text-muted);
+html[data-zen-hn-enabled="true"] .hn-submission-title:visited {
+  color: var(--color-text-faint);
 }
 
-.hn-submission-title:hover {
+html[data-zen-hn-enabled="true"] .hn-submission-title:hover {
   text-decoration: underline;
 }
 
