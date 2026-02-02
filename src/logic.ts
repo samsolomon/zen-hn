@@ -269,6 +269,10 @@ export function addCommentClickHandler(element: HTMLElement, toggleFn: (el: HTML
     if (isInteractiveElement(event.target)) {
       return;
     }
+    // Skip collapse if user is selecting text
+    if (window.getSelection()?.toString()) {
+      return;
+    }
     toggleFn(element);
   });
 }
