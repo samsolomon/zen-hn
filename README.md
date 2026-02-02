@@ -33,13 +33,6 @@ Zen HN is a Chrome extension that restyles Hacker News and provides additional c
 - **Help** - Press `?` to see all shortcuts.
 
 
-## Accessibility
-
-- Screen reader support with live announcements
-- High contrast mode
-- Full keyboard navigation
-- Respects reduced motion preferences
-
 ## Install
 
 - Download or and unzip this repo.
