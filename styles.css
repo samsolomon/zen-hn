@@ -1493,7 +1493,7 @@ html[data-zen-hn-enabled="true"] .comhead {
   }
 
   .zen-hn-user-name {
-    font-size: 1.5rem;
+    font-size: var(--font-size-2xl);
   }
 
   .zen-hn-user-title-row {
@@ -1508,6 +1508,26 @@ html[data-zen-hn-enabled="true"] .comhead {
   /* Settings section adjustments */
   .zen-hn-color-mode-options {
     flex-wrap: wrap;
+  }
+
+  /* Subnav adjustments for narrow screens */
+  html[data-zen-hn-enabled="true"] .zen-hn-subnav {
+    padding: 0 var(--space-150);
+  }
+
+  .zen-hn-subnav-list {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Hide scrollbar on Firefox */
+  }
+
+  .zen-hn-subnav-list::-webkit-scrollbar {
+    display: none; /* Hide scrollbar on Chrome/Safari */
+  }
+
+  /* User menu dropdown adjustments */
+  #zen-hn-sidebar .zen-hn-user-menu-dropdown {
+    min-width: 160px;
   }
 }
 
@@ -1589,7 +1609,7 @@ html[data-zen-hn-enabled="true"] .comhead {
   }
 
   .zen-hn-user-name {
-    font-size: 1.25rem;
+    font-size: var(--font-size-xl);
   }
 
   .zen-hn-user-header {
@@ -1656,6 +1676,16 @@ html[data-zen-hn-enabled="true"] .comhead {
   .zen-hn-color-mode-option {
     flex: 1;
     justify-content: center;
+  }
+
+  /* Further subnav adjustments */
+  html[data-zen-hn-enabled="true"] .zen-hn-subnav {
+    padding: 0 var(--space-100);
+  }
+
+  /* User menu dropdown smaller */
+  #zen-hn-sidebar .zen-hn-user-menu-dropdown {
+    min-width: 140px;
   }
 }
 
@@ -2702,7 +2732,7 @@ html[data-zen-hn-enabled="true"] .zen-hn-subnav {
 }
 
 .zen-hn-user-name {
-  font-size: 2rem;
+  font-size: var(--font-size-3xl);
   font-weight: 600;
   color: var(--color-text);
   margin: 0 0 8px 0;
