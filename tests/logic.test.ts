@@ -11,6 +11,7 @@ import {
   willFavoriteFromHref,
   buildMenuItem,
   buildMenuItems,
+  addCommentClickHandler,
 } from "../src/logic";
 
 describe("buildVoteHref", () => {
@@ -198,5 +199,129 @@ describe("buildMenuItems", () => {
   test("returns empty array for non-array input", () => {
     const result = buildMenuItems("not an array" as unknown as never[]);
     assert.deepEqual(result, []);
+  });
+});
+
+describe("addCommentClickHandler", () => {
+  // Mock HTMLElement for instanceof checks
+  class MockHTMLElement {
+    tagName: string;
+    constructor(tagName: string) {
+      this.tagName = tagName;
+    }
+    getAttribute(_name: string): string | null {
+      return null;
+    }
+  }
+
+  // Store original HTMLElement if it exists
+  const originalHTMLElement = globalThis.HTMLElement;
+
+  function setupHTMLElementMock() {
+    Object.defineProperty(globalThis, "HTMLElement", {
+      value: MockHTMLElement,
+      configurable: true,
+    });
+  }
+
+  function restoreHTMLElement() {
+    if (originalHTMLElement) {
+      Object.defineProperty(globalThis, "HTMLElement", {
+        value: originalHTMLElement,
+        configurable: true,
+      });
+    }
+  }
+
+  test("calls toggle function when no text is selected", () => {
+    setupHTMLElementMock();
+
+    const toggleFn = mock.fn();
+
+    // Create a mock target element (non-interactive)
+    const mockTarget = new MockHTMLElement("DIV");
+
+    const element = {
+      addEventListener: mock.fn((event: string, handler: (e: MouseEvent) => void) => {
+        if (event === "click") {
+          handler({ target: mockTarget } as unknown as MouseEvent);
+        }
+      }),
+    } as unknown as HTMLElement;
+
+    // Mock window.getSelection to return empty string (no selection)
+    Object.defineProperty(globalThis, "window", {
+      value: {
+        getSelection: () => ({ toString: () => "" }),
+      },
+      configurable: true,
+    });
+
+    addCommentClickHandler(element, toggleFn);
+
+    assert.equal(toggleFn.mock.callCount(), 1);
+    assert.equal(toggleFn.mock.calls[0].arguments[0], element);
+
+    restoreHTMLElement();
+  });
+
+  test("does not call toggle function when text is selected", () => {
+    setupHTMLElementMock();
+
+    const toggleFn = mock.fn();
+
+    const mockTarget = new MockHTMLElement("DIV");
+
+    const element = {
+      addEventListener: mock.fn((event: string, handler: (e: MouseEvent) => void) => {
+        if (event === "click") {
+          handler({ target: mockTarget } as unknown as MouseEvent);
+        }
+      }),
+    } as unknown as HTMLElement;
+
+    // Mock window.getSelection to return selected text
+    Object.defineProperty(globalThis, "window", {
+      value: {
+        getSelection: () => ({ toString: () => "selected text" }),
+      },
+      configurable: true,
+    });
+
+    addCommentClickHandler(element, toggleFn);
+
+    assert.equal(toggleFn.mock.callCount(), 0);
+
+    restoreHTMLElement();
+  });
+
+  test("does not call toggle function when clicking interactive elements", () => {
+    setupHTMLElementMock();
+
+    const toggleFn = mock.fn();
+
+    // Create a mock link element (interactive)
+    const mockLink = new MockHTMLElement("A");
+
+    const element = {
+      addEventListener: mock.fn((event: string, handler: (e: MouseEvent) => void) => {
+        if (event === "click") {
+          handler({ target: mockLink } as unknown as MouseEvent);
+        }
+      }),
+    } as unknown as HTMLElement;
+
+    Object.defineProperty(globalThis, "window", {
+      value: {
+        getSelection: () => ({ toString: () => "" }),
+      },
+      configurable: true,
+    });
+
+    addCommentClickHandler(element, toggleFn);
+
+    assert.equal(toggleFn.mock.callCount(), 0);
+
+    restoreHTMLElement();
   });
 });

@@ -1111,6 +1111,7 @@ describe("restyleListsPage", () => {
         textContent: "",
         innerHTML: "",
         appendChild: mock.fn(),
+        addEventListener: mock.fn(),
       })),
       body: {
         appendChild: mock.fn(),
@@ -1167,6 +1168,7 @@ describe("restyleListsPage", () => {
       textContent: "",
       innerHTML: "",
       appendChild: mock.fn(),
+      addEventListener: mock.fn(),
     }));
 
     const mockDocument = {
@@ -1197,13 +1199,12 @@ describe("restyleListsPage", () => {
 
     const result = restyleListsPage();
     assert.equal(result, true);
-    // Should still create the wrapper but no list items
-    // The page wrapper, header, title, and list container are created (4 elements)
-    // No li elements should be created since the row was skipped
+    // The function creates li elements for built-in nav items (Random, New, New comments, Ask, Show, Jobs)
+    // even when table rows are skipped, so we expect 6 li elements from the nav items
     const liCalls = createElementMock.mock.calls.filter(
       (c: { arguments: [string] }) => c.arguments[0] === "li"
     );
-    assert.equal(liCalls.length, 0);
+    assert.equal(liCalls.length, 6, "Should create li elements for built-in nav items only");
   });
 
   test("skips rows without a link in the first cell", () => {
@@ -1237,6 +1238,7 @@ describe("restyleListsPage", () => {
       textContent: "",
       innerHTML: "",
       appendChild: mock.fn(),
+      addEventListener: mock.fn(),
     }));
 
     const mockDocument = {
@@ -1267,10 +1269,240 @@ describe("restyleListsPage", () => {
 
     const result = restyleListsPage();
     assert.equal(result, true);
-    // No li elements should be created since the row had no link
+    // The function creates li elements for built-in nav items (Random, New, New comments, Ask, Show, Jobs)
+    // even when table rows have no links, so we expect 6 li elements from the nav items
     const liCalls = createElementMock.mock.calls.filter(
       (c: { arguments: [string] }) => c.arguments[0] === "li"
     );
-    assert.equal(liCalls.length, 0);
+    assert.equal(liCalls.length, 6, "Should create li elements for built-in nav items only");
+  });
+
+  test("sorts list items alphabetically by label", () => {
+    // Create rows with items that would be out of order if not sorted
+    const mockRows = [
+      {
+        querySelectorAll: mock.fn(() => [
+          {
+            querySelector: mock.fn(() => ({
+              href: "/best",
+              textContent: "best",
+            })),
+          },
+          { innerHTML: "Best stories" },
+        ]),
+      },
+      {
+        querySelectorAll: mock.fn(() => [
+          {
+            querySelector: mock.fn(() => ({
+              href: "/active",
+              textContent: "active",
+            })),
+          },
+          { innerHTML: "Active discussions" },
+        ]),
+      },
+      {
+        querySelectorAll: mock.fn(() => [
+          {
+            querySelector: mock.fn(() => ({
+              href: "/classic",
+              textContent: "classic",
+            })),
+          },
+          { innerHTML: "Classic stories" },
+        ]),
+      },
+    ];
+
+    const mockBigboxTable = {
+      querySelectorAll: mock.fn(() => mockRows),
+    };
+
+    const mockHnMain = {
+      dataset: {} as Record<string, string>,
+      querySelector: mock.fn((selector: string) => {
+        if (selector === "#bigbox table") return mockBigboxTable;
+        return null;
+      }),
+    };
+
+    const mockZenHnMain = {
+      appendChild: mock.fn(),
+    };
+
+    // Track the order of link text content assignments
+    const linkTextOrder: string[] = [];
+
+    const createElementMock = mock.fn((tag: string) => {
+      const element = {
+        tagName: tag.toUpperCase(),
+        className: "",
+        href: "",
+        _textContent: "",
+        innerHTML: "",
+        appendChild: mock.fn(),
+        addEventListener: mock.fn(),
+        get textContent() {
+          return this._textContent;
+        },
+        set textContent(value: string) {
+          this._textContent = value;
+          // Track when link text is set (for sorting verification)
+          if (tag === "a" && value) {
+            linkTextOrder.push(value);
+          }
+        },
+      };
+      return element;
+    });
+
+    const mockDocument = {
+      getElementById: mock.fn((id: string) => {
+        if (id === "hnmain") return mockHnMain;
+        if (id === "zen-hn-main") return mockZenHnMain;
+        return null;
+      }),
+      createElement: createElementMock,
+      body: {
+        appendChild: mock.fn(),
+      },
+    };
+
+    Object.defineProperty(globalThis, "document", {
+      value: mockDocument,
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "window", {
+      value: {
+        location: {
+          pathname: "/lists",
+        },
+      },
+      configurable: true,
+    });
+
+    const result = restyleListsPage();
+    assert.equal(result, true);
+
+    // Filter out any empty strings and verify alphabetical order
+    const sortedLinks = linkTextOrder.filter(t => t.length > 0);
+
+    // The items should be sorted alphabetically
+    // Note: The function also adds nav items and Random, so we check relative order
+    // of the items we added: Active, Ask, Best, Classic, etc.
+    const activeIndex = sortedLinks.indexOf("Active");
+    const askIndex = sortedLinks.indexOf("Ask");
+    const bestIndex = sortedLinks.indexOf("Best");
+    const classicIndex = sortedLinks.indexOf("Classic");
+
+    // Active should come before Ask, Ask before Best, Best before Classic
+    assert.ok(activeIndex < askIndex, "Active should come before Ask");
+    assert.ok(askIndex < bestIndex, "Ask should come before Best");
+    assert.ok(bestIndex < classicIndex, "Best should come before Classic");
+  });
+
+  test("skips topcolors item", () => {
+    const mockRows = [
+      {
+        querySelectorAll: mock.fn(() => [
+          {
+            querySelector: mock.fn(() => ({
+              href: "/topcolors",
+              textContent: "topcolors",
+            })),
+          },
+          { innerHTML: "Top colors" },
+        ]),
+      },
+      {
+        querySelectorAll: mock.fn(() => [
+          {
+            querySelector: mock.fn(() => ({
+              href: "/best",
+              textContent: "best",
+            })),
+          },
+          { innerHTML: "Best stories" },
+        ]),
+      },
+    ];
+
+    const mockBigboxTable = {
+      querySelectorAll: mock.fn(() => mockRows),
+    };
+
+    const mockHnMain = {
+      dataset: {} as Record<string, string>,
+      querySelector: mock.fn((selector: string) => {
+        if (selector === "#bigbox table") return mockBigboxTable;
+        return null;
+      }),
+    };
+
+    const mockZenHnMain = {
+      appendChild: mock.fn(),
+    };
+
+    const linkTexts: string[] = [];
+    const createElementMock = mock.fn((tag: string) => {
+      const element = {
+        tagName: tag.toUpperCase(),
+        className: "",
+        href: "",
+        _textContent: "",
+        innerHTML: "",
+        appendChild: mock.fn(),
+        addEventListener: mock.fn(),
+        get textContent() {
+          return this._textContent;
+        },
+        set textContent(value: string) {
+          this._textContent = value;
+          if (tag === "a" && value) {
+            linkTexts.push(value);
+          }
+        },
+      };
+      return element;
+    });
+
+    const mockDocument = {
+      getElementById: mock.fn((id: string) => {
+        if (id === "hnmain") return mockHnMain;
+        if (id === "zen-hn-main") return mockZenHnMain;
+        return null;
+      }),
+      createElement: createElementMock,
+      body: {
+        appendChild: mock.fn(),
+      },
+    };
+
+    Object.defineProperty(globalThis, "document", {
+      value: mockDocument,
+      configurable: true,
+    });
+
+    Object.defineProperty(globalThis, "window", {
+      value: {
+        location: {
+          pathname: "/lists",
+        },
+      },
+      configurable: true,
+    });
+
+    const result = restyleListsPage();
+    assert.equal(result, true);
+
+    // Topcolors should not appear in the link texts
+    const hasTopcolors = linkTexts.some(t => t.toLowerCase().includes("topcolor"));
+    assert.equal(hasTopcolors, false, "Topcolors should be skipped");
+
+    // Best should be present
+    const hasBest = linkTexts.some(t => t === "Best");
+    assert.equal(hasBest, true, "Best should be present");
   });
 });
