@@ -68,6 +68,13 @@ export function buildCommentItem(
       })
     : null;
   const favoriteLink = favoriteLinkById || favoriteLinkByText;
+  const deleteLink = comhead
+    ? Array.from(comhead.querySelectorAll("a")).find((link) => {
+        const text = link.textContent?.trim().toLowerCase();
+        return text === "delete";
+      })
+    : null;
+  const deleteHref = deleteLink?.getAttribute("href") || "";
   const commentId = getCommentId(row, comhead);
   const replyHref = replyHrefOverride ?? getReplyHref(row, comhead);
   const storedCommentAction = getStoredAction("comments", commentId);
@@ -378,6 +385,21 @@ export function buildCommentItem(
   actions.appendChild(bookmarkButton);
   actions.appendChild(linkButton);
   actions.appendChild(shareButton);
+
+  if (deleteHref) {
+    const deleteButton = document.createElement("button");
+    deleteButton.className = "icon-button";
+    deleteButton.type = "button";
+    deleteButton.setAttribute("aria-label", "Delete");
+    deleteButton.innerHTML = renderIcon("trash");
+    initTooltip(deleteButton, "Delete");
+    deleteButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      window.location.href = deleteHref;
+    });
+    actions.appendChild(deleteButton);
+  }
 
   header.appendChild(collapseButton);
   header.appendChild(meta);
