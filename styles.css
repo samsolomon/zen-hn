@@ -1086,6 +1086,12 @@ html[data-zen-hn-enabled="true"] .comhead {
   text-decoration: none;
 }
 
+.hn-comment-meta.has-comhead .hn-comment-user.is-own-user .hnuser,
+.hn-submission-user.is-own-user,
+.hn-submission-user.is-own-user .hnuser {
+  color: #ff6600 !important;
+}
+
 .hn-comment-meta.has-comhead .hn-comment-age .age,
 .hn-comment-meta.has-comhead .hn-comment-age .age a {
   font-size: var(--font-size-lg);
@@ -2469,7 +2475,7 @@ html[data-zen-hn-enabled="true"] .comhead {
 .zen-hn-switch-track {
   display: flex;
   align-items: center;
-  width: 36px;
+  width: 2.25rem;
   height: var(--space-250);
   border-radius: var(--radius-full);
   background-color: var(--color-bg-hover);
