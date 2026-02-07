@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Zen Hacker News",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A calmer way to read Hacker News. Less noise, more focus.",
   "permissions": ["storage", "scripting"],
   "optional_host_permissions": ["https://*/*", "http://*/*"],

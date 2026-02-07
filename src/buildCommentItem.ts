@@ -444,6 +444,7 @@ export function buildCommentItem(
       return;
     }
     event.preventDefault();
+    event.stopPropagation();
     replyButton.click();
   });
   const cancelButton = document.createElement("button");
