@@ -403,6 +403,12 @@ export function buildCommentItem(
   replyButton.type = "button";
   replyButton.textContent = "Reply";
   replyTextarea.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeReply();
+      replyTextarea.blur();
+      return;
+    }
     if (event.key !== "Enter" || event.shiftKey) {
       return;
     }

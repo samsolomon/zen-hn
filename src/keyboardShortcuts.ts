@@ -13,6 +13,7 @@
  * - Shift+u: Upvote submission (on item pages)
  * - Shift+f: Favorite submission (on item pages)
  * - Shift+l: Copy submission link (on item pages)
+ * - r: Reply (focused comment)
  * - c: Create/submit
  * - Space: Expand/collapse comment
  * - g+h: Go to Home
@@ -882,6 +883,7 @@ export function showHelpModal(): void {
         { key: "Shift + u", action: "Upvote submission" },
         { key: "Shift + f", action: "Favorite submission" },
         { key: "Shift + l", action: "Copy submission link" },
+        { key: "r", action: "Reply" },
         { key: "c", action: "Submit" },
         { key: "Space", action: "Expand / collapse comment" },
       ],
@@ -1267,6 +1269,20 @@ function handleKeyDown(event: KeyboardEvent): void {
       event.preventDefault();
       showChordIndicatorThenHide("f");
       bookmarkFocusedItem();
+    }
+    return;
+  }
+
+  // r to reply to focused comment
+  if (key === "r") {
+    if (focusedItem?.classList.contains("hn-comment")) {
+      event.preventDefault();
+      const replyButton = focusedItem.querySelector<HTMLButtonElement>(
+        '.icon-button[aria-label="Reply"]'
+      );
+      if (replyButton) {
+        replyButton.click();
+      }
     }
     return;
   }
