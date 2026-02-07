@@ -456,8 +456,7 @@ export function buildCommentItem(
       replyTextarea.disabled = false;
     }
     if (result.ok) {
-      replyTextarea.value = "";
-      closeReply();
+      window.location.reload();
       return;
     }
   });
