@@ -149,6 +149,14 @@ export function buildCommentItem(
     if (userLink) {
       const userSpan = document.createElement("span");
       userSpan.className = "hn-comment-user";
+      const loggedInUser = document.querySelector<HTMLAnchorElement>("a#me")?.textContent?.trim()
+        || localStorage.getItem("zenHnLoggedInUsername");
+      if (loggedInUser && userLink.textContent?.trim() === loggedInUser) {
+        const icon = document.createElement("span");
+        icon.className = "is-own-user-icon";
+        icon.innerHTML = renderIcon("asterisk");
+        userSpan.appendChild(icon);
+      }
       userSpan.appendChild(userLink.cloneNode(true));
       meta.appendChild(userSpan);
     }

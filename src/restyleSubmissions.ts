@@ -209,6 +209,19 @@ export function restyleSubmissions(): void {
 
     appendMetaItem(score, "hn-submission-score");
     appendMetaItem(hnuser, "hn-submission-user");
+    if (hnuser) {
+      const loggedInUser = document.querySelector<HTMLAnchorElement>("a#me")?.textContent?.trim()
+        || localStorage.getItem("zenHnLoggedInUsername");
+      if (loggedInUser && hnuser.textContent?.trim() === loggedInUser) {
+        const userEl = meta.querySelector(".hn-submission-user");
+        if (userEl) {
+          const icon = document.createElement("span");
+          icon.className = "is-own-user-icon";
+          icon.innerHTML = renderIcon("asterisk");
+          userEl.insertBefore(icon, userEl.firstChild);
+        }
+      }
+    }
     appendMetaItem(age, "hn-submission-age");
     appendMetaItem(commentsLink, "hn-submission-comments");
     appendMetaItem(sitebit, "hn-submission-site");

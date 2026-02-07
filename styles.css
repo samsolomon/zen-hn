@@ -1086,12 +1086,6 @@ html[data-zen-hn-enabled="true"] .comhead {
   text-decoration: none;
 }
 
-.hn-comment-meta.has-comhead .hn-comment-user.is-own-user .hnuser,
-.hn-submission-user.is-own-user,
-.hn-submission-user.is-own-user .hnuser {
-  color: #ff6600 !important;
-}
-
 .hn-comment-meta.has-comhead .hn-comment-age .age,
 .hn-comment-meta.has-comhead .hn-comment-age .age a {
   font-size: var(--font-size-lg);
@@ -4134,4 +4128,17 @@ html[data-zen-hn-enabled="true"] .hn-comment.is-keyboard-focused .hn-collapse-bu
   .zen-tooltip {
     transition: none;
   }
+}
+
+/* Indicator icon for logged-in user's own comments/submissions */
+.is-own-user-icon {
+  display: inline-flex;
+  align-items: center;
+  color: #ff6600;
+  margin-right: 4px;
+}
+
+.is-own-user-icon svg {
+  width: 14px;
+  height: 14px;
 }
