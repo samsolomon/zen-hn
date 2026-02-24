@@ -256,12 +256,12 @@ function isInteractiveElement(element: EventTarget | null): boolean {
 
 export function addSubmissionClickHandler(element: HTMLElement, itemId: string | null | undefined): void {
   if (!itemId) return;
-  element.addEventListener("click", (event: MouseEvent) => {
-    if (isInteractiveElement(event.target)) {
-      return;
-    }
-    globalThis.location!.href = `/item?id=${itemId}`;
-  });
+  const link = document.createElement("a");
+  link.href = `/item?id=${itemId}`;
+  link.className = "hn-submission-overlay-link";
+  link.setAttribute("aria-hidden", "true");
+  link.tabIndex = -1;
+  element.appendChild(link);
 }
 
 export function addCommentClickHandler(element: HTMLElement, toggleFn: (el: HTMLElement) => void): void {

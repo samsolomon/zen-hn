@@ -635,6 +635,7 @@ html[data-zen-hn-enabled="true"] .hn-fatitem-title:hover {
 }
 
 .hn-submission {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(var(--space-300), auto) 1fr;
   gap: var(--space-150);
@@ -643,6 +644,18 @@ html[data-zen-hn-enabled="true"] .hn-fatitem-title:hover {
   border-radius: var(--space-100);
   transition: background-color 120ms ease;
   cursor: pointer;
+}
+
+.hn-submission-overlay-link {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hn-submission-rank,
+.hn-submission-body {
+  position: relative;
+  z-index: 1;
 }
 
 .hn-submission:hover {
