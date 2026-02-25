@@ -524,11 +524,16 @@ html:not([data-sidebar-type="icons"])[data-zen-hn-sidebar="loading"] body {
   padding-left: 140px;
 }
 
-/* Text sidebar container */
+/* Text sidebar container — let clicks pass through to content */
 html:not([data-sidebar-type="icons"]) #zen-hn-sidebar {
   border-right: none;
   width: 140px;
   background-color: transparent;
+  pointer-events: none;
+}
+
+html:not([data-sidebar-type="icons"]) #zen-hn-sidebar * {
+  pointer-events: auto;
 }
 
 /* Nav/list alignment override for text sidebar */
@@ -821,8 +826,14 @@ html[data-zen-hn-enabled="true"] .hn-fatitem-title:hover {
   z-index: 0;
 }
 
-.hn-submission-rank,
-.hn-submission-body {
+.hn-submission-rank {
+  position: relative;
+  z-index: 1;
+}
+
+.hn-submission-body a,
+.hn-submission-body button,
+.hn-submission-body [role="button"] {
   position: relative;
   z-index: 1;
 }
