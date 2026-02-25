@@ -11,6 +11,7 @@ import {
 } from "./dropdownMenu";
 import { showHelpModal } from "./keyboardShortcuts";
 
+
 interface IconLinkConfig {
   href: string;
   icon: IconName;
@@ -233,6 +234,138 @@ function createBottomGroup(): HTMLLIElement {
   return group;
 }
 
+// =============================================================================
+// Stealth sidebar builders
+// =============================================================================
+
+interface TextLinkConfig {
+  href: string;
+  label: string;
+}
+
+function createTextLink(config: TextLinkConfig): HTMLAnchorElement {
+  const link = document.createElement("a");
+  link.className = "zen-hn-sidebar-text-link";
+  link.href = config.href;
+  link.textContent = config.label;
+
+  const isActive = isActiveRoute(config.href);
+  if (isActive) {
+    link.classList.add("is-active");
+    link.setAttribute("aria-current", "page");
+  }
+
+  return link;
+}
+
+function createStealthHomeLink(): HTMLLIElement {
+  const item = document.createElement("li");
+  item.className = "zen-hn-sidebar-item";
+  const link = document.createElement("a");
+  link.className = "zen-hn-sidebar-text-link zen-hn-stealth-home-link";
+  link.href = "/";
+  link.textContent = "Y";
+  link.setAttribute("aria-label", "Home");
+  item.appendChild(link);
+  return item;
+}
+
+function createStealthNavGroup(): HTMLLIElement {
+  const navLinks: TextLinkConfig[] = [
+    { href: "/news", label: "News" },
+    { href: "/newest", label: "New" },
+    { href: "/active", label: "Active" },
+    { href: "/best", label: "Best" },
+    { href: "/ask", label: "Ask" },
+    { href: "/lists", label: "Lists" },
+  ];
+
+  const group = document.createElement("li");
+  group.className = "zen-hn-sidebar-item zen-hn-sidebar-stealth-nav";
+
+  navLinks.forEach((config) => {
+    group.appendChild(createTextLink(config));
+  });
+
+  return group;
+}
+
+function createStealthUserMenuButton(isActive: boolean): HTMLElement {
+  const buttonContent = document.createElement("span");
+  buttonContent.className = "zen-hn-sidebar-text-link-inner";
+  buttonContent.textContent = "More";
+  if (isActive) {
+    buttonContent.classList.add("is-active");
+  }
+  return buttonContent;
+}
+
+function createStealthBottomGroup(): HTMLLIElement {
+  const group = document.createElement("li");
+  group.className = "zen-hn-sidebar-item zen-hn-sidebar-bottom zen-hn-sidebar-stealth-bottom-group";
+
+  const submitLink = createTextLink({ href: "/submit", label: "Submit" });
+  group.appendChild(submitLink);
+
+  const userInfo = findUserLink();
+
+  // If not logged in, show a simple login text link
+  if (!userInfo.isLoggedIn) {
+    const loginLink = createTextLink({ href: userInfo.href, label: userInfo.label });
+    group.appendChild(loginLink);
+    return group;
+  }
+
+  // Create user menu for logged-in users
+  const isUserActive = getCurrentPath() === "/user";
+  const menuItems: DropdownMenuItem[] = [
+    {
+      label: "Profile",
+      href: userInfo.href,
+      shortcut: "g + p",
+      isActive: isUserActive,
+    },
+    {
+      label: "Shortcuts",
+      onClick: (e) => {
+        e.preventDefault();
+        showHelpModal();
+      },
+      shortcut: "?",
+    },
+    {
+      label: "About",
+      href: "/newsguidelines.html",
+    },
+  ];
+
+  if (userInfo.logoutHref) {
+    menuItems.push({
+      label: "Log out",
+      href: userInfo.logoutHref,
+    });
+  }
+
+  const menuOptions: DropdownMenuOptions = {
+    classPrefix: "zen-hn-user-menu",
+    position: "left",
+  };
+
+  const userMenu = createDropdownMenu(
+    createStealthUserMenuButton(isUserActive),
+    menuItems,
+    menuOptions,
+  );
+  userMenu.classList.add("zen-hn-sidebar-user-menu", "zen-hn-sidebar-stealth-user-menu");
+  if (isUserActive) {
+    userMenu.classList.add("is-active");
+  }
+
+  group.appendChild(userMenu);
+
+  return group;
+}
+
 function hideHeaderElements(): void {
   const pagetops = document.querySelectorAll("span.pagetop");
   const headerRow = pagetops[0]?.closest("tr");
@@ -266,12 +399,20 @@ export function buildSidebarNavigation(): boolean {
     return false;
   }
 
+  const isStealth = document.documentElement.getAttribute("data-sidebar-style") === "stealth";
+
   const list = document.createElement("ul");
   list.className = "zen-hn-sidebar-list";
 
-  list.appendChild(createHomeButton());
-  list.appendChild(createIconGroup());
-  list.appendChild(createBottomGroup());
+  if (isStealth) {
+    list.appendChild(createStealthHomeLink());
+    list.appendChild(createStealthNavGroup());
+    list.appendChild(createStealthBottomGroup());
+  } else {
+    list.appendChild(createHomeButton());
+    list.appendChild(createIconGroup());
+    list.appendChild(createBottomGroup());
+  }
 
   if (!list.childNodes.length) {
     return false;

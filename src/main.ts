@@ -25,7 +25,7 @@
   (document.head || document.documentElement).appendChild(style);
 })();
 
-import { initColorMode, initTheme, initFontFamily, initFontSize, initContentWidth, initContrastMode, listenForSystemColorModeChanges, listenForSystemContrastModeChanges } from "./colorMode";
+import { initColorMode, initTheme, initFontFamily, initFontSize, initContentWidth, initContrastMode, initSidebarStyle, listenForSystemColorModeChanges, listenForSystemContrastModeChanges } from "./colorMode";
 import { runSidebarWhenReady } from "./sidebar";
 import { runCommentCollapseWhenReady } from "./commentCollapse";
 import { runUserSubnavWhenReady } from "./pages";
@@ -152,6 +152,7 @@ async function init(): Promise<void> {
   initFontFamily();
   initFontSize();
   initContentWidth();
+  initSidebarStyle();
 
   // Listen for system color scheme and contrast changes
   listenForSystemColorModeChanges();

@@ -183,6 +183,7 @@ describe("sidebar tab order insertion", () => {
       }),
       documentElement: {
         dataset: {} as DOMStringMap,
+        getAttribute: mock.fn(() => null),
       },
       querySelectorAll: mock.fn((selector: string) => {
         if (selector === "span.pagetop") {
@@ -264,6 +265,7 @@ describe("sidebar tab order insertion", () => {
       }),
       documentElement: {
         dataset: {} as DOMStringMap,
+        getAttribute: mock.fn(() => null),
       },
       querySelectorAll: mock.fn((selector: string) => {
         if (selector === "span.pagetop") {

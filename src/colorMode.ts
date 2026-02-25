@@ -47,6 +47,8 @@ export type FontSizePreference = "smaller" | "small" | "default" | "large" | "la
 
 export type ContentWidthPreference = "narrow" | "medium" | "wide" | "extra-wide" | "full";
 
+export type SidebarStylePreference = "icons" | "stealth";
+
 export const COLOR_MODE_CLASS = "dark-theme";
 export const HIGH_CONTRAST_CLASS = "high-contrast";
 export const COLOR_MODE_STORAGE_KEY = "colorMode";
@@ -55,6 +57,7 @@ export const THEME_STORAGE_KEY = "theme";
 export const FONT_FAMILY_STORAGE_KEY = "fontFamily";
 export const FONT_SIZE_STORAGE_KEY = "fontSize";
 export const CONTENT_WIDTH_STORAGE_KEY = "contentWidth";
+export const SIDEBAR_STYLE_STORAGE_KEY = "sidebarStyle";
 
 /**
  * Check if Chrome storage API is available
@@ -656,6 +659,7 @@ export async function appendAppearanceControls(container: HTMLElement): Promise<
   await appendFontFamilyButtons(container);
   await appendFontSizeButtons(container);
   await appendContentWidthButtons(container);
+  await appendSidebarStyleButtons(container);
 }
 
 // =============================================================================
@@ -1069,6 +1073,107 @@ export async function appendContentWidthButtons(container: HTMLElement): Promise
   const saved = await getSavedContentWidth();
   const current = saved || "medium";
   const control = buildContentWidthButtonsWithStorage(current);
+  container.appendChild(control);
+}
+
+// =============================================================================
+// Sidebar Style controls
+// =============================================================================
+
+export async function getSavedSidebarStyle(): Promise<SidebarStylePreference | undefined> {
+  if (!hasChromeStorage()) return undefined;
+  const result = await chrome.storage.local.get(SIDEBAR_STYLE_STORAGE_KEY);
+  return result[SIDEBAR_STYLE_STORAGE_KEY] as SidebarStylePreference | undefined;
+}
+
+export async function saveSidebarStyle(style: SidebarStylePreference): Promise<void> {
+  if (!hasChromeStorage()) return;
+  await chrome.storage.local.set({ [SIDEBAR_STYLE_STORAGE_KEY]: style });
+}
+
+export function applySidebarStyle(style: SidebarStylePreference): void {
+  const html = document.documentElement;
+  if (style === "icons") {
+    html.removeAttribute("data-sidebar-style");
+  } else {
+    html.setAttribute("data-sidebar-style", style);
+  }
+}
+
+export async function initSidebarStyle(): Promise<void> {
+  const saved = await getSavedSidebarStyle();
+  if (saved) {
+    applySidebarStyle(saved);
+  }
+}
+
+interface SidebarStyleOption {
+  value: SidebarStylePreference;
+  label: string;
+}
+
+const SIDEBAR_STYLE_OPTIONS: SidebarStyleOption[] = [
+  { value: "icons", label: "Icons" },
+  { value: "stealth", label: "Stealth" },
+];
+
+export function buildSidebarStyleButtons(
+  currentStyle: SidebarStylePreference,
+  onChange?: (style: SidebarStylePreference) => void,
+): HTMLElement {
+  const container = document.createElement("div");
+  container.className = "zen-hn-sidebar-style-control";
+
+  const label = document.createElement("div");
+  label.className = "zen-hn-sidebar-style-label";
+  label.textContent = "Sidebar";
+
+  const buttonsWrapper = document.createElement("div");
+  buttonsWrapper.className = "zen-hn-sidebar-style-buttons";
+
+  SIDEBAR_STYLE_OPTIONS.forEach((option) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "zen-hn-sidebar-style-button";
+    button.setAttribute("data-sidebar-style", option.value);
+    button.setAttribute("aria-label", `Select ${option.label} sidebar style`);
+    button.textContent = option.label;
+
+    if (currentStyle === option.value) {
+      button.classList.add("is-active");
+      button.setAttribute("aria-pressed", "true");
+    } else {
+      button.setAttribute("aria-pressed", "false");
+    }
+
+    button.addEventListener("click", async () => {
+      const selectedValue = option.value;
+      await saveSidebarStyle(selectedValue);
+      onChange?.(selectedValue);
+
+      buttonsWrapper.querySelectorAll(".zen-hn-sidebar-style-button").forEach((btn) => {
+        btn.classList.remove("is-active");
+        btn.setAttribute("aria-pressed", "false");
+      });
+      button.classList.add("is-active");
+      button.setAttribute("aria-pressed", "true");
+
+      // Reload so the sidebar rebuilds in the new style
+      location.reload();
+    });
+
+    buttonsWrapper.appendChild(button);
+  });
+
+  container.appendChild(label);
+  container.appendChild(buttonsWrapper);
+  return container;
+}
+
+export async function appendSidebarStyleButtons(container: HTMLElement): Promise<void> {
+  const saved = await getSavedSidebarStyle();
+  const current = saved || "icons";
+  const control = buildSidebarStyleButtons(current);
   container.appendChild(control);
 }
 
