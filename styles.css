@@ -521,14 +521,11 @@ html[data-sidebar-style="stealth"][data-zen-hn-sidebar="loading"] body {
   padding-left: 0;
 }
 
-/* Stealth sidebar container */
+/* Stealth sidebar container — always visible, transparent background */
 html[data-sidebar-style="stealth"] #zen-hn-sidebar {
-  opacity: 0;
   border-right: none;
-  pointer-events: none;
   width: 140px;
   background-color: transparent;
-  transition: opacity 200ms ease, background-color 200ms ease;
   z-index: 100;
 }
 
@@ -540,17 +537,24 @@ html[data-sidebar-style="stealth"] #zen-hn-sidebar::before {
   left: 0;
   width: 16px;
   height: 100vh;
-  pointer-events: auto;
   z-index: 100;
 }
 
-/* Show on hover and focus-within */
-html[data-sidebar-style="stealth"] #zen-hn-sidebar:hover,
-html[data-sidebar-style="stealth"] #zen-hn-sidebar:focus-within {
+/* Nav and bottom groups hidden until hover/focus */
+html[data-sidebar-style="stealth"] .zen-hn-sidebar-stealth-nav,
+html[data-sidebar-style="stealth"] .zen-hn-sidebar-stealth-bottom-group {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+
+/* Show nav and bottom groups on sidebar hover/focus */
+html[data-sidebar-style="stealth"] #zen-hn-sidebar:hover .zen-hn-sidebar-stealth-nav,
+html[data-sidebar-style="stealth"] #zen-hn-sidebar:hover .zen-hn-sidebar-stealth-bottom-group,
+html[data-sidebar-style="stealth"] #zen-hn-sidebar:focus-within .zen-hn-sidebar-stealth-nav,
+html[data-sidebar-style="stealth"] #zen-hn-sidebar:focus-within .zen-hn-sidebar-stealth-bottom-group {
   opacity: 1;
   pointer-events: auto;
-  background-color: var(--color-bg-surface);
-  box-shadow: var(--shadow-md);
 }
 
 /* Nav/list alignment override for stealth */
@@ -646,7 +650,8 @@ html[data-sidebar-style="stealth"] .zen-hn-sidebar-stealth-user-menu .zen-hn-use
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  html[data-sidebar-style="stealth"] #zen-hn-sidebar {
+  html[data-sidebar-style="stealth"] .zen-hn-sidebar-stealth-nav,
+  html[data-sidebar-style="stealth"] .zen-hn-sidebar-stealth-bottom-group {
     transition: none;
   }
 }

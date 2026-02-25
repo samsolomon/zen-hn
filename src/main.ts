@@ -152,7 +152,7 @@ async function init(): Promise<void> {
   initFontFamily();
   initFontSize();
   initContentWidth();
-  initSidebarStyle();
+  await initSidebarStyle();
 
   // Listen for system color scheme and contrast changes
   listenForSystemColorModeChanges();
