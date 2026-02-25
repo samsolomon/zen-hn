@@ -585,7 +585,7 @@ html:not([data-sidebar-type="icons"]) #zen-hn-sidebar .zen-hn-sidebar-list {
 }
 
 /* Text user menu button override — match text link appearance exactly */
-.zen-hn-sidebar-text-user-menu .zen-hn-user-menu-button {
+#zen-hn-sidebar .zen-hn-sidebar-text-user-menu .zen-hn-user-menu-button {
   display: block;
   width: 100%;
   height: auto;
@@ -600,22 +600,22 @@ html:not([data-sidebar-type="icons"]) #zen-hn-sidebar .zen-hn-sidebar-list {
   transition: background-color 120ms ease, color 120ms ease;
 }
 
-.zen-hn-sidebar-text-user-menu .zen-hn-user-menu-button:hover {
+#zen-hn-sidebar .zen-hn-sidebar-text-user-menu .zen-hn-user-menu-button:hover {
   background-color: var(--color-overlay-hover);
   color: var(--sidebar-link-hover);
 }
 
-.zen-hn-sidebar-text-user-menu .zen-hn-user-menu-button:active {
+#zen-hn-sidebar .zen-hn-sidebar-text-user-menu .zen-hn-user-menu-button:active {
   transform: none;
 }
 
-.zen-hn-sidebar-text-user-menu.is-active .zen-hn-user-menu-button {
+#zen-hn-sidebar .zen-hn-sidebar-text-user-menu.is-active .zen-hn-user-menu-button {
   font-weight: 500;
   color: var(--color-text);
 }
 
 /* Text dropdown position */
-.zen-hn-sidebar-text-user-menu .zen-hn-user-menu-dropdown {
+#zen-hn-sidebar .zen-hn-sidebar-text-user-menu .zen-hn-user-menu-dropdown {
   left: var(--space-100);
 }
 
