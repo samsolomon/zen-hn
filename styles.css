@@ -278,6 +278,10 @@ html[data-zen-hn-enabled="true"][data-zen-hn-sidebar="loading"] body {
   color: var(--sidebar-link-hover);
 }
 
+#zen-hn-sidebar .zen-hn-sidebar-icon-link.zen-hn-home-button:hover {
+  color: var(--gray-9);
+}
+
 #zen-hn-sidebar .zen-hn-sidebar-icon-link:active {
   background-color: var(--color-overlay-pressed);
   transform: translateY(1px) scale(0.98);
@@ -456,7 +460,6 @@ html[data-zen-hn-enabled="true"][data-zen-hn-sidebar="loading"] body {
 
 #zen-hn-sidebar .zen-hn-home-button:hover {
   background-color: var(--color-overlay-hover);
-  color: var(--sidebar-link-hover);
 }
 
 #zen-hn-sidebar .zen-hn-home-button:active {
