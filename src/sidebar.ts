@@ -235,7 +235,7 @@ function createBottomGroup(): HTMLLIElement {
 }
 
 // =============================================================================
-// Stealth sidebar builders
+// Text sidebar builders
 // =============================================================================
 
 interface TextLinkConfig {
@@ -258,7 +258,7 @@ function createTextLink(config: TextLinkConfig): HTMLAnchorElement {
   return link;
 }
 
-function createStealthNavGroup(): HTMLLIElement {
+function createTextNavGroup(): HTMLLIElement {
   const navLinks: TextLinkConfig[] = [
     { href: "/news", label: "News" },
     { href: "/newest", label: "New" },
@@ -269,7 +269,7 @@ function createStealthNavGroup(): HTMLLIElement {
   ];
 
   const group = document.createElement("li");
-  group.className = "zen-hn-sidebar-item zen-hn-sidebar-stealth-nav";
+  group.className = "zen-hn-sidebar-item zen-hn-sidebar-text-nav";
 
   navLinks.forEach((config) => {
     group.appendChild(createTextLink(config));
@@ -278,7 +278,7 @@ function createStealthNavGroup(): HTMLLIElement {
   return group;
 }
 
-function createStealthUserMenuButton(isActive: boolean): HTMLElement {
+function createTextUserMenuButton(isActive: boolean): HTMLElement {
   const buttonContent = document.createElement("span");
   buttonContent.className = "zen-hn-sidebar-text-link-inner";
   buttonContent.textContent = "More";
@@ -288,9 +288,9 @@ function createStealthUserMenuButton(isActive: boolean): HTMLElement {
   return buttonContent;
 }
 
-function createStealthBottomGroup(): HTMLLIElement {
+function createTextBottomGroup(): HTMLLIElement {
   const group = document.createElement("li");
-  group.className = "zen-hn-sidebar-item zen-hn-sidebar-bottom zen-hn-sidebar-stealth-bottom-group";
+  group.className = "zen-hn-sidebar-item zen-hn-sidebar-bottom zen-hn-sidebar-text-bottom-group";
 
   const submitLink = createTextLink({ href: "/submit", label: "Submit" });
   group.appendChild(submitLink);
@@ -340,11 +340,11 @@ function createStealthBottomGroup(): HTMLLIElement {
   };
 
   const userMenu = createDropdownMenu(
-    createStealthUserMenuButton(isUserActive),
+    createTextUserMenuButton(isUserActive),
     menuItems,
     menuOptions,
   );
-  userMenu.classList.add("zen-hn-sidebar-user-menu", "zen-hn-sidebar-stealth-user-menu");
+  userMenu.classList.add("zen-hn-sidebar-user-menu", "zen-hn-sidebar-text-user-menu");
   if (isUserActive) {
     userMenu.classList.add("is-active");
   }
@@ -387,15 +387,15 @@ export function buildSidebarNavigation(): boolean {
     return false;
   }
 
-  const isStealth = document.documentElement.getAttribute("data-sidebar-style") === "stealth";
+  const isTextSidebar = document.documentElement.getAttribute("data-sidebar-type") !== "icons";
 
   const list = document.createElement("ul");
   list.className = "zen-hn-sidebar-list";
 
-  if (isStealth) {
+  if (isTextSidebar) {
     list.appendChild(createHomeButton());
-    list.appendChild(createStealthNavGroup());
-    list.appendChild(createStealthBottomGroup());
+    list.appendChild(createTextNavGroup());
+    list.appendChild(createTextBottomGroup());
   } else {
     list.appendChild(createHomeButton());
     list.appendChild(createIconGroup());

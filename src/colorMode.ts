@@ -47,7 +47,8 @@ export type FontSizePreference = "smaller" | "small" | "default" | "large" | "la
 
 export type ContentWidthPreference = "narrow" | "medium" | "wide" | "extra-wide" | "full";
 
-export type SidebarStylePreference = "icons" | "stealth";
+export type SidebarTypePreference = "text" | "icons";
+export type SidebarVisibilityPreference = "default" | "stealth";
 
 export const COLOR_MODE_CLASS = "dark-theme";
 export const HIGH_CONTRAST_CLASS = "high-contrast";
@@ -57,7 +58,8 @@ export const THEME_STORAGE_KEY = "theme";
 export const FONT_FAMILY_STORAGE_KEY = "fontFamily";
 export const FONT_SIZE_STORAGE_KEY = "fontSize";
 export const CONTENT_WIDTH_STORAGE_KEY = "contentWidth";
-export const SIDEBAR_STYLE_STORAGE_KEY = "sidebarStyle";
+export const SIDEBAR_TYPE_STORAGE_KEY = "sidebarType";
+export const SIDEBAR_VISIBILITY_STORAGE_KEY = "sidebarVisibility";
 
 /**
  * Check if Chrome storage API is available
@@ -659,7 +661,8 @@ export async function appendAppearanceControls(container: HTMLElement): Promise<
   await appendFontFamilyButtons(container);
   await appendFontSizeButtons(container);
   await appendContentWidthButtons(container);
-  await appendSidebarStyleButtons(container);
+  await appendSidebarTypeButtons(container);
+  await appendSidebarVisibilityButtons(container);
 }
 
 // =============================================================================
@@ -1077,69 +1080,96 @@ export async function appendContentWidthButtons(container: HTMLElement): Promise
 }
 
 // =============================================================================
-// Sidebar Style controls
+// Sidebar controls
 // =============================================================================
 
-export async function getSavedSidebarStyle(): Promise<SidebarStylePreference | undefined> {
-  if (!hasChromeStorage()) return undefined;
-  const result = await chrome.storage.local.get(SIDEBAR_STYLE_STORAGE_KEY);
-  return result[SIDEBAR_STYLE_STORAGE_KEY] as SidebarStylePreference | undefined;
-}
+// --- Sidebar migration (one-time, from legacy "sidebarStyle" key) ---
 
-export async function saveSidebarStyle(style: SidebarStylePreference): Promise<void> {
+const LEGACY_SIDEBAR_STYLE_KEY = "sidebarStyle";
+
+async function migrateLegacySidebarStyle(): Promise<void> {
   if (!hasChromeStorage()) return;
-  await chrome.storage.local.set({ [SIDEBAR_STYLE_STORAGE_KEY]: style });
+  const result = await chrome.storage.local.get(LEGACY_SIDEBAR_STYLE_KEY);
+  const legacy = result[LEGACY_SIDEBAR_STYLE_KEY] as string | undefined;
+  if (!legacy) return;
+
+  // "stealth" → text type + stealth visibility, "icons" → icons type + default visibility
+  if (legacy === "stealth") {
+    await chrome.storage.local.set({
+      [SIDEBAR_TYPE_STORAGE_KEY]: "text",
+      [SIDEBAR_VISIBILITY_STORAGE_KEY]: "stealth",
+    });
+  } else if (legacy === "icons") {
+    await chrome.storage.local.set({
+      [SIDEBAR_TYPE_STORAGE_KEY]: "icons",
+    });
+  }
+  await chrome.storage.local.remove(LEGACY_SIDEBAR_STYLE_KEY);
 }
 
-export function applySidebarStyle(style: SidebarStylePreference): void {
+// --- Sidebar Type ---
+
+export async function getSavedSidebarType(): Promise<SidebarTypePreference | undefined> {
+  if (!hasChromeStorage()) return undefined;
+  const result = await chrome.storage.local.get(SIDEBAR_TYPE_STORAGE_KEY);
+  return result[SIDEBAR_TYPE_STORAGE_KEY] as SidebarTypePreference | undefined;
+}
+
+export async function saveSidebarType(type: SidebarTypePreference): Promise<void> {
+  if (!hasChromeStorage()) return;
+  await chrome.storage.local.set({ [SIDEBAR_TYPE_STORAGE_KEY]: type });
+}
+
+export function applySidebarType(type: SidebarTypePreference): void {
   const html = document.documentElement;
-  if (style === "icons") {
-    html.removeAttribute("data-sidebar-style");
+  if (type === "text") {
+    html.removeAttribute("data-sidebar-type");
   } else {
-    html.setAttribute("data-sidebar-style", style);
+    html.setAttribute("data-sidebar-type", type);
   }
 }
 
-export async function initSidebarStyle(): Promise<void> {
-  const saved = await getSavedSidebarStyle();
+export async function initSidebarType(): Promise<void> {
+  await migrateLegacySidebarStyle();
+  const saved = await getSavedSidebarType();
   if (saved) {
-    applySidebarStyle(saved);
+    applySidebarType(saved);
   }
 }
 
-interface SidebarStyleOption {
-  value: SidebarStylePreference;
+interface SidebarTypeOption {
+  value: SidebarTypePreference;
   label: string;
 }
 
-const SIDEBAR_STYLE_OPTIONS: SidebarStyleOption[] = [
+const SIDEBAR_TYPE_OPTIONS: SidebarTypeOption[] = [
+  { value: "text", label: "Text" },
   { value: "icons", label: "Icons" },
-  { value: "stealth", label: "Stealth" },
 ];
 
-export function buildSidebarStyleButtons(
-  currentStyle: SidebarStylePreference,
-  onChange?: (style: SidebarStylePreference) => void,
+export function buildSidebarTypeButtons(
+  currentType: SidebarTypePreference,
+  onChange?: (type: SidebarTypePreference) => void,
 ): HTMLElement {
   const container = document.createElement("div");
-  container.className = "zen-hn-sidebar-style-control";
+  container.className = "zen-hn-sidebar-type-control";
 
   const label = document.createElement("div");
-  label.className = "zen-hn-sidebar-style-label";
+  label.className = "zen-hn-sidebar-type-label";
   label.textContent = "Sidebar";
 
   const buttonsWrapper = document.createElement("div");
-  buttonsWrapper.className = "zen-hn-sidebar-style-buttons";
+  buttonsWrapper.className = "zen-hn-sidebar-type-buttons";
 
-  SIDEBAR_STYLE_OPTIONS.forEach((option) => {
+  SIDEBAR_TYPE_OPTIONS.forEach((option) => {
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "zen-hn-sidebar-style-button";
-    button.setAttribute("data-sidebar-style", option.value);
-    button.setAttribute("aria-label", `Select ${option.label} sidebar style`);
+    button.className = "zen-hn-sidebar-type-button";
+    button.setAttribute("data-sidebar-type", option.value);
+    button.setAttribute("aria-label", `Select ${option.label} sidebar type`);
     button.textContent = option.label;
 
-    if (currentStyle === option.value) {
+    if (currentType === option.value) {
       button.classList.add("is-active");
       button.setAttribute("aria-pressed", "true");
     } else {
@@ -1148,17 +1178,16 @@ export function buildSidebarStyleButtons(
 
     button.addEventListener("click", async () => {
       const selectedValue = option.value;
-      await saveSidebarStyle(selectedValue);
+      await saveSidebarType(selectedValue);
       onChange?.(selectedValue);
 
-      buttonsWrapper.querySelectorAll(".zen-hn-sidebar-style-button").forEach((btn) => {
+      buttonsWrapper.querySelectorAll(".zen-hn-sidebar-type-button").forEach((btn) => {
         btn.classList.remove("is-active");
         btn.setAttribute("aria-pressed", "false");
       });
       button.classList.add("is-active");
       button.setAttribute("aria-pressed", "true");
 
-      // Reload so the sidebar rebuilds in the new style
       location.reload();
     });
 
@@ -1170,10 +1199,108 @@ export function buildSidebarStyleButtons(
   return container;
 }
 
-export async function appendSidebarStyleButtons(container: HTMLElement): Promise<void> {
-  const saved = await getSavedSidebarStyle();
-  const current = saved || "icons";
-  const control = buildSidebarStyleButtons(current);
+export async function appendSidebarTypeButtons(container: HTMLElement): Promise<void> {
+  const saved = await getSavedSidebarType();
+  const current = saved || "text";
+  const control = buildSidebarTypeButtons(current);
+  container.appendChild(control);
+}
+
+// --- Sidebar Visibility ---
+
+export async function getSavedSidebarVisibility(): Promise<SidebarVisibilityPreference | undefined> {
+  if (!hasChromeStorage()) return undefined;
+  const result = await chrome.storage.local.get(SIDEBAR_VISIBILITY_STORAGE_KEY);
+  return result[SIDEBAR_VISIBILITY_STORAGE_KEY] as SidebarVisibilityPreference | undefined;
+}
+
+export async function saveSidebarVisibility(visibility: SidebarVisibilityPreference): Promise<void> {
+  if (!hasChromeStorage()) return;
+  await chrome.storage.local.set({ [SIDEBAR_VISIBILITY_STORAGE_KEY]: visibility });
+}
+
+export function applySidebarVisibility(visibility: SidebarVisibilityPreference): void {
+  const html = document.documentElement;
+  if (visibility === "default") {
+    html.removeAttribute("data-sidebar-visibility");
+  } else {
+    html.setAttribute("data-sidebar-visibility", visibility);
+  }
+}
+
+export async function initSidebarVisibility(): Promise<void> {
+  const saved = await getSavedSidebarVisibility();
+  if (saved) {
+    applySidebarVisibility(saved);
+  }
+}
+
+interface SidebarVisibilityOption {
+  value: SidebarVisibilityPreference;
+  label: string;
+}
+
+const SIDEBAR_VISIBILITY_OPTIONS: SidebarVisibilityOption[] = [
+  { value: "default", label: "Default" },
+  { value: "stealth", label: "Stealth" },
+];
+
+export function buildSidebarVisibilityButtons(
+  currentVisibility: SidebarVisibilityPreference,
+  onChange?: (visibility: SidebarVisibilityPreference) => void,
+): HTMLElement {
+  const container = document.createElement("div");
+  container.className = "zen-hn-sidebar-visibility-control";
+
+  const label = document.createElement("div");
+  label.className = "zen-hn-sidebar-visibility-label";
+  label.textContent = "Visibility";
+
+  const buttonsWrapper = document.createElement("div");
+  buttonsWrapper.className = "zen-hn-sidebar-visibility-buttons";
+
+  SIDEBAR_VISIBILITY_OPTIONS.forEach((option) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "zen-hn-sidebar-visibility-button";
+    button.setAttribute("data-sidebar-visibility", option.value);
+    button.setAttribute("aria-label", `Select ${option.label} sidebar visibility`);
+    button.textContent = option.label;
+
+    if (currentVisibility === option.value) {
+      button.classList.add("is-active");
+      button.setAttribute("aria-pressed", "true");
+    } else {
+      button.setAttribute("aria-pressed", "false");
+    }
+
+    button.addEventListener("click", async () => {
+      const selectedValue = option.value;
+      await saveSidebarVisibility(selectedValue);
+      onChange?.(selectedValue);
+
+      buttonsWrapper.querySelectorAll(".zen-hn-sidebar-visibility-button").forEach((btn) => {
+        btn.classList.remove("is-active");
+        btn.setAttribute("aria-pressed", "false");
+      });
+      button.classList.add("is-active");
+      button.setAttribute("aria-pressed", "true");
+
+      location.reload();
+    });
+
+    buttonsWrapper.appendChild(button);
+  });
+
+  container.appendChild(label);
+  container.appendChild(buttonsWrapper);
+  return container;
+}
+
+export async function appendSidebarVisibilityButtons(container: HTMLElement): Promise<void> {
+  const saved = await getSavedSidebarVisibility();
+  const current = saved || "default";
+  const control = buildSidebarVisibilityButtons(current);
   container.appendChild(control);
 }
 
