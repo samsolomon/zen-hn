@@ -610,35 +610,32 @@ html[data-sidebar-style="stealth"] .zen-hn-sidebar-stealth-bottom-group {
   color: var(--color-text);
 }
 
-/* Stealth home link */
-.zen-hn-stealth-home-link {
-  font-weight: 700;
-  font-size: var(--font-size-lg);
-  color: #ff6600;
-}
-
-.zen-hn-stealth-home-link:hover {
-  color: #ff6600;
-}
-
-/* Stealth user menu button override */
-html[data-sidebar-style="stealth"] .zen-hn-sidebar-stealth-user-menu .zen-hn-user-menu-button {
-  width: auto;
+/* Stealth user menu button override — match text link appearance exactly */
+html[data-sidebar-style="stealth"] #zen-hn-sidebar .zen-hn-sidebar-stealth-user-menu .zen-hn-user-menu-button {
+  display: block;
+  width: 100%;
   height: auto;
   padding: var(--space-75) var(--space-150);
+  border: none;
   font-family: var(--font-stack);
   font-size: var(--font-size-sm);
   font-weight: 400;
+  text-align: left;
   color: var(--sidebar-link-color);
   border-radius: var(--radius-100);
+  transition: background-color 120ms ease, color 120ms ease;
 }
 
-html[data-sidebar-style="stealth"] .zen-hn-sidebar-stealth-user-menu .zen-hn-user-menu-button:hover {
+html[data-sidebar-style="stealth"] #zen-hn-sidebar .zen-hn-sidebar-stealth-user-menu .zen-hn-user-menu-button:hover {
   background-color: var(--color-overlay-hover);
   color: var(--sidebar-link-hover);
 }
 
-html[data-sidebar-style="stealth"] .zen-hn-sidebar-stealth-user-menu.is-active .zen-hn-user-menu-button {
+html[data-sidebar-style="stealth"] #zen-hn-sidebar .zen-hn-sidebar-stealth-user-menu .zen-hn-user-menu-button:active {
+  transform: none;
+}
+
+html[data-sidebar-style="stealth"] #zen-hn-sidebar .zen-hn-sidebar-stealth-user-menu.is-active .zen-hn-user-menu-button {
   font-weight: 500;
   color: var(--color-text);
 }
