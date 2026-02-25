@@ -1254,7 +1254,7 @@ export function buildSidebarVisibilityButtons(
 
   const label = document.createElement("div");
   label.className = "zen-hn-sidebar-visibility-label";
-  label.textContent = "Visibility";
+  label.textContent = "Sidebar Visibility";
 
   const buttonsWrapper = document.createElement("div");
   buttonsWrapper.className = "zen-hn-sidebar-visibility-buttons";

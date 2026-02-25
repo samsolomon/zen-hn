@@ -563,7 +563,7 @@ html:not([data-sidebar-type="icons"]) #zen-hn-sidebar .zen-hn-sidebar-list {
   border-radius: var(--radius-100);
   color: var(--sidebar-link-color);
   font-family: var(--font-stack);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-base);
   font-weight: 400;
   text-decoration: none;
   transition: background-color 120ms ease, color 120ms ease;
@@ -592,7 +592,7 @@ html:not([data-sidebar-type="icons"]) #zen-hn-sidebar .zen-hn-sidebar-list {
   padding: var(--space-75) var(--space-150);
   border: none;
   font-family: var(--font-stack);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-base);
   font-weight: 400;
   text-align: left;
   color: var(--sidebar-link-color);
