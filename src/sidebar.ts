@@ -258,18 +258,6 @@ function createTextLink(config: TextLinkConfig): HTMLAnchorElement {
   return link;
 }
 
-function createStealthHomeLink(): HTMLLIElement {
-  const item = document.createElement("li");
-  item.className = "zen-hn-sidebar-item";
-  const link = document.createElement("a");
-  link.className = "zen-hn-sidebar-text-link zen-hn-stealth-home-link";
-  link.href = "/";
-  link.textContent = "Y";
-  link.setAttribute("aria-label", "Home");
-  item.appendChild(link);
-  return item;
-}
-
 function createStealthNavGroup(): HTMLLIElement {
   const navLinks: TextLinkConfig[] = [
     { href: "/news", label: "News" },
@@ -405,7 +393,7 @@ export function buildSidebarNavigation(): boolean {
   list.className = "zen-hn-sidebar-list";
 
   if (isStealth) {
-    list.appendChild(createStealthHomeLink());
+    list.appendChild(createHomeButton());
     list.appendChild(createStealthNavGroup());
     list.appendChild(createStealthBottomGroup());
   } else {
