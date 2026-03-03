@@ -1428,9 +1428,107 @@ async function appendExternalEscapeToggle(container: HTMLElement): Promise<void>
     container.prepend(control);
   }
 
-  // Add chord indicator toggle after external escape toggle
+  // Add auto-title toggle after external escape toggle
+  const autoTitleStatus = await getAutoTitleStatus();
+  const autoTitleControl = buildAutoTitleToggle(autoTitleStatus);
+  control.after(autoTitleControl);
+
+  // Add chord indicator toggle after auto-title toggle
   const chordControl = buildChordIndicatorToggle(getChordIndicatorEnabled());
-  control.after(chordControl);
+  autoTitleControl.after(chordControl);
+}
+
+// =============================================================================
+// Auto Title Toggle
+// =============================================================================
+
+async function getAutoTitleStatus(): Promise<boolean> {
+  if (!hasChromeStorage()) return false;
+  try {
+    const response = await chrome.runtime.sendMessage({
+      type: "getAutoTitleStatus",
+    });
+    return response?.enabled ?? false;
+  } catch {
+    return false;
+  }
+}
+
+async function toggleAutoTitle(
+  enable: boolean
+): Promise<{ success: boolean; enabled: boolean }> {
+  if (!hasChromeStorage()) return { success: false, enabled: false };
+  try {
+    const response = await chrome.runtime.sendMessage({
+      type: "toggleAutoTitle",
+      enable,
+    });
+    return response ?? { success: false, enabled: false };
+  } catch {
+    return { success: false, enabled: false };
+  }
+}
+
+function buildAutoTitleToggle(isEnabled: boolean): HTMLElement {
+  const container = document.createElement("div");
+  container.className = "zen-hn-setting-toggle-control";
+
+  const labelContainer = document.createElement("div");
+  labelContainer.className = "zen-hn-setting-toggle-label-container";
+
+  const label = document.createElement("span");
+  label.className = "zen-hn-setting-toggle-label";
+  label.textContent = "Auto-populate title";
+
+  const description = document.createElement("span");
+  description.className = "zen-hn-setting-toggle-description";
+  description.textContent =
+    "Fetch the page title when pasting a URL on the submit page. Requires additional Chrome permissions.";
+
+  labelContainer.appendChild(label);
+  labelContainer.appendChild(description);
+
+  const switchEl = document.createElement("button");
+  switchEl.type = "button";
+  switchEl.className = "zen-hn-switch";
+  switchEl.setAttribute("role", "switch");
+  switchEl.setAttribute("aria-checked", isEnabled ? "true" : "false");
+  if (isEnabled) {
+    switchEl.classList.add("is-active");
+  }
+
+  const switchTrack = document.createElement("span");
+  switchTrack.className = "zen-hn-switch-track";
+
+  const switchThumb = document.createElement("span");
+  switchThumb.className = "zen-hn-switch-thumb";
+
+  switchTrack.appendChild(switchThumb);
+  switchEl.appendChild(switchTrack);
+
+  switchEl.addEventListener("click", async () => {
+    const newEnabled = !switchEl.classList.contains("is-active");
+    switchEl.disabled = true;
+
+    const result = await toggleAutoTitle(newEnabled);
+
+    switchEl.disabled = false;
+
+    if (result.success) {
+      if (result.enabled) {
+        switchEl.classList.add("is-active");
+        switchEl.setAttribute("aria-checked", "true");
+      } else {
+        switchEl.classList.remove("is-active");
+        switchEl.setAttribute("aria-checked", "false");
+      }
+    }
+  });
+
+  container.appendChild(labelContainer);
+  container.appendChild(switchEl);
+
+  return container;
 }
 
 // =============================================================================

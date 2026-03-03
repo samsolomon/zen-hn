@@ -901,6 +901,29 @@ export function restyleSubmitPage(): boolean {
   if (urlInput?.value) {
     urlField.value = urlInput.value;
   }
+
+  // Auto-populate title when a URL is pasted (if enabled in settings)
+  urlField.addEventListener("paste", async (e) => {
+    const pasted = e.clipboardData?.getData("text")?.trim();
+    if (!pasted || titleField.value.trim()) return;
+
+    try {
+      new URL(pasted);
+    } catch {
+      return; // Not a valid URL
+    }
+
+    const status = await chrome.runtime.sendMessage({ type: "getAutoTitleStatus" });
+    if (!status?.enabled) return;
+
+    titleField.placeholder = "Fetching title…";
+    const response = await chrome.runtime.sendMessage({ type: "fetchPageTitle", url: pasted });
+    if (response?.title && !titleField.value.trim()) {
+      titleField.value = response.title;
+    }
+    titleField.placeholder = "";
+  });
+
   urlGroup.appendChild(urlField);
 
   form.appendChild(urlGroup);

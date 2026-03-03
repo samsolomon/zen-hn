@@ -5,6 +5,7 @@
 
 const ENABLED_STORAGE_KEY = "zenHnEnabled";
 const EXTERNAL_ESCAPE_STORAGE_KEY = "zenHnExternalEscape";
+const AUTO_TITLE_STORAGE_KEY = "zenHnAutoTitle";
 const EXTERNAL_SCRIPT_ID = "zenHnExternalSiteEscape";
 
 // Host permissions for external sites
@@ -161,16 +162,21 @@ async function unregisterExternalSiteScript(): Promise<void> {
  */
 async function syncExternalScriptWithPermissions(): Promise<void> {
   const hasPermissions = await hasExternalHostPermissions();
-  const isEnabled = await getExternalEscapeEnabled();
+  const isEscapeEnabled = await getExternalEscapeEnabled();
 
-  if (hasPermissions && isEnabled) {
+  if (hasPermissions && isEscapeEnabled) {
     await registerExternalSiteScript();
   } else {
     await unregisterExternalSiteScript();
     // If permissions were revoked externally, update storage
-    if (!hasPermissions && isEnabled) {
+    if (!hasPermissions && isEscapeEnabled) {
       await setExternalEscapeEnabled(false);
     }
+  }
+
+  // Also sync auto-title if permissions were revoked externally
+  if (!hasPermissions && (await getAutoTitleEnabled())) {
+    await setAutoTitleEnabled(false);
   }
 }
 
@@ -191,11 +197,98 @@ async function toggleExternalEscape(
       return { success: false, enabled: false };
     }
   } else {
-    // Revoke permissions and unregister script
-    await revokeExternalSitePermissions();
     await setExternalEscapeEnabled(false);
     await unregisterExternalSiteScript();
+    // Only revoke permissions if no other feature needs them
+    if (!(await anyFeatureNeedsHostPermissions())) {
+      await revokeExternalSitePermissions();
+    }
     return { success: true, enabled: false };
+  }
+}
+
+// =============================================================================
+// Auto Title Feature
+// =============================================================================
+
+async function getAutoTitleEnabled(): Promise<boolean> {
+  const result = await chrome.storage.local.get(AUTO_TITLE_STORAGE_KEY);
+  return result[AUTO_TITLE_STORAGE_KEY] === true;
+}
+
+async function setAutoTitleEnabled(enabled: boolean): Promise<void> {
+  await chrome.storage.local.set({ [AUTO_TITLE_STORAGE_KEY]: enabled });
+}
+
+/**
+ * Check if any feature still needs the host permissions.
+ */
+async function anyFeatureNeedsHostPermissions(): Promise<boolean> {
+  const [escape, autoTitle] = await Promise.all([
+    getExternalEscapeEnabled(),
+    getAutoTitleEnabled(),
+  ]);
+  return escape || autoTitle;
+}
+
+async function toggleAutoTitle(
+  enable: boolean
+): Promise<{ success: boolean; enabled: boolean }> {
+  if (enable) {
+    const granted = await requestExternalSitePermissions();
+    if (granted) {
+      await setAutoTitleEnabled(true);
+      return { success: true, enabled: true };
+    }
+    return { success: false, enabled: false };
+  } else {
+    await setAutoTitleEnabled(false);
+    // Only revoke permissions if no other feature needs them
+    if (!(await anyFeatureNeedsHostPermissions())) {
+      await revokeExternalSitePermissions();
+    }
+    return { success: true, enabled: false };
+  }
+}
+
+// =============================================================================
+// Page Title Fetching
+// =============================================================================
+
+/**
+ * Fetch a page and extract its <title> tag.
+ * Requires optional host permissions to be granted for cross-origin URLs.
+ */
+async function fetchPageTitle(
+  url: string
+): Promise<{ title: string | null }> {
+  try {
+    const response = await fetch(url, {
+      headers: { Accept: "text/html" },
+    });
+    const html = await response.text();
+    const match = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+    if (!match) return { title: null };
+
+    // Decode HTML entities and normalize whitespace
+    const raw = match[1]
+      .replace(/\s+/g, " ")
+      .trim()
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&#x27;/g, "'")
+      .replace(/&#(\d+);/g, (_m, code) =>
+        String.fromCharCode(parseInt(code, 10))
+      )
+      .replace(/&#x([0-9a-fA-F]+);/g, (_m, code) =>
+        String.fromCharCode(parseInt(code, 16))
+      );
+    return { title: raw };
+  } catch {
+    return { title: null };
   }
 }
 
@@ -210,6 +303,28 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.type === "toggleExternalEscape") {
     toggleExternalEscape(message.enable).then(sendResponse);
     return true; // Keep channel open for async response
+  }
+
+  if (message.type === "fetchPageTitle") {
+    getAutoTitleEnabled().then((enabled) => {
+      if (!enabled) return sendResponse({ title: null });
+      fetchPageTitle(message.url).then(sendResponse);
+    });
+    return true; // Keep channel open for async response
+  }
+
+  if (message.type === "toggleAutoTitle") {
+    toggleAutoTitle(message.enable).then(sendResponse);
+    return true;
+  }
+
+  if (message.type === "getAutoTitleStatus") {
+    Promise.all([hasExternalHostPermissions(), getAutoTitleEnabled()]).then(
+      ([hasPermissions, isEnabled]) => {
+        sendResponse({ enabled: hasPermissions && isEnabled });
+      }
+    );
+    return true;
   }
 
   if (message.type === "getExternalEscapeStatus") {
